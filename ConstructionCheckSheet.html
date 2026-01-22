@@ -1,24 +1,10 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html>
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Redirecting…</title>
-  <script>
-    (function(){
-      var target = "construction_check_sheet.html";
-      var url = target + location.search + location.hash;
-      location.replace(url);
-    })();
-  </script>
+<meta charset="UTF-8" />
+<script>
+location.replace("construction_check_sheet.html" + location.search + location.hash);
+</script>
 </head>
-<body style="margin:0;font-family:Arial,Helvetica,sans-serif;background:#b60000;color:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh;">
-  <div style="text-align:center;padding:24px;">
-    <div style="font-weight:900;font-size:18px;">Redirecting…</div>
-    <div style="opacity:0.9;margin-top:10px;">If you are not redirected, <a id="fallback" href="construction_check_sheet.html" style="color:#fff;text-decoration:underline;">click here</a>.</div>
-  </div>
-  <script>
-    document.getElementById("fallback").href = "construction_check_sheet.html" + location.search + location.hash;
-  </script>
-</body>
+<body></body>
 </html>

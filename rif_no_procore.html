@@ -1,7 +1,3 @@
-<!-- =========================
-DROP-IN: rif_no_procore.html (Standard RIF button REMOVED)
-Replace your existing rif_no_procore.html with this.
-========================= -->
 <!doctype html>
 <html lang="en">
 <head>
@@ -146,11 +142,40 @@ Replace your existing rif_no_procore.html with this.
 
   .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;}
 
+  /* details/summary (Metadata dropdown) */
+  details.nx-details{
+    margin-top:12px;
+    border:1px solid rgba(0,0,0,0.10);
+    border-radius:14px;
+    overflow:hidden;
+    background:#fff;
+  }
+  details.nx-details summary{
+    list-style:none;
+    cursor:pointer;
+    user-select:none;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    padding:12px 12px;
+    background: rgba(0,0,0,0.04);
+    font-weight:900;
+  }
+  details.nx-details summary::-webkit-details-marker{ display:none; }
+  details.nx-details summary .hint{
+    font-weight:800;
+    opacity:.75;
+    font-size:12px;
+  }
+  details.nx-details .inner{ padding:12px; }
+
   @media print{
     .btn,.chip,.nx-back-btn,.nx-header-wrap,.nx-footer{ display:none !important; }
     body{ background:#fff !important; }
     .card{ background:#fff !important; border:none !important; }
     .wrap{ margin:0 !important; max-width:none !important; padding:0 !important; }
+    details.nx-details{ display:none !important; } /* hide metadata in PDF */
   }
 
   .nx-footer{
@@ -300,18 +325,20 @@ Replace your existing rif_no_procore.html with this.
         </div>
       </div>
 
-      <div class="sec" id="sec_meta">
-        <div class="sec-head">
-          <div>Metadata</div>
-          <small>firebase-ready</small>
-        </div>
-        <div class="sec-body" style="font-weight:800;opacity:.9;font-size:13px;line-height:1.45;">
+      <!-- Metadata (HIDDEN by default, dropdown only) -->
+      <details class="nx-details" id="metaDetails">
+        <summary>
+          <span>Metadata</span>
+          <span class="hint">Click to expand</span>
+        </summary>
+        <div class="inner" style="font-weight:800;opacity:.9;font-size:13px;line-height:1.45;">
           <div>Schema: <span class="mono" id="metaSchema">—</span></div>
           <div>Status: <span class="mono" id="metaStatus">—</span></div>
           <div>Created: <span class="mono" id="metaCreated">—</span></div>
           <div>Updated: <span class="mono" id="metaUpdated">—</span></div>
         </div>
-      </div>
+      </details>
+
     </div>
 
     <div class="row" style="margin-top:14px;">
@@ -319,6 +346,8 @@ Replace your existing rif_no_procore.html with this.
         <a class="btn secondary" id="backBottomBtn" href="#">← Back to Equipment</a>
       </div>
       <div class="right-actions">
+        <button class="btn" id="saveBtnBottom" type="button">Save</button>
+        <button class="btn secondary" id="printBtnBottom" type="button">Export PDF</button>
         <button class="btn secondary" id="resetBtn" type="button">Reset</button>
       </div>
     </div>
@@ -343,7 +372,7 @@ Replace your existing rif_no_procore.html with this.
   const eqLabel = document.getElementById("eqLabel");
   if (eqLabel) eqLabel.textContent = eq ? `Mission Critical Program • Equipment: ${eq}` : "Mission Critical Program";
 
-  // Role rank (align with your roles)
+  // Role rank
   const ROLE_RANK = { viewer:0, tech:1, foreman:2, superintendent:3, admin:4 };
   function getCurrentRole(){
     try{
@@ -355,7 +384,7 @@ Replace your existing rif_no_procore.html with this.
     return (sel && sel.value) ? sel.value : "viewer";
   }
 
-  // ========= Firebase-ready storage adapter (Option 2 pattern) =========
+  // ========= Firebase-ready storage adapter =========
   const STORAGE_MODE = "local"; // "firebase" later
 
   const RifStore = (() => {
@@ -677,12 +706,26 @@ Replace your existing rif_no_procore.html with this.
     }
   }
 
+  // Top Save
   document.getElementById("saveBtn").addEventListener("click", async () => {
     await writeState();
     renderExceptions();
   });
 
+  // Top Export PDF
   document.getElementById("printBtn").addEventListener("click", async () => {
+    await writeState();
+    window.print();
+  });
+
+  // Bottom Save (same function)
+  document.getElementById("saveBtnBottom").addEventListener("click", async () => {
+    await writeState();
+    renderExceptions();
+  });
+
+  // Bottom Export PDF (same function)
+  document.getElementById("printBtnBottom").addEventListener("click", async () => {
     await writeState();
     window.print();
   });
@@ -727,6 +770,9 @@ Replace your existing rif_no_procore.html with this.
     renderMeta();
 
     saveChip.textContent = skipLoad ? "Reset" : "Loaded";
+    // keep metadata collapsed by default
+    const metaDetails = document.getElementById("metaDetails");
+    if (metaDetails) metaDetails.open = false;
   }
 
   init(false);

@@ -7,6 +7,10 @@ window.FORMS = {
     completedKey: "rifCompleted",
     buttons: [
       {
+        text: "RIF – No Procore (Fillable)",
+        href: "rif_no_procore.html"
+      },
+      {
         text: "Equipment Megohmmeter Test (If Applicable)",
         // Separate mode so it does NOT impact the Megohmmeter task completion
         href: "meg_log.html?mode=equipment"

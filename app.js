@@ -254,18 +254,6 @@
 
   const btnList = Array.isArray(cfg.buttons) ? [...cfg.buttons] : [];
 
-  // RIF: Procore quick link
-  if (id === "rif") {
-    const meta = loadEqMeta() || {};
-    if (meta.procoreEquipUrl) {
-      btnList.unshift({
-        text: "RIF – Procore (Construction)",
-        href: meta.procoreEquipUrl,
-        newTab: true
-      });
-    }
-  }
-
   // TORQUE: SOP under Torque Application Log
   if (id === "torque") {
     btnList.splice(1, 0, {

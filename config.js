@@ -1,5 +1,4 @@
-// forms.js (or config.js) — ONLY window.FORMS (UPDATED)
-// Change: L2 first button now routes to local fillable page (l2_no_procore.html)
+// forms.js (or config.js) — ONLY window.FORMS
 window.FORMS = {
   rif: {
     title: "Receipt Inspection Form",
@@ -8,10 +7,7 @@ window.FORMS = {
     completedKey: "rifCompleted",
     buttons: [
       { text: "RIF – No Procore (Fillable)", href: "rif_no_procore.html" },
-      {
-        text: "Equipment Megohmmeter Test (If Applicable)",
-        href: "meg_log.html?mode=equipment"
-      }
+      { text: "Equipment Megohmmeter Test (If Applicable)", href: "meg_log.html?mode=equipment" }
     ]
   },
 
@@ -74,11 +70,14 @@ window.FORMS = {
     backgroundImage: "transformer.jpg",
     completedKey: "l2Completed",
     buttons: [
-      // UPDATED: local fillable
-      { text: "L2 IVF (Use if Procore is not updated)", href: "l2_no_procore.html" },
-
-      // keep the Procore link
-      { text: "L2 IVF Link to Procore (Live after updated by customer)", href: "https://login.procore.com/?cookies_enabled=true" }
+      {
+        text: "L2 IVF (Use if Procore is not updated)",
+        href: "l2_no_procore.html"
+      },
+      {
+        text: "L2 IVF Link to Procore (Live after updated by customer)",
+        href: "https://login.procore.com/?cookies_enabled=true"
+      }
     ]
   },
 

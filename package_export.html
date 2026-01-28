@@ -150,8 +150,8 @@
     </div>
 
     <div class="hint">
-      This generates a single printable package that includes: RIF (digital No-Procore readout), Megohmmeter Test Log (Line/Load),
-      <b>Equipment Megohmmeter Test (If Applicable)</b>, Torque Log (rows + tilt), L2 (status/link), and Pre-FOD (status/link).<br>
+      This generates a single printable package that includes: RIF (digital No-Procore readout), L2 (digital No-Procore readout),
+      Megohmmeter Test Log (Line/Load), <b>Equipment Megohmmeter Test (If Applicable)</b>, Torque Log (rows + tilt), and Pre-FOD (status/link).<br>
       Procore upload is manual in this pre-Firebase build: export to PDF, then open the Procore page and attach the PDF.
     </div>
 
@@ -435,6 +435,126 @@
     `;
   }
 
+  // ===== L2 (No-Procore) loader + renderer =====
+  function findLatestL2(eqId){
+    const prefix = `nexus/equipment/${eqId||'NO_EQ'}/l2s/`;
+    const out = [];
+    for (let i=0;i<localStorage.length;i++){
+      const k = localStorage.key(i);
+      if (!k || !k.startsWith(prefix)) continue;
+      const doc = readJSON(k);
+      if (!doc || typeof doc !== 'object') continue;
+      const updated = doc?.meta?.updatedAt || doc?.meta?.createdAt || '';
+      const t = updated ? Date.parse(updated) : 0;
+      out.push({ key:k, doc, t });
+    }
+    out.sort((a,b) => (b.t||0) - (a.t||0));
+    return out[0] || null;
+  }
+
+  // Must match l2_no_procore.html CHECK_DEFS
+  const L2_CHECK_DEFS = [
+    ["3.1","Pre-requisite Checks :: Confirm equipment was tested per applicable standards (NETA ATS Standard for US)"],
+    ["3.2","Associated Documentation :: Referenced Manufacturer Shop Drawing ID"],
+    ["3.3","Associated Documentation :: Referenced Manufacturer Shop Drawing Revision Date"],
+    ["3.4","Visual inspection :: Verify the following Installation quality checks with the equipment de-energized (Power OFF);"],
+    ["3.5","Visual Inspection :: Confirm equipment inspected and matches bill of material and specifications"],
+    ["3.6","Visual Inspection :: Confirm that all dirt, debris, tools, and other foreign objects have been removed."],
+    ["3.7","Visual Inspection :: Confirm that circuit breaker sizes and types correspond to drawings and Panel Schedule."],
+    ["3.8","Visual Inspection :: Confirm Main Breaker Settings per SCCS"],
+    ["3.9","Visual Inspection :: Confirm feeder cable connections are tight and have torque marks."],
+    ["3.10","Visual Inspection :: Confirm power wiring connections are tight, wiring is secure to prevent damage"],
+    ["3.11","Visual Inspection :: Confirm operation and sequencing of interlocking systems."],
+    ["3.12","Visual Inspection :: Confirm correct barrier and shutter installation and operation."],
+    ["3.13","Visual Inspection :: Confirm successful pull test on all active components."],
+    ["3.14","Visual Inspection :: Inspect mechanical indicating devices for correct operation."],
+    ["3.15","Visual Inspection :: Confirm that filters are in place and vents are clear."],
+    ["3.16","Visual Inspection :: Confirm successful inspection of control power transformers as per the below; cracked insulation, broken leads, connections tightness, defective wiring, and overall general condition."],
+    ["3.17","Visual Inspection :: Confirm primary and secondary fuse or circuit breaker ratings match drawings."],
+    ["3.18","Visual Inspection :: Confirm correct functioning of draw out disconnecting contacts and interlocks."],
+    ["3.19","Visual Inspection :: Confirm Arc Flash Labels affixed on Equipment"],
+    ["3.20","Visual Inspection :: Confirm successful inspection of anchorage, alignment, grounding, and required area clearances."],
+    ["3.21","Visual Inspection :: Confirm the unit is clean, no loose parts, and no foreign material inside enclosure"],
+    ["3.22","Visual Inspection :: Confirm insulators free of physical damage or contaminated surfaces."],
+    ["3.23","Visual Inspection :: Confirm seismic restraints installed in accordance with design documentation"],
+    ["3.24","Visual Inspection :: Confirm electrical room is secure and weatherproof"],
+    ["3.25","Visual Inspection :: Confirm EPMS interface control cabling terminated and point to point tested."],
+    ["3.26","Visual Inspection :: Confirm panel schedule/panel directory posted inside"],
+    ["3.27","Visual Inspection :: Confirm Device and Unit addressing information is recorded and posted inside control section"],
+    ["3.28","Visual Inspection :: Confirm branch circuits wiring match required phase colour"],
+    ["3.29","Visual Inspection :: Confirm all control devices and wiring complete"],
+    ["3.30","L2-IVF checks complete and observation created for any identified issues."]
+  ];
+
+  function renderL2NoProcore(l2Doc){
+    if(!l2Doc) return `<div class="muted">No saved digital L2 found for this equipment.</div>`;
+
+    const meta = l2Doc.meta || {};
+    const header = l2Doc.header || {};
+    const checks = l2Doc.checks || {};
+
+    const l2Id = meta.l2Id || '(unknown)';
+    const createdAt = meta.createdAt || '';
+    const updatedAt = meta.updatedAt || '';
+
+    const headerKv = `
+      <div class="kv">
+        ${kvRow('L2 ID', l2Id)}
+        ${kvRow('Created', createdAt)}
+        ${kvRow('Updated', updatedAt)}
+        ${kvRow('Shop Drawing ID', header.drawingId || '')}
+        ${kvRow('Drawing Revision Date', header.revisionDate || '')}
+        ${kvRow('Inspector / Initials', header.inspector || '')}
+      </div>
+    `;
+
+    const checkRows = L2_CHECK_DEFS.map(([step,text])=>{
+      const c = checks[step] || {};
+      const rRaw = (c.result || '');
+      const r =
+        rRaw === 'pass' ? 'PASS' :
+        rRaw === 'fail' ? 'FAIL' :
+        rRaw === 'na' ? 'N/A' :
+        (String(rRaw||'').toUpperCase());
+      const n = (c.note||'');
+      if(!String(r).trim() && !String(n).trim()) return '';
+      return `<tr><td class="mono">${safe(step)}</td><td>${safe(text)}</td><td>${safe(r)}</td><td>${safe(n)}</td></tr>`;
+    }).filter(Boolean);
+
+    const checksTable = checkRows.length ? `
+      <table>
+        <thead><tr><th style="width:90px;">Step</th><th>Checklist Item</th><th style="width:140px;">Result</th><th style="width:280px;">Remarks</th></tr></thead>
+        <tbody>${checkRows.join('')}</tbody>
+      </table>
+    ` : `<div class="muted">(No Checklist entries saved)</div>`;
+
+    const exceptions = [];
+    L2_CHECK_DEFS.forEach(([step,text])=>{
+      const c = checks[step] || {};
+      const res = (c.result||'').toLowerCase();
+      if (res === 'fail' || res === 'FAIL'.toLowerCase()){
+        exceptions.push({ step, text, note: c.note||'' });
+      }
+    });
+
+    const exceptionsBlock = exceptions.length ? `
+      <table>
+        <thead><tr><th style="width:90px;">Step</th><th>Exception</th><th style="width:320px;">Remarks</th></tr></thead>
+        <tbody>
+          ${exceptions.map(x=>`<tr><td class="mono">${safe(x.step)}</td><td>${safe(x.text)}</td><td>${safe(x.note)}</td></tr>`).join('')}
+        </tbody>
+      </table>
+    ` : `<div class="muted">No failed items.</div>`;
+
+    return `
+      ${headerKv}
+      <h3>Section 3: Installation Verification Checklist</h3>
+      ${checksTable}
+      <h3>Exceptions Summary</h3>
+      ${exceptionsBlock}
+    `;
+  }
+
   function buildReport(){
     const meta = loadEqMeta() || {};
     const procoreConstructionUrl = meta.procoreEquipUrl || '';
@@ -446,6 +566,9 @@
 
     const rifNoProcoreLink = eq ? `rif_no_procore.html?eq=${encodeURIComponent(eq)}` : 'rif_no_procore.html';
     const rifLandingLink = eq ? `form.html?id=rif&eq=${encodeURIComponent(eq)}` : 'form.html?id=rif';
+
+    // L2 No-Procore (digital)
+    const l2NoProcoreLink = eq ? `l2_no_procore.html?eq=${encodeURIComponent(eq)}` : 'l2_no_procore.html';
 
     const megLink = eq ? `meg_log.html?eq=${encodeURIComponent(eq)}` : 'meg_log.html';
     const equipMegLink = eq ? `meg_log.html?mode=equipment&eq=${encodeURIComponent(eq)}` : 'meg_log.html?mode=equipment';
@@ -460,12 +583,19 @@
         hasAnyFilledRow(equipRows)
       );
 
-    // NEW: load the latest saved digital RIF doc and render its content
+    // Latest saved digital RIF
     const rifLatest = eq ? findLatestRif(eq) : null;
     const rifDoc = rifLatest ? rifLatest.doc : null;
 
-    // Completion for RIF: either the step toggle, OR existence of a saved digital RIF doc
+    // Latest saved digital L2
+    const l2Latest = eq ? findLatestL2(eq) : null;
+    const l2Doc = l2Latest ? l2Latest.doc : null;
+
+    // Completion:
+    // - RIF: step toggle OR existence of saved digital RIF
+    // - L2: step toggle OR existence of saved digital L2
     const rifComplete = isDone('rif') || !!rifDoc;
+    const l2Complete = isDone('l2') || !!l2Doc;
 
     reportEl.innerHTML = `
       ${sectionHeader('NEXUS Package', eq ? `Equipment: ${eq}` : '')}
@@ -477,10 +607,10 @@
 
       <h3>Completion Summary</h3>
       ${renderStatusLine('RIF (No-Procore)', rifComplete, rifNoProcoreLink)}
+      ${renderStatusLine('L2 (No-Procore)', l2Complete, l2NoProcoreLink)}
       ${renderStatusLine('Megohmmeter (Line/Load)', isDone('meg'), megLink)}
       ${renderStatusLine('Equipment Meg (If Applicable)', equipMegHasData, equipMegLink)}
       ${renderStatusLine('Torque', isDone('torque'), torqueLink)}
-      ${renderStatusLine('L2', isDone('l2'), eq ? `form.html?id=l2&eq=${encodeURIComponent(eq)}` : 'form.html?id=l2')}
       ${renderStatusLine('Pre-FOD', isDone('prefod'), eq ? `form.html?id=prefod&eq=${encodeURIComponent(eq)}` : 'form.html?id=prefod')}
 
       <div class="pagebreak"></div>
@@ -491,6 +621,15 @@
         Links: <span class="link"><a href="${safe(rifNoProcoreLink)}" target="_blank" rel="noopener noreferrer">Open RIF (No-Procore)</a></span>
         • <span class="link"><a href="${safe(rifLandingLink)}" target="_blank" rel="noopener noreferrer">Open RIF Landing</a></span>
         ${rifLatest?.key ? `• <span class="muted">Storage:</span> <span class="mono">${safe(rifLatest.key)}</span>` : ``}
+      </div>
+
+      <div class="pagebreak"></div>
+
+      ${sectionHeader('L2 (No-Procore) — Digital Readout', l2Doc ? `Loaded: ${safe(l2Doc?.meta?.l2Id||'')} • ${safe(l2Doc?.meta?.updatedAt||'')}` : '')}
+      ${renderL2NoProcore(l2Doc)}
+      <div style="margin-top:10px" class="muted">
+        Links: <span class="link"><a href="${safe(l2NoProcoreLink)}" target="_blank" rel="noopener noreferrer">Open L2 (No-Procore)</a></span>
+        ${l2Latest?.key ? `• <span class="muted">Storage:</span> <span class="mono">${safe(l2Latest.key)}</span>` : ``}
       </div>
 
       <div class="pagebreak"></div>
@@ -510,13 +649,12 @@
 
       <div class="pagebreak"></div>
 
-      ${sectionHeader('L2 / Pre-FOD', 'Reference links (pre-Firebase build)')}
+      ${sectionHeader('Pre-FOD', 'Reference links (pre-Firebase build)')}
       <div class="kv">
-        ${kvRowLink('L2 Page', eq ? `form.html?id=l2&eq=${encodeURIComponent(eq)}` : 'form.html?id=l2')}
         ${kvRowLink('Pre-FOD Page', eq ? `form.html?id=prefod&eq=${encodeURIComponent(eq)}` : 'form.html?id=prefod')}
       </div>
       <div style="margin-top:10px" class="muted">
-        Note: L2 and Pre-FOD content currently live in external links (SharePoint/Procore) and are not captured as fillable forms in this phase.
+        Note: Pre-FOD content currently lives in external links (SharePoint/Procore) and is not captured as a fillable form in this phase.
       </div>
     `;
 

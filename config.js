@@ -1,4 +1,5 @@
-// forms.js (or config.js) — ONLY window.FORMS
+// forms.js (or config.js) — ONLY window.FORMS (UPDATED)
+// Change: L2 first button now routes to local fillable page (l2_no_procore.html)
 window.FORMS = {
   rif: {
     title: "Receipt Inspection Form",
@@ -6,13 +7,9 @@ window.FORMS = {
     backgroundImage: "transformer.jpg",
     completedKey: "rifCompleted",
     buttons: [
-      {
-        text: "RIF – No Procore (Fillable)",
-        href: "rif_no_procore.html"
-      },
+      { text: "RIF – No Procore (Fillable)", href: "rif_no_procore.html" },
       {
         text: "Equipment Megohmmeter Test (If Applicable)",
-        // Separate mode so it does NOT impact the Megohmmeter task completion
         href: "meg_log.html?mode=equipment"
       }
     ]
@@ -24,14 +21,8 @@ window.FORMS = {
     backgroundImage: "transformer.jpg",
     completedKey: "lvtMegCompleted",
     buttons: [
-      {
-        text: "Line Side",
-        href: "https://aceelectricnet.sharepoint.com/:x:/s/CMH098QAQC/IQB4zdld_DAmQbY4VOAUXcHmAf7SmDkVDGCEPduYPqKKEXY?e=qZ6OKd"
-      },
-      {
-        text: "Load Side",
-        href: "https://aceelectricnet.sharepoint.com/:x:/s/CMH098QAQC/IQBlhLsuvA8USp7ZzFiuyGW1Aa7TZBcVpZ4BvtoWGNR62AM?e=nBgi82"
-      }
+      { text: "Line Side", href: "https://aceelectricnet.sharepoint.com/:x:/s/CMH098QAQC/IQB4zdld_DAmQbY4VOAUXcHmAf7SmDkVDGCEPduYPqKKEXY?e=qZ6OKd" },
+      { text: "Load Side", href: "https://aceelectricnet.sharepoint.com/:x:/s/CMH098QAQC/IQBlhLsuvA8USp7ZzFiuyGW1Aa7TZBcVpZ4BvtoWGNR62AM?e=nBgi82" }
     ]
   },
 
@@ -41,10 +32,7 @@ window.FORMS = {
     backgroundImage: "transformer.jpg",
     completedKey: "megCompleted",
     buttons: [
-      {
-        text: "Megohmmeter Test Log (Fillable)",
-        href: "meg_log.html"
-      }
+      { text: "Megohmmeter Test Log (Fillable)", href: "meg_log.html" }
     ]
   },
 
@@ -62,10 +50,7 @@ window.FORMS = {
     backgroundImage: "transformer.jpg",
     completedKey: "fpvPhotoCompleted",
     buttons: [
-      {
-        text: "Finished Product Verification Photo",
-        href: "fpv_photo_capture.html"
-      }
+      { text: "Finished Product Verification Photo", href: "fpv_photo_capture.html" }
     ]
   },
 
@@ -76,22 +61,10 @@ window.FORMS = {
     completedKey: "torqueCompleted",
     buttons: [
       { text: "Torque Application Log", href: "torque_log.html" },
-      {
-        text: "Manufacturer Torque Specifications (Submittal)",
-        href: "https://aceelectricnet.sharepoint.com/:w:/s/CMH098QAQC/Ebq0m0FcOsdAvi8flKZlWA8BXjve29RsOoA2XcVIlGdSrg?e=lfKesG"
-      },
-      {
-        text: "Transformer Grounding Specification",
-        href: "https://aceelectricnet.sharepoint.com/:w:/s/CMH098QAQC/Ebq0m0FcOsdAvi8flKZlWA8BXjve29RsOoA2XcVIlGdSrg?e=lfKesG"
-      },
-      {
-        text: "ANSI Torque Specification Generalized",
-        href: "https://aceelectricnet.sharepoint.com/:b:/s/CMH098QAQC/EfjsJTafbJtGtGe-K24K9mwB6o3p6ZOohg6BQCvuD6ruAg?e=pf72Ci"
-      },
-      {
-        text: "Burndy Torque Specifications for Mechanical Lugs",
-        href: "https://aceelectricnet.sharepoint.com/:b:/s/CMH098QAQC/Efgq4Mh9nB9EgFE02sYoMg8B8yexajLDN__obEG9_QGuOA?e=RXauzp"
-      }
+      { text: "Manufacturer Torque Specifications (Submittal)", href: "https://aceelectricnet.sharepoint.com/:w:/s/CMH098QAQC/Ebq0m0FcOsdAvi8flKZlWA8BXjve29RsOoA2XcVIlGdSrg?e=lfKesG" },
+      { text: "Transformer Grounding Specification", href: "https://aceelectricnet.sharepoint.com/:w:/s/CMH098QAQC/Ebq0m0FcOsdAvi8flKZlWA8BXjve29RsOoA2XcVIlGdSrg?e=lfKesG" },
+      { text: "ANSI Torque Specification Generalized", href: "https://aceelectricnet.sharepoint.com/:b:/s/CMH098QAQC/EfjsJTafbJtGtGe-K24K9mwB6o3p6ZOohg6BQCvuD6ruAg?e=pf72Ci" },
+      { text: "Burndy Torque Specifications for Mechanical Lugs", href: "https://aceelectricnet.sharepoint.com/:b:/s/CMH098QAQC/Efgq4Mh9nB9EgFE02sYoMg8B8yexajLDN__obEG9_QGuOA?e=RXauzp" }
     ]
   },
 
@@ -101,14 +74,11 @@ window.FORMS = {
     backgroundImage: "transformer.jpg",
     completedKey: "l2Completed",
     buttons: [
-      {
-        text: "L2 IVF (Use if Procore is not updated)",
-        href: "https://aceelectricnet.sharepoint.com/:x:/s/CMH098QAQC/IQC49U0D_imAQZ6f4j4Xk1REAbQgmlgHuax1FLwWJOIb0Qg?e=NsjsIV"
-      },
-      {
-        text: "L2 IVF Link to Procore (Live after updated by customer)",
-        href: "https://login.procore.com/?cookies_enabled=true"
-      }
+      // UPDATED: local fillable
+      { text: "L2 IVF (Use if Procore is not updated)", href: "l2_no_procore.html" },
+
+      // keep the Procore link
+      { text: "L2 IVF Link to Procore (Live after updated by customer)", href: "https://login.procore.com/?cookies_enabled=true" }
     ]
   },
 
@@ -118,18 +88,9 @@ window.FORMS = {
     backgroundImage: "transformer.jpg",
     completedKey: "prefodCompleted",
     buttons: [
-      {
-        text: "Pre-FOD Inspection Check List (Use if Procore is not updated)",
-        href: "https://aceelectricnet.sharepoint.com/:x:/s/CMH098QAQC/IQAHAXu_Aw6QTZrPr5bW8C7gAVl6i7okKXjBwKACDcpOD6I?e=OhSbvH"
-      },
-      {
-        text: "Pre-FOD SOP",
-        href: "prefod_sop.html"
-      },
-      {
-        text: "Pre-FOD Inspection Link to Procore (Live after updated by customer)",
-        href: "https://aceelectricnet.sharepoint.com/:w:/s/CMH098QAQC/IQCpW0cDseVESZtxpMJhVbtoARkKtiVva1DMB0G5HlUuGPc?e=S2yeDr"
-      }
+      { text: "Pre-FOD Inspection Check List (Use if Procore is not updated)", href: "https://aceelectricnet.sharepoint.com/:x:/s/CMH098QAQC/IQAHAXu_Aw6QTZrPr5bW8C7gAVl6i7okKXjBwKACDcpOD6I?e=OhSbvH" },
+      { text: "Pre-FOD SOP", href: "prefod_sop.html" },
+      { text: "Pre-FOD Inspection Link to Procore (Live after updated by customer)", href: "https://aceelectricnet.sharepoint.com/:w:/s/CMH098QAQC/IQCpW0cDseVESZtxpMJhVbtoARkKtiVva1DMB0G5HlUuGPc?e=S2yeDr" }
     ]
   },
 
@@ -139,14 +100,8 @@ window.FORMS = {
     backgroundImage: "transformer.jpg",
     completedKey: "phenolicCompleted",
     buttons: [
-      {
-        text: "AWS Specification in Procore",
-        href: "https://us02.procore.com/562949954239068/project/specification_sections?show_revision_url=%2F562949954239068%2Fproject%2Fspecification_section_revisions%2F562949961901225%2Fview"
-      },
-      {
-        text: "Reference Pictogram",
-        href: "https://aceelectricnet.sharepoint.com/:w:/s/CMH098QAQC/IQAZTk1tl3diQYYHeEzRsh6tAWwAYGeZ3jMsBCEkFK-PFO4?e=lbao5X"
-      }
+      { text: "AWS Specification in Procore", href: "https://us02.procore.com/562949954239068/project/specification_sections?show_revision_url=%2F562949954239068%2Fproject%2Fspecification_section_revisions%2F562949961901225%2Fview" },
+      { text: "Reference Pictogram", href: "https://aceelectricnet.sharepoint.com/:w:/s/CMH098QAQC/IQAZTk1tl3diQYYHeEzRsh6tAWwAYGeZ3jMsBCEkFK-PFO4?e=lbao5X" }
     ]
   },
 
@@ -166,18 +121,9 @@ window.FORMS = {
     backgroundImage: "transformer.jpg",
     completedKey: "supportingViewed",
     buttons: [
-      {
-        text: "Training PowerPoint Documents",
-        href: "https://aceelectricnet.sharepoint.com/:f:/s/CMH098QAQC/IgDTzSdCCowiQJ0Rza9oIXlUASycInMyNn5KL8kpLPbjxkU?e=9fAnPb"
-      },
-      {
-        text: "Supporting Documentation Repository",
-        href: "https://aceelectricnet.sharepoint.com/:f:/s/CMH098QAQC/IgAuRbIpwO8IQog9sZN4umvUAb8FLYz2qqSu8oOUvYa1Yq4?e=QHL9IJ"
-      },
-      {
-        text: "SOP General Folder",
-        href: "https://aceelectricnet.sharepoint.com/:f:/s/CMH098QAQC/IgAQM-row4waQbd2QWYR27mvAYSIW3WLiCt2W0EwVWlYsng?e=Brrj7W"
-      },
+      { text: "Training PowerPoint Documents", href: "https://aceelectricnet.sharepoint.com/:f:/s/CMH098QAQC/IgDTzSdCCowiQJ0Rza9oIXlUASycInMyNn5KL8kpLPbjxkU?e=9fAnPb" },
+      { text: "Supporting Documentation Repository", href: "https://aceelectricnet.sharepoint.com/:f:/s/CMH098QAQC/IgAuRbIpwO8IQog9sZN4umvUAb8FLYz2qqSu8oOUvYa1Yq4?e=QHL9IJ" },
+      { text: "SOP General Folder", href: "https://aceelectricnet.sharepoint.com/:f:/s/CMH098QAQC/IgAQM-row4waQbd2QWYR27mvAYSIW3WLiCt2W0EwVWlYsng?e=Brrj7W" },
       { text: "Transformer Image", href: "form.html?id=transformer" }
     ]
   },

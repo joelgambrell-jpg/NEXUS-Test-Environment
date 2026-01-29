@@ -155,7 +155,7 @@
     <div class="hint">
       This generates a single printable package that includes: RIF (digital No-Procore readout), L2 (digital No-Procore readout),
       Megohmmeter Test Log (Line/Load), <b>Equipment Megohmmeter Test (If Applicable)</b>, Torque Log (rows + tilt),
-      Finished Product Verification Photo (if saved), and Pre-FOD (status/link).<br>
+      Finished Product Verification Photo (if saved), and Pre-FOD (readout + link).<br>
       Procore upload is manual in this pre-Firebase build: export to PDF, then open the Procore page and attach the PDF.
     </div>
 
@@ -578,6 +578,150 @@
     `;
   }
 
+  // ===== Pre-FOD loader + renderer (NEW) =====
+  function findLatestPrefod(eqId){
+    if(!eqId) return null;
+
+    // Known keys + generic fallbacks (won't break if the checklist uses a different key)
+    const knownKeys = [
+      `nexus_${eqId}_prefod_checklist_v1`,
+      `nexus_${eqId}_prefod_checklist`,
+      `nexus_${eqId}_prefod`,
+      `nexus_${eqId}_form_prefod`,
+      `prefod_${eqId}`,
+      `nexus_prefod_${eqId}`,
+      `nexus_${eqId}_prefod_v1`,
+      `nexus_${eqId}_prefod_v2`,
+      `nexus_${eqId}_prefod_log_v1`,
+    ];
+
+    // 1) Try known direct keys first
+    for (const k of knownKeys){
+      const doc = readJSON(k);
+      if(doc && typeof doc === "object") return { key:k, doc, t:0 };
+    }
+
+    // 2) Scan localStorage for anything that looks like prefod for this eq and pick latest by meta timestamps if present
+    const hits = [];
+    const eqLower = String(eqId).toLowerCase();
+
+    for (let i=0;i<localStorage.length;i++){
+      const k = localStorage.key(i);
+      if (!k) continue;
+
+      const kl = k.toLowerCase();
+      if (kl.indexOf("prefod") === -1) continue;
+      if (kl.indexOf(eqLower) === -1) continue;
+
+      const doc = readJSON(k);
+      if (!doc || typeof doc !== "object") continue;
+
+      const updated =
+        doc?.meta?.updatedAt ||
+        doc?.meta?.createdAt ||
+        doc?.updatedAt ||
+        doc?.createdAt ||
+        doc?.timestamp ||
+        "";
+
+      const t = updated ? Date.parse(updated) : 0;
+      hits.push({ key:k, doc, t });
+    }
+
+    hits.sort((a,b) => (b.t||0) - (a.t||0));
+    return hits[0] || null;
+  }
+
+  function renderPrefod(doc){
+    if(!doc) return `<div class="muted">No saved Pre-FOD checklist data found.</div>`;
+
+    const meta = doc.meta || {};
+    const updatedAt = meta.updatedAt || meta.createdAt || doc.updatedAt || doc.createdAt || "";
+
+    // Try common shapes:
+    // - { items:[{label,value,notes}] }
+    // - { checks:[...], rows:[...] }
+    // - or generic object dump
+    const items =
+      (Array.isArray(doc.items) && doc.items) ||
+      (Array.isArray(doc.checks) && doc.checks) ||
+      (Array.isArray(doc.rows) && doc.rows) ||
+      null;
+
+    const headerKv = `
+      <div class="kv">
+        ${kvRow("Updated", updatedAt)}
+        ${kvRow("Saved Key", "")}
+      </div>
+    `;
+
+    // If we have item rows, render as table
+    if (items && items.length){
+      const rows = items
+        .map((it, idx) => {
+          const label = it.label ?? it.name ?? it.item ?? it.step ?? `Item ${idx+1}`;
+          let value = it.value ?? it.result ?? it.status ?? it.passFail ?? it.answer ?? "";
+          const notes = it.notes ?? it.note ?? it.remarks ?? it.comment ?? "";
+
+          if (typeof value === "boolean") value = value ? "PASS" : "FAIL";
+          value = String(value ?? "").trim();
+
+          // Skip totally empty rows
+          if (!String(label||"").trim() && !value && !String(notes||"").trim()) return "";
+
+          return `<tr>
+            <td><b>${safe(label)}</b></td>
+            <td>${safe(value)}</td>
+            <td>${safe(notes)}</td>
+          </tr>`;
+        })
+        .filter(Boolean)
+        .join("");
+
+      if (!rows){
+        return `<div class="muted">(No Pre-FOD entries found in saved data)</div>`;
+      }
+
+      return `
+        <div class="kv">
+          ${kvRow("Updated", updatedAt)}
+        </div>
+        <table>
+          <thead><tr><th>Check</th><th>Result</th><th>Notes</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      `;
+    }
+
+    // Generic fallback: key/value table (keeps you unblocked even if structure changes)
+    const keys = Object.keys(doc || {}).filter(k => k !== "meta");
+    if (!keys.length){
+      return `<div class="muted">(Saved Pre-FOD data is empty)</div>`;
+    }
+
+    const kv = keys.map(k=>{
+      const v = doc[k];
+      const val =
+        (v && typeof v === "object") ? JSON.stringify(v) : String(v ?? "");
+      if (!String(val).trim()) return "";
+      return `<tr><td style="width:260px;"><b>${safe(k)}</b></td><td colspan="2">${safe(val)}</td></tr>`;
+    }).filter(Boolean).join("");
+
+    if(!kv){
+      return `<div class="muted">(No readable Pre-FOD fields found)</div>`;
+    }
+
+    return `
+      <div class="kv">
+        ${kvRow("Updated", updatedAt)}
+      </div>
+      <table>
+        <thead><tr><th style="width:260px;">Field</th><th colspan="2">Value</th></tr></thead>
+        <tbody>${kv}</tbody>
+      </table>
+    `;
+  }
+
   function buildReport(){
     const meta = loadEqMeta() || {};
     const procoreConstructionUrl = meta.procoreEquipUrl || '';
@@ -621,9 +765,18 @@
     const l2Latest = eq ? findLatestL2(eq) : null;
     const l2Doc = l2Latest ? l2Latest.doc : null;
 
+    // Latest saved Pre-FOD
+    const prefodLatest = eq ? findLatestPrefod(eq) : null;
+    const prefodDoc = prefodLatest ? prefodLatest.doc : null;
+    const prefodLink = eq ? `form.html?id=prefod&eq=${encodeURIComponent(eq)}` : 'form.html?id=prefod';
+
     // Completion
     const rifComplete = isDone('rif') || !!rifDoc;
     const l2Complete = isDone('l2') || !!l2Doc;
+
+    // Pre-FOD completion: consider either step toggle OR saved checklist data
+    const prefodHasData = !!prefodDoc;
+    const prefodComplete = isDone('prefod') || prefodHasData;
 
     reportEl.innerHTML = `
       ${sectionHeader('NEXUS Package', eq ? `Equipment: ${eq}` : '')}
@@ -640,7 +793,7 @@
       ${renderStatusLine('Equipment Meg (If Applicable)', equipMegHasData, equipMegLink)}
       ${renderStatusLine('Torque', isDone('torque'), torqueLink)}
       ${renderStatusLine('FPV Photo', fpvComplete, fpvLink)}
-      ${renderStatusLine('Pre-FOD', isDone('prefod'), eq ? `form.html?id=prefod&eq=${encodeURIComponent(eq)}` : 'form.html?id=prefod')}
+      ${renderStatusLine('Pre-FOD', prefodComplete, prefodLink)}
 
       <div class="pagebreak"></div>
 
@@ -686,12 +839,13 @@
 
       <div class="pagebreak"></div>
 
-      ${sectionHeader('Pre-FOD', 'Reference links (pre-Firebase build)')}
+      ${sectionHeader('Pre-FOD', 'Digital readout from saved checklist data')}
       <div class="kv">
-        ${kvRowLink('Pre-FOD Page', eq ? `form.html?id=prefod&eq=${encodeURIComponent(eq)}` : 'form.html?id=prefod')}
+        ${kvRowLink('Pre-FOD Page', prefodLink)}
+        ${prefodLatest?.key ? kvRow('Storage', prefodLatest.key) : kvRow('Storage', '(not found)')}
       </div>
-      <div style="margin-top:10px" class="muted">
-        Note: Pre-FOD content currently lives in external links (SharePoint/Procore) and is not captured as a fillable form in this phase.
+      <div style="margin-top:10px;">
+        ${renderPrefod(prefodDoc)}
       </div>
     `;
 

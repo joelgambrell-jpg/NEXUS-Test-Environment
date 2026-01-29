@@ -1,4 +1,4 @@
-<!-- equipment.html (FULL DROP-IN) — ADDED: Equipment Image upload/save (GitHub localStorage) + preview -->
+<!-- equipment.html (FULL DROP-IN) — FIX: Removed Equipment Image upload/preview from Equipment Page ONLY -->
 <!doctype html>
 <html lang="en">
 <head>
@@ -216,31 +216,6 @@
     background: rgba(0,0,0,0.35);
     border-top: 1px solid rgba(255,255,255,0.18);
   }
-
-  /* ===== NEW: Equipment Image UI ===== */
-  .equip-img-wrap{ display:flex; gap:14px; flex-wrap:wrap; align-items:flex-start; }
-  .equip-img-left{ flex: 1; min-width: 260px; }
-  .equip-img-right{ width: 280px; max-width: 100%; }
-  .equip-img-note{ font-size:12px; font-weight:800; opacity:.9; margin-top:8px; line-height:1.35; }
-  .equip-img-input{
-    width:100%;
-    padding:10px 10px;
-    border-radius:12px;
-    border:1px solid rgba(255,255,255,0.25);
-    background: rgba(255,255,255,0.92);
-    color:#111;
-    font-weight:800;
-  }
-  #nexusEquipImagePreview{
-    display:none;
-    width:100%;
-    max-height:240px;
-    object-fit:cover;
-    border-radius:12px;
-    box-shadow:0 10px 22px rgba(0,0,0,.28);
-    border: 1px solid rgba(255,255,255,0.18);
-  }
-  .equip-img-actions{ display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; }
 </style>
 
 <link rel="stylesheet" href="assets/css/nexus-core.css">
@@ -288,30 +263,6 @@
   <div class="card">
     <h1>Equipment Page</h1>
     <div class="eq" id="eqLabel"></div>
-
-    <!-- ===== NEW: Equipment Image Upload (GitHub-first localStorage) ===== -->
-    <div class="bubble" id="equipImageBubble">
-      <div class="bubble-title">Equipment Image</div>
-
-      <div class="equip-img-wrap">
-        <div class="equip-img-left">
-          <input id="nexusEquipImageInput" class="equip-img-input" type="file" accept="image/*" capture="environment" />
-
-          <div class="equip-img-actions">
-            <button class="btn secondary" id="nexusEquipImageClearBtn" type="button">Clear Image</button>
-          </div>
-
-          <div class="equip-img-note" id="nexusEquipImageStatus">
-            Saves on this device (GitHub mode). When Firebase is enabled, this will sync across devices.
-          </div>
-        </div>
-
-        <div class="equip-img-right">
-          <img id="nexusEquipImagePreview" alt="Equipment image preview" />
-        </div>
-      </div>
-    </div>
-    <!-- ===== /NEW ===== -->
 
     <div class="progress-wrap">
       <div class="progress-label">
@@ -771,118 +722,6 @@
   });
 })();
 </script>
-
-<!-- ===== NEW: Equipment Image Save/Load (GitHub-first localStorage; Firebase-ready hook) ===== -->
-<script>
-(function(){
-  const qs = new URLSearchParams(location.search);
-  const eq = (qs.get("eq") || "").trim();
-
-  const input = document.getElementById("nexusEquipImageInput");
-  const preview = document.getElementById("nexusEquipImagePreview");
-  const clearBtn = document.getElementById("nexusEquipImageClearBtn");
-  const status = document.getElementById("nexusEquipImageStatus");
-
-  if (!input || !preview || !clearBtn || !status) return;
-
-  function setStatus(msg){
-    status.textContent = msg || "";
-  }
-
-  if (!eq){
-    input.disabled = true;
-    clearBtn.disabled = true;
-    clearBtn.classList.add("locked");
-    setStatus("Missing Equipment ID in URL. Add ?eq=TR-001 to enable image saving.");
-    return;
-  }
-
-  const STORAGE_KEY = `nexus_equipment_${eq}`;
-
-  function readRecord(){
-    try{ return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); }
-    catch(e){ return {}; }
-  }
-  function writeRecord(patch){
-    const cur = readRecord();
-    const merged = { ...cur, ...patch, _updatedAt: Date.now() };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
-    return merged;
-  }
-
-  function show(url){
-    if (!url) return;
-    preview.src = url;
-    preview.style.display = "block";
-  }
-
-  function hide(){
-    preview.removeAttribute("src");
-    preview.style.display = "none";
-  }
-
-  function fileToDataUrl(file){
-    return new Promise((resolve, reject) => {
-      const r = new FileReader();
-      r.onload = () => resolve(String(r.result || ""));
-      r.onerror = reject;
-      r.readAsDataURL(file);
-    });
-  }
-
-  // Load existing image (if saved)
-  const existing = readRecord();
-  if (existing.imageDataUrl){
-    show(existing.imageDataUrl);
-    setStatus("Loaded saved equipment image (GitHub mode: this device).");
-  } else {
-    setStatus("No image saved yet (GitHub mode: saves on this device).");
-  }
-
-  input.addEventListener("change", async (e) => {
-    try{
-      const file = e.target.files && e.target.files[0];
-      if (!file) return;
-
-      setStatus("Saving image…");
-      const dataUrl = await fileToDataUrl(file);
-
-      writeRecord({ imageDataUrl: dataUrl });
-      show(dataUrl);
-
-      setStatus("Saved. This will appear on form.html when opened with the same ?eq= value.");
-    }catch(err){
-      console.warn(err);
-      setStatus("Save failed. Try a smaller image.");
-    }
-  });
-
-  clearBtn.addEventListener("click", () => {
-    try{
-      const cur = readRecord();
-      delete cur.imageDataUrl;
-      cur._updatedAt = Date.now();
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(cur));
-    }catch(e){
-      localStorage.removeItem(STORAGE_KEY);
-    }
-    hide();
-    input.value = "";
-    setStatus("Cleared image for this equipment on this device.");
-  });
-
-  // Firebase-ready hook (later your Firebase code can call this after uploading to Storage)
-  // e.g. window.NEXUS_setEquipmentImageUrlFromFirebase(url)
-  window.NEXUS_setEquipmentImageUrlFromFirebase = function(url){
-    if (!url) return;
-    // Store locally too so GitHub mode still benefits
-    writeRecord({ imageDataUrl: url });
-    show(url);
-    setStatus("Image set from Firebase (and cached locally).");
-  };
-})();
-</script>
-<!-- ===== /NEW ===== -->
 
 <script>
 (function(){

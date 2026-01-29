@@ -1,3 +1,4 @@
+<!-- form.html (FULL DROP-IN) — shows the saved equipment image for ?eq= -->
 <!doctype html>
 <html lang="en">
 <head>
@@ -96,11 +97,8 @@ h1{font-size:32px;font-weight:700;margin-top:0;}
 /* hidden by default; shown only when id=rif */
 #rifNoProcoreBtn{ display:none; }
 
-/* NEW: equipment image container */
-#nexusEquipImageContainer{
-  text-align:center;
-  margin: 10px 0 18px 0;
-}
+/* Equipment image */
+#nexusEquipImageContainer{ text-align:center; margin: 10px 0 18px 0; }
 #nexusEquipImageDisplay{
   display:none;
   max-width:100%;
@@ -160,7 +158,7 @@ h1{font-size:32px;font-weight:700;margin-top:0;}
   <div id="eqLabel" class="eq-label"></div>
   <div class="section-title" id="section-title"></div>
 
-  <!-- NEW: Equipment Image Display (GitHub-first, Firebase-ready) -->
+  <!-- Equipment Image Display -->
   <div id="nexusEquipImageContainer">
     <img id="nexusEquipImageDisplay" alt="Equipment image" />
   </div>
@@ -168,10 +166,8 @@ h1{font-size:32px;font-weight:700;margin-top:0;}
   <div id="buttonsWrap" class="button-panel">
     <div id="buttons"></div>
 
-    <!-- NEW: No-Procore RIF button (only shows when id=rif) -->
     <a class="btn" id="rifNoProcoreBtn" href="rif_no_procore.html">RIF — No Procore</a>
 
-    <!-- SOP button (behavior configured per-form in app.js) -->
     <button class="btn" id="openSopBtn" type="button">Open SOP</button>
 
     <button class="btn" id="stepCompleteBtn" type="button">Mark Step Complete</button>
@@ -199,7 +195,6 @@ h1{font-size:32px;font-weight:700;margin-top:0;}
   const label = document.getElementById("eqLabel");
   if (label) label.textContent = eq ? `Equipment: ${eq}` : "";
 
-  // Show + wire No-Procore RIF button only on the RIF launcher
   (function(){
     const btn = document.getElementById("rifNoProcoreBtn");
     if(!btn) return;
@@ -217,7 +212,6 @@ h1{font-size:32px;font-weight:700;margin-top:0;}
     btn.style.display = "block";
   })();
 
-  // If you want ALL internal links to preserve eq (already) and ALSO rif when present:
   function patchLinks(){
     document.querySelectorAll('a[href]').forEach(a => {
       try{
@@ -241,7 +235,7 @@ h1{font-size:32px;font-weight:700;margin-top:0;}
 })();
 </script>
 
-<!-- NEW: Equipment image loader (GitHub-first localStorage; Firebase-ready hook) -->
+<!-- Equipment image loader -->
 <script>
 (function(){
   const qs = new URLSearchParams(location.search);
@@ -251,13 +245,9 @@ h1{font-size:32px;font-weight:700;margin-top:0;}
   const img = document.getElementById("nexusEquipImageDisplay");
   if(!img) return;
 
-  // 1) GitHub Pages mode (localStorage DataURL)
   function readLocalRecord(){
-    try{
-      return JSON.parse(localStorage.getItem(`nexus_equipment_${eq}`) || "{}");
-    }catch(e){
-      return {};
-    }
+    try{ return JSON.parse(localStorage.getItem(`nexus_equipment_${eq}`) || "{}"); }
+    catch(e){ return {}; }
   }
 
   function show(url){
@@ -266,20 +256,16 @@ h1{font-size:32px;font-weight:700;margin-top:0;}
     img.style.display = "block";
   }
 
-  const local = readLocalRecord();
-  if(local.imageDataUrl){
-    show(local.imageDataUrl);
-  }
+  const rec = readLocalRecord();
+  if(rec.imageDataUrl) show(rec.imageDataUrl);
 
-  // 2) Firebase-ready: if your bridge exposes an equipment fetch later, it can call this safely.
-  // Example later: window.NEXUS_setEquipmentImageUrl("https://....")
+  // Firebase-ready hook
   window.NEXUS_setEquipmentImageUrl = function(url){
     show(url);
   };
 })();
 </script>
 
-<!-- FIXED BACK BUTTON (always equipment page) -->
 <script>
 (function(){
   window.NEXUS_back = function(){

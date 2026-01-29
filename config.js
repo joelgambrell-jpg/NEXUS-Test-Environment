@@ -70,14 +70,8 @@ window.FORMS = {
     backgroundImage: "transformer.jpg",
     completedKey: "l2Completed",
     buttons: [
-      {
-        text: "L2 IVF (Use if Procore is not updated)",
-        href: "l2_no_procore.html"
-      },
-      {
-        text: "L2 IVF Link to Procore (Live after updated by customer)",
-        href: "https://login.procore.com/?cookies_enabled=true"
-      }
+      { text: "L2 IVF (Use if Procore is not updated)", href: "l2_no_procore.html" },
+      { text: "L2 IVF Link to Procore (Live after updated by customer)", href: "https://login.procore.com/?cookies_enabled=true" }
     ]
   },
 
@@ -104,15 +98,25 @@ window.FORMS = {
     ]
   },
 
+  /* =============================
+     FIXED DIAGRAM PAGE
+     (added real button to remove blank ghost button)
+     ============================= */
   transformer: {
     title: "Diagram Image",
     sectionTitle: "Diagram",
     backgroundImage: "transformer.jpg",
     completedKey: "DiagramViewed",
     magnifier: true,
-    zoom: 4
+    zoom: 4,
+    buttons: [
+      { text: "Supporting Documents", href: "form.html?id=supporting" }
+    ]
   },
 
+  /* =============================
+     FIXED BUTTON TEXT HERE
+     ============================= */
   supporting: {
     title: "Supporting Documents",
     sectionTitle: "Supporting Documents",
@@ -122,7 +126,9 @@ window.FORMS = {
       { text: "Training PowerPoint Documents", href: "https://aceelectricnet.sharepoint.com/:f:/s/CMH098QAQC/IgDTzSdCCowiQJ0Rza9oIXlUASycInMyNn5KL8kpLPbjxkU?e=9fAnPb" },
       { text: "Supporting Documentation Repository", href: "https://aceelectricnet.sharepoint.com/:f:/s/CMH098QAQC/IgAuRbIpwO8IQog9sZN4umvUAb8FLYz2qqSu8oOUvYa1Yq4?e=QHL9IJ" },
       { text: "SOP General Folder", href: "https://aceelectricnet.sharepoint.com/:f:/s/CMH098QAQC/IgAQM-row4waQbd2QWYR27mvAYSIW3WLiCt2W0EwVWlYsng?e=Brrj7W" },
-      { text: "Transformer Image", href: "form.html?id=transformer" }
+
+      /* CHANGED TEXT */
+      { text: "Diagram Image", href: "form.html?id=transformer" }
     ]
   },
 

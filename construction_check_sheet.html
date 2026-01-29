@@ -21,6 +21,8 @@
     min-height:100vh;
     padding:24px;
   }
+
+  /* TOP BAR: left content stays left; right has only Save + Print/PDF */
   .topbar{
     display:flex;
     justify-content:space-between;
@@ -29,20 +31,34 @@
     gap:12px;
     flex-wrap:wrap;
   }
-  .top-left{ display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+  .top-left{
+    display:flex;
+    gap:14px;
+    align-items:center;
+    flex-wrap:wrap;
+  }
+  .top-right{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    flex-wrap:wrap;
+  }
 
   .btn{
     padding:8px 14px;
     border-radius:16px;
     border:none;
-    font-weight:600;
+    font-weight:700;
     cursor:pointer;
     user-select:none;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
   }
   .btn-glass{ background:rgba(255,255,255,.18); color:#fff; }
   .btn-blue{ background:#0ea5ff; color:#fff; }
   .btn-green{ background:#22c55e; color:#fff; }
-  .btn-dark{ background:#111; color:#fff; }
 
   .card{
     background:rgba(255,255,255,.96);
@@ -53,7 +69,7 @@
   }
 
   h1{ font-size:28px; margin:0 0 6px; }
-  .sub{ color:#333; margin:0 0 12px; font-weight:600; }
+  .sub{ color:#333; margin:0 0 12px; font-weight:700; }
 
   .banner{
     display:none;
@@ -62,7 +78,7 @@
     border-radius:12px;
     background:#111;
     color:#fff;
-    font-weight:600;
+    font-weight:700;
   }
   .banner.bad{ background:#b91c1c; }
   .banner.good{ background:#166534; }
@@ -98,22 +114,24 @@
   }
   td[contenteditable]:focus{ background:#fff8dc; }
 
-  /* “Test/Procedure” column is bigger for mobile readability */
+  /* “Construction Items” column is bigger */
   td.col-proc{ min-width:360px; }
 
   .handoff-row td{
     background:#7ed957;
-    font-weight:800;
+    font-weight:900;
   }
 
-  .delete-btn{
+  /* Right-side action cells inside table */
+  .action-btn{
     cursor:pointer;
-    color:#b91c1c;
     font-weight:900;
     text-align:center;
     width:44px;
     user-select:none;
   }
+  .delete-btn{ color:#b91c1c; }
+  .add-btn{ color:#166534; }
 
   /* required/changed visuals */
   .missing{
@@ -126,13 +144,12 @@
     background:#f7fbff !important;
   }
 
-  /* Mobile-friendly stacking */
   @media (max-width: 820px){
     .overlay{ padding:14px; }
     .card{ padding:16px; }
     table{ font-size:15px; }
     th,td{ padding:10px; }
-    td.col-proc{ min-width:520px; } /* stays wide so horizontal scroll is usable */
+    td.col-proc{ min-width:520px; }
   }
 
   @media print{
@@ -150,15 +167,11 @@
   <div class="topbar">
     <div class="top-left">
       <a id="backBtn" class="btn btn-glass" href="equipment.html">← Back to Equipment</a>
-      <span id="equipmentLabel" style="color:white;font-weight:700"></span>
+      <span id="equipmentLabel" style="color:white;font-weight:800"></span>
     </div>
 
-    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+    <div class="top-right">
       <button id="saveBtn" class="btn btn-blue">Save</button>
-      <button id="addRowBtn" class="btn btn-dark">+ Row</button>
-      <button id="exportJsonBtn" class="btn btn-glass">Export JSON</button>
-      <button id="exportCsvBtn" class="btn btn-glass">Export CSV</button>
-      <button id="exportExcelBtn" class="btn btn-glass">Export Excel</button>
       <button id="printBtn" class="btn btn-green">Print / PDF</button>
     </div>
   </div>
@@ -178,7 +191,8 @@
             <th style="width:280px">Notes</th>
             <th style="width:160px">Sign Off</th>
             <th style="width:170px">Date</th>
-            <th style="width:54px"></th>
+            <th style="width:54px">+</th>
+            <th style="width:54px">×</th>
           </tr>
         </thead>
         <tbody id="body"></tbody>
@@ -277,51 +291,51 @@ function makeCell(text="", className=""){
   td.spellcheck = false;
   if(className) td.className = className;
   td.textContent = text;
-  td.dataset.orig = text; // for change highlighting
+  td.dataset.orig = text;
+  return td;
+}
+
+function makeActionCell(symbol, className, title){
+  const td = document.createElement("td");
+  td.className = `action-btn ${className}`;
+  td.textContent = symbol;
+  td.title = title || "";
   return td;
 }
 
 function makeRow(model, index){
   const tr = document.createElement("tr");
   tr.dataset.type = model.type || "item";
+  if(model.type === "handoff") tr.classList.add("handoff-row");
 
-  if(model.type === "handoff"){
-    tr.classList.add("handoff-row");
-  }
-
-  // # cell (not editable)
+  // # (not editable)
   const tdNum = document.createElement("td");
   tdNum.textContent = String(index);
-  tdNum.style.fontWeight = "800";
+  tdNum.style.fontWeight = "900";
   tr.appendChild(tdNum);
 
-  // item / procedure (editable, larger)
-  const tdItem = makeCell(model.item || "", "col-proc");
-  tr.appendChild(tdItem);
+  // item / procedure
+  tr.appendChild(makeCell(model.item || "", "col-proc"));
 
-  // notes / entry (editable)
-  const tdNotes = makeCell(model.notes || "");
-  tr.appendChild(tdNotes);
+  // notes
+  tr.appendChild(makeCell(model.notes || ""));
 
-  // sign off (editable)
-  const tdSign = makeCell(model.sign || "");
-  tr.appendChild(tdSign);
+  // sign
+  tr.appendChild(makeCell(model.sign || ""));
 
-  // date (editable)
-  const tdDate = makeCell(model.date || "");
-  tr.appendChild(tdDate);
+  // date
+  tr.appendChild(makeCell(model.date || ""));
 
-  // delete control
-  const tdDel = document.createElement("td");
-  tdDel.className = "delete-btn";
-  tdDel.textContent = "✕";
-  tdDel.title = "Delete row";
-  tr.appendChild(tdDel);
+  // + row (insert below this row)
+  tr.appendChild(makeActionCell("+", "add-btn", "Add row below"));
 
-  // required metadata
+  // delete row
+  tr.appendChild(makeActionCell("✕", "delete-btn", "Delete row"));
+
+  // required flags
   tr.dataset.reqNotes = model.required?.notes ? "1" : "0";
-  tr.dataset.reqSign = model.required?.sign ? "1" : "0";
-  tr.dataset.reqDate = model.required?.date ? "1" : "0";
+  tr.dataset.reqSign  = model.required?.sign  ? "1" : "0";
+  tr.dataset.reqDate  = model.required?.date  ? "1" : "0";
 
   return tr;
 }
@@ -331,20 +345,25 @@ function renumber(){
 }
 
 /* =========================
-   Auto-grow (contenteditable)
+   Auto-grow + change highlighting
 ========================= */
 function autoGrowCell(td){
-  // Let the browser wrap; this just ensures height expands naturally by using <br> for empty cells
   if(td.textContent === "") td.innerHTML = "<br>";
+}
+function updateChangedState(td){
+  const orig = td.dataset.orig ?? "";
+  const now = td.innerText.replace(/\u00A0/g," ").trim();
+  const o   = orig.replace(/\u00A0/g," ").trim();
+  if(now !== o) td.classList.add("changed");
+  else td.classList.remove("changed");
 }
 
 /* =========================
-   Tab/Enter navigation (editable grid)
+   Tab/Enter navigation
 ========================= */
 function isEditableCell(cell){
   return cell && cell.getAttribute && cell.getAttribute("contenteditable") === "true";
 }
-
 function focusCell(r, c){
   const row = body.rows[r];
   if(!row) return;
@@ -360,26 +379,11 @@ function focusCell(r, c){
 }
 
 /* =========================
-   Change highlighting
-========================= */
-function updateChangedState(td){
-  const orig = td.dataset.orig ?? "";
-  const now = td.innerText.replace(/\u00A0/g," ").trim();
-  const o = orig.replace(/\u00A0/g," ").trim();
-  if(now !== o) td.classList.add("changed");
-  else td.classList.remove("changed");
-}
-
-/* =========================
-   Required-field validation
-   Rules:
-   - If row requires notes => Notes column must not be blank
-   - If row requires sign/date => those columns must not be blank
+   Validation
 ========================= */
 function clearValidation(){
   [...body.querySelectorAll(".missing")].forEach(el=>el.classList.remove("missing"));
 }
-
 function validateSheet(){
   clearValidation();
   let missingCount = 0;
@@ -393,24 +397,9 @@ function validateSheet(){
     const tdSign  = row.cells[3];
     const tdDate  = row.cells[4];
 
-    if(reqNotes){
-      if(!tdNotes.innerText.trim()){
-        tdNotes.classList.add("missing");
-        missingCount++;
-      }
-    }
-    if(reqSign){
-      if(!tdSign.innerText.trim()){
-        tdSign.classList.add("missing");
-        missingCount++;
-      }
-    }
-    if(reqDate){
-      if(!tdDate.innerText.trim()){
-        tdDate.classList.add("missing");
-        missingCount++;
-      }
-    }
+    if(reqNotes && !tdNotes.innerText.trim()){ tdNotes.classList.add("missing"); missingCount++; }
+    if(reqSign  && !tdSign.innerText.trim()){ tdSign.classList.add("missing");  missingCount++; }
+    if(reqDate  && !tdDate.innerText.trim()){ tdDate.classList.add("missing");  missingCount++; }
   });
 
   if(missingCount){
@@ -437,13 +426,13 @@ function serialize(){
       type: r.dataset.type || "item",
       required: {
         notes: r.dataset.reqNotes === "1",
-        sign:  r.dataset.reqSign === "1",
-        date:  r.dataset.reqDate === "1"
+        sign:  r.dataset.reqSign  === "1",
+        date:  r.dataset.reqDate  === "1"
       },
-      item: r.cells[1].innerText.replace(/\u00A0/g," ").trim(),
+      item:  r.cells[1].innerText.replace(/\u00A0/g," ").trim(),
       notes: r.cells[2].innerText.replace(/\u00A0/g," ").trim(),
-      sign: r.cells[3].innerText.replace(/\u00A0/g," ").trim(),
-      date: r.cells[4].innerText.replace(/\u00A0/g," ").trim(),
+      sign:  r.cells[3].innerText.replace(/\u00A0/g," ").trim(),
+      date:  r.cells[4].innerText.replace(/\u00A0/g," ").trim(),
     });
   });
 
@@ -453,90 +442,27 @@ function serialize(){
 function hydrate(doc){
   body.innerHTML = "";
   const rows = doc?.rows?.length ? doc.rows : DEFAULT_ROWS;
-  rows.forEach((m, idx)=>{
-    body.appendChild(makeRow(m, idx+1));
-  });
+  rows.forEach((m, idx)=> body.appendChild(makeRow(m, idx+1)));
   renumber();
-}
 
-/* =========================
-   CSV + Excel export
-========================= */
-function csvEscape(v){
-  const s = (v ?? "").toString().replace(/\u00A0/g," ");
-  if(/[",\n]/.test(s)) return '"' + s.replace(/"/g,'""') + '"';
-  return s;
-}
-
-function exportCSV(){
-  const doc = serialize();
-  const header = ["#", "Construction Items", "Notes", "Sign Off", "Date"];
-  const lines = [header.map(csvEscape).join(",")];
-
-  doc.rows.forEach((r, i)=>{
-    lines.push([
-      String(i+1),
-      r.item || "",
-      r.notes || "",
-      r.sign || "",
-      r.date || ""
-    ].map(csvEscape).join(","));
+  // reset originals for change highlighting after load
+  [...body.querySelectorAll('td[contenteditable="true"]')].forEach(td=>{
+    td.dataset.orig = td.innerText.replace(/\u00A0/g," ").trim();
+    td.classList.remove("changed");
   });
-
-  const blob = new Blob([lines.join("\n")], {type:"text/csv;charset=utf-8"});
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = `construction_check_sheet${eq ? "_" + eq : ""}.csv`;
-  a.click();
-}
-
-function exportExcelHTML(){
-  // Simple Excel-compatible HTML table export (.xls). Opens in Excel.
-  const doc = serialize();
-  const rowsHtml = doc.rows.map((r, i)=>(
-    `<tr>
-      <td>${i+1}</td>
-      <td>${(r.item||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}</td>
-      <td>${(r.notes||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}</td>
-      <td>${(r.sign||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}</td>
-      <td>${(r.date||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}</td>
-    </tr>`
-  )).join("");
-
-  const html =
-`<html>
-<head><meta charset="UTF-8"></head>
-<body>
-  <table border="1">
-    <tr><th>#</th><th>Construction Items</th><th>Notes</th><th>Sign Off</th><th>Date</th></tr>
-    ${rowsHtml}
-  </table>
-</body>
-</html>`;
-
-  const blob = new Blob([html], {type:"application/vnd.ms-excel;charset=utf-8"});
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = `construction_check_sheet${eq ? "_" + eq : ""}.xls`;
-  a.click();
 }
 
 /* =========================
-   Firebase save/load
-   - Uses nexus-firebase-bridge.js if it exposes a global bridge.
-   - Falls back to localStorage if Firebase bridge is not present.
-   You may need to map these calls to your real bridge methods.
+   Firebase save/load (fallback to local)
 ========================= */
 const STORAGE_KEY = `nexus:construction_check_sheet:${eq || "noeq"}`;
 
 function getFirebaseBridge(){
-  // Common patterns: window.NEXUS_FIREBASE, window.nexusFirebaseBridge, window.FirebaseBridge
   return window.NEXUS_FIREBASE || window.nexusFirebaseBridge || window.FirebaseBridge || null;
 }
 
 async function saveDoc(doc){
   const bridge = getFirebaseBridge();
-  // Always keep a local copy too
   localStorage.setItem(STORAGE_KEY, JSON.stringify(doc));
 
   if(!bridge){
@@ -544,24 +470,11 @@ async function saveDoc(doc){
     return;
   }
 
-  // Try a few likely method names
   const id = STORAGE_KEY;
 
-  if(typeof bridge.save === "function"){
-    await bridge.save(id, doc);
-    showBanner("Saved to Firebase.", "good");
-    return;
-  }
-  if(typeof bridge.setDoc === "function"){
-    await bridge.setDoc(id, doc);
-    showBanner("Saved to Firebase.", "good");
-    return;
-  }
-  if(typeof bridge.write === "function"){
-    await bridge.write(id, doc);
-    showBanner("Saved to Firebase.", "good");
-    return;
-  }
+  if(typeof bridge.save === "function"){ await bridge.save(id, doc); showBanner("Saved to Firebase.", "good"); return; }
+  if(typeof bridge.setDoc === "function"){ await bridge.setDoc(id, doc); showBanner("Saved to Firebase.", "good"); return; }
+  if(typeof bridge.write === "function"){ await bridge.write(id, doc); showBanner("Saved to Firebase.", "good"); return; }
 
   showBanner("Saved locally (Firebase bridge present but method not recognized).", "bad");
 }
@@ -570,7 +483,6 @@ async function loadDoc(){
   const bridge = getFirebaseBridge();
   const id = STORAGE_KEY;
 
-  // Prefer Firebase if available
   if(bridge){
     try{
       if(typeof bridge.load === "function"){
@@ -586,7 +498,6 @@ async function loadDoc(){
         if(d){ showBanner("Loaded from Firebase.", "good"); return d; }
       }
     }catch(e){
-      // fall back to local
       console.warn("Firebase load failed; falling back to localStorage.", e);
     }
   }
@@ -600,16 +511,26 @@ async function loadDoc(){
 }
 
 /* =========================
-   Build initial table
+   Row insertion/removal
+========================= */
+function insertRowAfter(rowEl){
+  const idx = rowEl.rowIndex - 1; // within tbody
+  const model = { type:"item", item:"New Item" };
+  const tr = makeRow(model, idx + 2);
+  if(body.rows[idx] && body.rows[idx].nextSibling){
+    body.insertBefore(tr, body.rows[idx].nextSibling);
+  }else{
+    body.appendChild(tr);
+  }
+  renumber();
+}
+
+/* =========================
+   Init
 ========================= */
 (async function init(){
   const existing = await loadDoc();
   hydrate(existing || { rows: DEFAULT_ROWS });
-
-  // set original snapshots for change highlighting
-  [...body.querySelectorAll('td[contenteditable="true"]')].forEach(td=>{
-    td.dataset.orig = td.innerText.replace(/\u00A0/g," ").trim();
-  });
 })();
 
 /* =========================
@@ -617,16 +538,35 @@ async function loadDoc(){
 ========================= */
 document.getElementById("printBtn").onclick = ()=> window.print();
 
-document.getElementById("addRowBtn").onclick = ()=>{
-  const model = { type:"item", item:"New Item" };
-  body.appendChild(makeRow(model, body.rows.length + 1));
-  renumber();
+document.getElementById("saveBtn").onclick = async ()=>{
+  if(!validateSheet()) return;
+  const doc = serialize();
+  try{
+    await saveDoc(doc);
+    // reset snapshots so "changed" clears after save
+    [...body.querySelectorAll('td[contenteditable="true"]')].forEach(td=>{
+      td.dataset.orig = td.innerText.replace(/\u00A0/g," ").trim();
+      td.classList.remove("changed");
+    });
+  }catch(err){
+    console.error(err);
+    showBanner("Save failed. Check console.", "bad");
+  }
 };
 
 body.addEventListener("click", (e)=>{
-  if(e.target.classList.contains("delete-btn")){
-    e.target.closest("tr")?.remove();
+  const td = e.target;
+  if(!(td instanceof HTMLElement)) return;
+
+  if(td.classList.contains("delete-btn")){
+    td.closest("tr")?.remove();
     renumber();
+    return;
+  }
+  if(td.classList.contains("add-btn")){
+    const tr = td.closest("tr");
+    if(tr) insertRowAfter(tr);
+    return;
   }
 });
 
@@ -642,31 +582,29 @@ body.addEventListener("keydown", (e)=>{
   const td = e.target;
   if(!td || !td.matches('td[contenteditable="true"]')) return;
 
-  const cell = td;
-  const row = cell.parentElement;
-  const rIndex = row.rowIndex - 1; // tbody row index
-  const cIndex = cell.cellIndex;
+  const row = td.parentElement;
+  const rIndex = row.rowIndex - 1; // tbody row
+  const cIndex = td.cellIndex;
 
-  // Enter moves down (same column). Shift+Enter inserts newline.
+  // Enter moves down; Shift+Enter newline
   if(e.key === "Enter" && !e.shiftKey){
     e.preventDefault();
     focusCell(rIndex + 1, cIndex);
   }
 
-  // Tab navigation: default browser behavior is okay, but we enforce within table for consistency.
+  // Tab cycles through editable cells; skip # and action columns
   if(e.key === "Tab"){
     e.preventDefault();
     const dir = e.shiftKey ? -1 : 1;
 
     let rr = rIndex, cc = cIndex + dir;
-    const maxC = row.cells.length - 2; // last cell is delete button (not editable)
-    const minC = 1; // skip # column
+    const minC = 1;                 // skip #
+    const maxC = row.cells.length - 3; // last 2 are action cols; also skip them
 
     while(true){
       if(cc > maxC){ rr++; cc = minC; }
       if(cc < minC){ rr--; cc = maxC; }
-      if(rr < 0) return;
-      if(rr >= body.rows.length) return;
+      if(rr < 0 || rr >= body.rows.length) return;
 
       const target = body.rows[rr].cells[cc];
       if(isEditableCell(target)){ focusCell(rr, cc); return; }
@@ -674,42 +612,6 @@ body.addEventListener("keydown", (e)=>{
     }
   }
 });
-
-document.getElementById("exportJsonBtn").onclick = ()=>{
-  if(!validateSheet()) return;
-  const doc = serialize();
-  const blob = new Blob([JSON.stringify(doc, null, 2)], {type:"application/json"});
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = `construction_check_sheet${eq ? "_" + eq : ""}.json`;
-  a.click();
-};
-
-document.getElementById("exportCsvBtn").onclick = ()=>{
-  if(!validateSheet()) return;
-  exportCSV();
-};
-
-document.getElementById("exportExcelBtn").onclick = ()=>{
-  if(!validateSheet()) return;
-  exportExcelHTML();
-};
-
-document.getElementById("saveBtn").onclick = async ()=>{
-  if(!validateSheet()) return;
-  const doc = serialize();
-  try{
-    await saveDoc(doc);
-    // after successful save, reset "orig" snapshots so changed highlighting clears
-    [...body.querySelectorAll('td[contenteditable="true"]')].forEach(td=>{
-      td.dataset.orig = td.innerText.replace(/\u00A0/g," ").trim();
-      td.classList.remove("changed");
-    });
-  }catch(err){
-    console.error(err);
-    showBanner("Save failed. Check console.", "bad");
-  }
-};
 </script>
 </body>
 </html>

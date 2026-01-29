@@ -5,1201 +5,1312 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Construction Check Sheet</title>
 
-  <!-- Keep your site core hooks (no behavior removed) -->
-  <link rel="stylesheet" href="assets/css/nexus-core.css" />
-  <script defer src="assets/js/nexus-core.js"></script>
-  <script defer src="assets/js/nexus-firebase-bridge.js"></script>
+  <!-- Your site core -->
+  <link rel="stylesheet" href="nexus-core.css" />
+  <script defer src="nexus-core.js"></script>
+  <script defer src="nexus-firebase-bridge.js"></script>
 
   <style>
     :root{
-      /* Correct assets */
-      --bg-img: url("assets/img/transformer.jpg");
-      --logo-img: url("assets/img/nexus.png");
-
-      /* Paper-white content */
-      --paper: rgba(255,255,255,.94);
-      --paper-2: rgba(255,255,255,.98);
-      --ink: #111318;
-      --muted-ink: rgba(17,19,24,.70);
-
-      /* UI */
-      --border: rgba(17,19,24,.12);
-      --border-2: rgba(17,19,24,.18);
-      --shadow: 0 16px 48px rgba(0,0,0,.28);
-
-      --thead: rgba(10,12,16,.92);
-      --thead-2: rgba(10,12,16,.78);
-      --row: rgba(255,255,255,.86);
-      --row-2: rgba(250,250,250,.92);
-
-      --accent: #00b3ff;
-      --ok: #25c06d;
-      --warn: #d97706; /* readable on white */
-      --bad: #dc2626;
-
-      --handoff: rgba(46, 204, 113, .18);
-      --handoff-border: rgba(46, 204, 113, .35);
+      --sheet-max: 1180px;
+      --ink: #111;
+      --muted: #5b5b5b;
+      --paper: rgba(255,255,255,0.97);
+      --line: #d8d8d8;
+      --head: #111;
+      --headText: #fff;
+      --handoff: #1f5d3a;
+      --handoffText: #fff;
+      --warn: #b45309;
+      --bad: #b91c1c;
+      --ok: #047857;
     }
 
-    /* Background like your other pages */
+    /* Background (matches your other pages) */
     body{
       margin:0;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       color: var(--ink);
-      min-height: 100vh;
-      background: #000;
-      background-image: var(--bg-img);
+      background:
+        linear-gradient(to bottom, rgba(0,0,0,0.55), rgba(0,0,0,0.55)),
+        url("transformer.jpg");
       background-size: cover;
       background-position: center;
       background-attachment: fixed;
+      min-height: 100vh;
     }
 
-    /* Blur overlay (matches your other pages feel) */
-    body::before{
-      content:"";
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,.35);
-      backdrop-filter: blur(7px);
-      -webkit-backdrop-filter: blur(7px);
-      z-index: -1;
-    }
-
-    .page-shell{
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 22px 16px 44px;
-    }
-
+    /* Top glass header bar */
     .topbar{
-      display:flex;
-      align-items:center;
-      gap:12px;
-      padding: 10px 12px;
-      background: rgba(255,255,255,.14);
-      border: 1px solid rgba(255,255,255,.20);
-      border-radius: 14px;
-      box-shadow: var(--shadow);
-      color: #fff;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(14px);
+      background: rgba(0,0,0,0.35);
+      border-bottom: 1px solid rgba(255,255,255,0.12);
     }
 
-    .topbar-left{
+    .topbar-inner{
+      max-width: var(--sheet-max);
+      margin: 0 auto;
+      padding: 14px 14px;
       display:flex;
       align-items:center;
-      gap:12px;
-      flex: 1 1 auto;
-      min-width: 0;
+      justify-content:space-between;
+      gap: 12px;
+    }
+
+    .left-pack{
+      display:flex;
+      align-items:center;
+      gap: 12px;
       flex-wrap: wrap;
     }
 
     .logo{
-      width: 110px;
-      height: 44px;
-      background-image: var(--logo-img);
-      background-size: contain;
-      background-repeat: no-repeat;
-      background-position: center left;
-      filter: drop-shadow(0 4px 10px rgba(0,0,0,.55));
-      flex: 0 0 auto;
+      height: 26px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .logo img{ height: 26px; width:auto; display:block; }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(255,255,255,0.10);
+      color: #fff;
+      text-decoration: none;
+      font-weight: 700;
+      cursor: pointer;
+      user-select:none;
+      white-space: nowrap;
+    }
+
+    .pill.secondary{
+      background: rgba(0,0,0,0.25);
+    }
+
+    .equip-label{
+      color:#fff;
+      font-weight:800;
+      letter-spacing: 0.2px;
+    }
+
+    .right-pack{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content:flex-end;
     }
 
     .btn{
       appearance:none;
-      border:1px solid rgba(255,255,255,.22);
-      background: rgba(0,0,0,.26);
-      color: #fff;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(255,255,255,0.10);
+      color:#fff;
       padding: 10px 14px;
       border-radius: 999px;
+      font-weight: 800;
       cursor:pointer;
-      font-weight: 800;
-      letter-spacing:.2px;
-      white-space: nowrap;
     }
-    .btn:hover{ background: rgba(0,0,0,.34); }
-    .btn:active{ transform: translateY(1px); }
-
     .btn.primary{
-      border-color: rgba(0,179,255,.55);
-      background: rgba(0,179,255,.22);
+      background: rgba(0, 153, 255, 0.35);
+      border-color: rgba(0,153,255,0.45);
     }
-    .btn.good{
-      border-color: rgba(46,204,113,.55);
-      background: rgba(46,204,113,.22);
-    }
-
-    .title-wrap{
-      display:flex;
-      flex-direction: column;
-      gap:2px;
-      min-width: min(520px, 100%);
-    }
-    .page-title{
-      margin:0;
-      font-size: 28px;
-      line-height: 1.1;
-      font-weight: 900;
-      text-shadow: 0 10px 30px rgba(0,0,0,.55);
-      cursor: default;
-      user-select: none;
-      color: #fff;
-    }
-    .subtitle{
-      margin:0;
-      color: rgba(255,255,255,.82);
-      font-weight: 800;
-      overflow:hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+    .btn.print{
+      background: rgba(34,197,94,0.30);
+      border-color: rgba(34,197,94,0.40);
     }
 
-    /* Paper-white card */
-    .card{
-      margin-top: 18px;
-      background: var(--paper);
-      border: 1px solid rgba(255,255,255,.28);
-      border-radius: 18px;
-      box-shadow: var(--shadow);
-      overflow: hidden;
-    }
-
-    .section-head{
+    .role-wrap{
       display:flex;
       align-items:center;
-      justify-content: space-between;
-      padding: 14px;
-      background: rgba(0,0,0,.06);
-      border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
+      gap:8px;
+      color:#fff;
+      font-weight:700;
+      opacity: 0.95;
+      white-space: nowrap;
     }
-    .section-head h2{
-      margin:0;
-      font-size: 18px;
-      letter-spacing: .2px;
-      color: var(--ink);
-      font-weight: 900;
+    .role-wrap select{
+      border-radius: 10px;
+      padding: 8px 10px;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(0,0,0,0.35);
+      color:#fff;
+      font-weight:800;
+      outline:none;
     }
 
-    .grid{
-      display:grid;
-      gap: 12px;
-      padding: 14px;
+    /* Page shell + paper */
+    .shell{
+      max-width: var(--sheet-max);
+      margin: 18px auto 40px;
+      padding: 0 14px;
     }
-    .grid.cols-4{ grid-template-columns: repeat(4, minmax(0, 1fr)); }
 
-    .field{
+    .paper{
+      background: var(--paper);
+      border-radius: 18px;
+      box-shadow: 0 14px 40px rgba(0,0,0,0.35);
+      overflow: hidden;
+      border: 1px solid rgba(0,0,0,0.08);
+    }
+
+    .paper-head{
+      padding: 18px 18px 10px;
+      border-bottom: 1px solid var(--line);
       display:flex;
-      flex-direction: column;
-      gap: 6px;
-      min-width: 0;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap: 14px;
+      flex-wrap: wrap;
     }
-    .field label{
-      font-weight: 900;
-      color: rgba(17,19,24,.86);
-      font-size: 13px;
-      letter-spacing: .2px;
+    .paper-head h1{
+      margin:0;
+      font-size: 30px;
+      line-height: 1.1;
+      letter-spacing: 0.2px;
+    }
+    .paper-head .sub{
+      margin-top: 6px;
+      color: var(--muted);
+      font-weight: 700;
     }
 
-    .input, .textarea{
-      width: 100%;
-      border-radius: 12px;
-      border: 1px solid var(--border-2);
-      background: rgba(255,255,255,.98);
-      color: var(--ink);
-      padding: 11px 12px;
+    .statusline{
+      color: var(--muted);
       font-weight: 800;
-      outline: none;
-      box-sizing: border-box;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap: wrap;
     }
-    .textarea{
-      resize: vertical;
-      min-height: 44px;
-      line-height: 1.25;
-      font-weight: 750;
-      overflow-wrap: anywhere; /* prevent overflow */
-      word-break: break-word;
-    }
-    .input::placeholder, .textarea::placeholder{ color: rgba(17,19,24,.45); font-weight: 800; }
-
-    .muteline{
-      padding: 0 14px 14px;
-      color: var(--muted-ink);
-      font-weight: 800;
+    .badge{
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,0.03);
       font-size: 12px;
+      font-weight: 900;
+      color: #222;
+      white-space: nowrap;
+    }
+    .badge.ok{ border-color: rgba(4,120,87,0.35); background: rgba(4,120,87,0.08); color: var(--ok); }
+    .badge.bad{ border-color: rgba(185,28,28,0.35); background: rgba(185,28,28,0.08); color: var(--bad); }
+    .badge.warn{ border-color: rgba(180,83,9,0.35); background: rgba(180,83,9,0.08); color: var(--warn); }
+
+    /* Table area */
+    .table-wrap{
+      padding: 14px 14px 6px;
     }
 
-    /* Table */
-    .table-wrap{
-      padding: 14px;
-      overflow: auto;
+    .scroll-wrap{
+      overflow:auto;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: #fff;
     }
+
     table{
-      width: 100%;
+      width:100%;
       border-collapse: separate;
       border-spacing: 0;
-      min-width: 980px;
-      background: #fff;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      overflow:hidden;
+      min-width: 980px; /* keeps columns usable on desktop; scroll on small screens */
     }
 
     thead th{
       position: sticky;
       top: 0;
-      z-index: 5;
-      background: var(--thead);
-      color: #fff;
-      text-align: left;
+      z-index: 2;
+      background: linear-gradient(#1a1a1a, #0f0f0f);
+      color: var(--headText);
+      text-align:left;
       padding: 12px 10px;
       font-size: 14px;
-      border-bottom: 1px solid rgba(255,255,255,.12);
+      letter-spacing: 0.2px;
+      border-bottom: 1px solid rgba(255,255,255,0.12);
       white-space: nowrap;
     }
 
-    thead tr:nth-child(2) th{
-      background: var(--thead-2);
-      font-size: 12px;
-      letter-spacing:.2px;
-    }
-
     tbody td{
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid var(--line);
       padding: 10px;
       vertical-align: top;
-      background: var(--row);
+      background:#fff;
     }
-    tbody tr:nth-child(even) td{ background: var(--row-2); }
+    tbody tr:last-child td{ border-bottom: none; }
 
-    /* Column sizing (desktop) */
-    .col-num{ width: 54px; font-weight: 900; }
-    .col-item{ width: 44%; }
-    .col-notes{ width: 24%; }
-    .col-sign{ width: 120px; }
-    .col-date{ width: 160px; }
-    .col-actions{ width: 60px; text-align:center; }
+    .col-num{ width:68px; font-weight: 900; }
+    .col-item{ width: 46%; }
+    .col-notes{ width: 26%; }
+    .col-sign{ width: 210px; }
+    .col-date{ width: 210px; }
+    .col-add, .col-del{ width: 56px; text-align:center; }
 
-    /* Editable item cell - WRAP & NO OVERFLOW */
-    .cell-edit{
-      border: 1px solid transparent;
-      border-radius: 10px;
-      padding: 10px 10px;
-      outline: none;
-      background: rgba(0,0,0,.03);
-      font-weight: 900;
-      color: var(--ink);
-      white-space: normal;
-      overflow-wrap: anywhere;
-      word-break: break-word;
+    .item-text{
+      font-weight: 800;
+      color:#121212;
       line-height: 1.25;
-      min-height: 44px;
-      box-sizing: border-box;
-    }
-    .cell-edit:focus{
-      border-color: rgba(0,179,255,.55);
-      box-shadow: 0 0 0 3px rgba(0,179,255,.16);
-      background: rgba(0,179,255,.06);
+      white-space: pre-wrap;
+      word-break: break-word;
     }
 
-    /* Notes field - ensure it cannot overlap */
-    .cell-note .textarea{
-      background: rgba(0,0,0,.02);
-      border-color: var(--border-2);
-      font-weight: 750;
-      box-sizing: border-box;
-      max-width: 100%;
+    .handoff-row td{
+      background: rgba(31,93,58,0.10);
     }
-
-    .small{
-      padding: 10px 10px;
+    .handoff-row .item-text{
+      background: rgba(31,93,58,0.90);
+      color: var(--handoffText);
+      padding: 10px 12px;
       border-radius: 12px;
-      border: 1px solid var(--border-2);
-      background: rgba(0,0,0,.02);
-      color: var(--ink);
-      font-weight: 900;
-      width: 100%;
-      outline:none;
+    }
+
+    /* Inputs */
+    .cell-input, .cell-date, .cell-init, textarea{
+      width:100%;
       box-sizing: border-box;
-      min-width: 0;
-    }
-    .small:focus{
-      border-color: rgba(0,179,255,.55);
-      box-shadow: 0 0 0 3px rgba(0,179,255,.16);
+      border-radius: 12px;
+      border: 1px solid #cfcfcf;
+      padding: 10px 12px;
+      outline: none;
+      font-weight: 700;
+      background: #fff;
     }
 
-    .handoff td{
-      background: var(--handoff) !important;
-      border-bottom: 1px solid var(--handoff-border);
+    textarea{
+      resize: none;
+      min-height: 46px;
+      line-height: 1.25;
+      font-weight: 650;
     }
-    .handoff .handoff-label{
-      font-weight: 950;
+
+    .sign-pack{
+      display:flex;
+      align-items:center;
+      gap: 8px;
+      flex-wrap: wrap; /* FIX overlap */
+    }
+    .sign-pack .cell-init{ flex: 1 1 90px; min-width: 90px; }
+    .sign-pack .cell-date{ flex: 1 1 140px; min-width: 140px; }
+
+    .tiny-label{
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 900;
+      margin: 0 0 6px 2px;
       text-transform: uppercase;
-      letter-spacing: .5px;
-      color: #0c3a1f;
-      background: rgba(0,0,0,.02);
+      letter-spacing: 0.4px;
     }
 
-    .section-row td{
-      background: rgba(0,0,0,.06) !important;
-      font-weight: 950;
-    }
-
-    /* Changed + invalid indicators */
-    .changed{
-      outline: 2px solid rgba(217,119,6,.35);
-      box-shadow: 0 0 0 3px rgba(217,119,6,.12);
-    }
-    .invalid{
-      outline: 2px solid rgba(220,38,38,.55) !important;
-      box-shadow: 0 0 0 3px rgba(220,38,38,.14) !important;
-    }
-
-    .action-btn{
-      width: 36px;
-      height: 36px;
+    .icon-btn{
+      width: 38px;
+      height: 38px;
       border-radius: 10px;
-      border: 1px solid var(--border-2);
-      background: rgba(0,0,0,.04);
-      color: var(--ink);
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,0.03);
       cursor:pointer;
-      font-weight: 950;
+      font-weight: 1000;
+      font-size: 18px;
+      line-height: 1;
       display:inline-flex;
       align-items:center;
       justify-content:center;
+      user-select:none;
     }
-    .action-btn:hover{ background: rgba(0,0,0,.08); }
-    .action-btn.add{ border-color: rgba(46,204,113,.55); background: rgba(46,204,113,.14); }
-    .action-btn.del{ border-color: rgba(220,38,38,.55); background: rgba(220,38,38,.10); }
+    .icon-btn.add{ color: #0b7a35; }
+    .icon-btn.del{ color: #b91c1c; }
 
-    .foreman-only{ display: none; }
-    .is-foreman .foreman-only{ display: inline-flex; }
+    .icon-btn[disabled]{
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
 
-    /* === MOBILE: no overlaps; stack row cards cleanly === */
-    @media (max-width: 900px){
-      .grid.cols-4{ grid-template-columns: 1fr 1fr; }
+    /* Changed highlight */
+    .changed{
+      box-shadow: 0 0 0 3px rgba(0,153,255,0.25);
+      border-color: rgba(0,153,255,0.55) !important;
+    }
+
+    /* Validation highlight */
+    .missing{
+      box-shadow: 0 0 0 3px rgba(185,28,28,0.25);
+      border-color: rgba(185,28,28,0.55) !important;
+      background: rgba(185,28,28,0.04) !important;
+    }
+
+    /* Exports + Final signoff blocks */
+    .block{
+      margin: 12px 14px 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      overflow:hidden;
+      background:#fff;
+    }
+    .block-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      padding: 12px 14px;
+      background: rgba(0,0,0,0.03);
+      border-bottom: 1px solid var(--line);
+      font-weight: 950;
+    }
+    .block-body{
+      padding: 14px;
+    }
+    .grid2{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .grid1{ display:grid; grid-template-columns: 1fr; gap: 12px; }
+
+    .field label{
+      display:block;
+      font-weight: 950;
+      margin: 0 0 6px;
+      color:#111;
+    }
+    .req{
+      color: var(--warn);
+      font-weight: 1000;
+      margin-left: 6px;
+    }
+
+    .exports-row{
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .exports-row button{
+      border-radius: 12px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,0.03);
+      cursor:pointer;
+      font-weight: 900;
+    }
+
+    /* Mobile stacking (readable cards) */
+    @media (max-width: 860px){
       table{ min-width: 0; }
+      .scroll-wrap{ border-radius: 14px; }
 
       thead{ display:none; }
-      tbody, tr, td{ display:block; width:100%; }
-
-      tbody tr{
-        border: 1px solid var(--border);
-        border-radius: 14px;
-        margin-bottom: 12px;
-        overflow:hidden;
-        background: #fff;
-      }
-
+      table, tbody, tr, td{ display:block; width:100%; }
       tbody td{
-        border-bottom: 1px solid var(--border);
-        background: #fff;
+        border-bottom: none;
+        padding: 10px 12px;
       }
+      tbody tr{
+        border-bottom: 1px solid var(--line);
+      }
+      .col-add, .col-del{ display:none; } /* +/x still available via row actions below */
+      .row-actions-mobile{
+        display:flex;
+        gap:10px;
+        padding: 0 12px 12px;
+      }
+      .row-actions-mobile .icon-btn{ flex: 0 0 auto; }
 
-      tbody td::before{
-        content: attr(data-label);
+      .mobile-label{
         display:block;
         font-size: 12px;
-        letter-spacing:.2px;
-        font-weight: 900;
-        color: rgba(17,19,24,.70);
+        color: var(--muted);
+        font-weight: 950;
         margin-bottom: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.35px;
       }
-
-      /* Make inputs full width; prevent “side-by-side” squeezing that causes overlap */
-      .small, .textarea, .cell-edit{
-        width: 100%;
-        max-width: 100%;
-      }
-
-      .col-actions{ text-align:left; }
-
-      /* Better mobile header */
-      .page-title{ font-size: 24px; }
-      .logo{ width: 96px; height: 40px; }
-      .subtitle{ white-space: normal; }
     }
 
-    /* Print/PDF friendly */
+    /* Print/PDF */
     @media print{
-      body{ background: #fff !important; color:#000 !important; }
-      body::before{ display:none !important; }
+      body{
+        background: #fff !important;
+      }
       .topbar{ display:none !important; }
-      .card{ box-shadow:none !important; background:#fff !important; border:0 !important; }
-      .section-head{ background:#f2f2f2 !important; color:#000 !important; }
-      table{ background:#fff !important; border:1px solid #bbb !important; }
-      tbody td, thead th{ color:#000 !important; }
-      .cell-edit, .small, .textarea{ background:#fff !important; color:#000 !important; border:1px solid #bbb !important; box-shadow:none !important; }
-      .action-btn{ display:none !important; }
+      .paper{ box-shadow:none; border: none; }
+      .scroll-wrap{ overflow: visible; border: none; }
+      table{ min-width: 0; }
+      .icon-btn, .row-actions-mobile{ display:none !important; }
+      .block{ break-inside: avoid; }
     }
   </style>
 </head>
 
 <body>
-  <div class="page-shell">
-    <div class="topbar">
-      <div class="topbar-left">
-        <button class="btn" id="backBtn" type="button">← Back to Equipment</button>
+  <div class="topbar">
+    <div class="topbar-inner">
+      <div class="left-pack">
+        <a class="pill secondary" id="backBtn" href="equipment.html">← Back to Equipment</a>
+        <div class="logo" aria-label="NEXUS logo">
+          <img src="nexus.png" alt="NEXUS" />
+        </div>
+        <div class="equip-label" id="equipTop">Equipment: —</div>
+        <div class="role-wrap">
+          <span>Set Role</span>
+          <select id="roleSel">
+            <option value="viewer">Viewer</option>
+            <option value="qcx">QCx</option>
+            <option value="foreman">Foreman</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="right-pack">
         <button class="btn primary" id="saveBtn" type="button">Save</button>
-        <button class="btn good" id="printBtn" type="button">Print / PDF</button>
-        <div class="logo" aria-label="NEXUS"></div>
-
-        <div class="title-wrap">
-          <h1 class="page-title" id="pageTitle" title="Double-click to toggle Foreman tools">Construction Check Sheet</h1>
-          <p class="subtitle" id="equipLine">Equipment: (none)</p>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="section-head">
-        <h2>Header</h2>
-        <div style="color: rgba(17,19,24,.70); font-weight:900; font-size:12px;" id="statusLine">Not saved</div>
-      </div>
-
-      <div class="grid cols-4">
-        <div class="field">
-          <label>Equipment</label>
-          <input class="input" id="hdrEquipment" placeholder="TR-001" />
-        </div>
-        <div class="field">
-          <label>Building Number</label>
-          <input class="input" id="hdrBuilding" placeholder="Enter..." />
-        </div>
-        <div class="field">
-          <label>Phase</label>
-          <input class="input" id="hdrPhase" placeholder="Enter..." />
-        </div>
-        <div class="field">
-          <label>Equip ID</label>
-          <input class="input" id="hdrEquipId" placeholder="Enter..." />
-        </div>
-
-        <div class="field" style="grid-column: 1 / -1;">
-          <label>Foreman</label>
-          <input class="input" id="hdrForeman" placeholder="Enter..." />
-        </div>
-      </div>
-
-      <div class="muteline" id="storageKeyLine">Storage key: —</div>
-
-      <div class="section-head">
-        <h2>Construction Items</h2>
-        <div style="display:flex; gap:10px; align-items:center;">
-          <div style="font-weight:900; font-size:12px; color: rgba(17,19,24,.70);" id="rowCount">0 rows</div>
-        </div>
-      </div>
-
-      <div class="table-wrap">
-        <table id="sheetTable" aria-label="Construction Check Sheet">
-          <thead>
-            <tr>
-              <th class="col-num">#</th>
-              <th class="col-item">Construction Items</th>
-              <th class="col-notes">Notes</th>
-              <th class="col-sign" colspan="2">Construction</th>
-              <th class="col-sign" colspan="2">QCx</th>
-              <th class="col-actions" colspan="2">Row</th>
-            </tr>
-            <tr>
-              <th class="col-num"></th>
-              <th class="col-item"></th>
-              <th class="col-notes"></th>
-              <th class="col-sign">Sign Off</th>
-              <th class="col-date">Date</th>
-              <th class="col-sign">Sign Off</th>
-              <th class="col-date">Date</th>
-              <th class="col-actions">+</th>
-              <th class="col-actions">×</th>
-            </tr>
-          </thead>
-          <tbody id="tbody"></tbody>
-        </table>
-      </div>
-
-      <div class="section-head">
-        <h2>Final Sign-Off</h2>
-        <div style="color: rgba(17,19,24,.70); font-weight:900; font-size:12px;">Required</div>
-      </div>
-
-      <div class="grid cols-4" style="padding-bottom: 18px;">
-        <div class="field" style="grid-column: 1 / 3;">
-          <label>Construction Foreman Name <span style="color: var(--warn);">(required)</span></label>
-          <input class="input" id="finalConstName" placeholder="Enter..." data-required="1" />
-        </div>
-        <div class="field" style="grid-column: 3 / 5;">
-          <label>QCx Foreman Name <span style="color: var(--warn);">(required)</span></label>
-          <input class="input" id="finalQcxName" placeholder="Enter..." data-required="1" />
-        </div>
-        <div class="field" style="grid-column: 1 / 3;">
-          <label>Date <span style="color: var(--warn);">(required)</span></label>
-          <input class="input" id="finalDate" type="date" data-required="1" />
-        </div>
-        <div class="field" style="grid-column: 3 / 5;">
-          <label>Notes (optional)</label>
-          <textarea class="textarea" id="finalNotes" placeholder="Optional..." rows="2"></textarea>
-        </div>
+        <button class="btn print" id="printBtn" type="button">Print / PDF</button>
       </div>
     </div>
   </div>
 
+  <div class="shell">
+    <div class="paper">
+      <div class="paper-head">
+        <div>
+          <h1>Construction Check Sheet</h1>
+          <div class="sub" id="equipSub">Equipment: —</div>
+        </div>
+
+        <div class="statusline">
+          <span class="badge" id="loadState">Loading…</span>
+          <span class="badge" id="docKeyBadge">Key: —</span>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <div class="scroll-wrap">
+          <table id="ccsTable">
+            <thead>
+              <tr>
+                <th class="col-num">#</th>
+                <th class="col-item">Construction Items</th>
+                <th class="col-notes">Notes</th>
+                <th class="col-sign">Construction</th>
+                <th class="col-date">QCx</th>
+                <th class="col-add">+</th>
+                <th class="col-del">×</th>
+              </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="block">
+        <div class="block-head">
+          <span>Exports</span>
+          <span style="font-weight:900;color:var(--muted);font-size:12px;">Does not change the top bar</span>
+        </div>
+        <div class="block-body">
+          <div class="exports-row">
+            <button type="button" id="exportJsonBtn">Export JSON</button>
+            <button type="button" id="exportCsvBtn">Export CSV</button>
+            <button type="button" id="exportXlsBtn">Export Excel</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="block">
+        <div class="block-head">
+          <span>Final Sign-Off</span>
+          <span class="badge warn">Required</span>
+        </div>
+        <div class="block-body">
+          <div class="grid2">
+            <div class="field">
+              <label>Construction Foreman Name <span class="req">(required)</span></label>
+              <input class="cell-input" id="finalConsName" placeholder="Enter..." />
+            </div>
+            <div class="field">
+              <label>QCx Foreman Name <span class="req">(required)</span></label>
+              <input class="cell-input" id="finalQcxName" placeholder="Enter..." />
+            </div>
+          </div>
+
+          <div style="height:10px;"></div>
+
+          <div class="grid2">
+            <div class="field">
+              <label>Date <span class="req">(required)</span></label>
+              <input class="cell-date" id="finalDate" type="date" />
+            </div>
+            <div class="field">
+              <label>Notes (optional)</label>
+              <textarea id="finalNotes" placeholder="Optional..." ></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="padding: 0 14px 16px; color: rgba(255,255,255,0);">.</div>
+    </div>
+  </div>
+
   <script>
-    /**********************
-     * Utilities
-     **********************/
-    const $ = (id) => document.getElementById(id);
+    /***************
+     * Data seed (from your sheet image)
+     ***************/
+    const SEED_ROWS = [
+      { item: "LV Transformer 001", handoff:false },
+      { item: "Building Number", handoff:false },
+      { item: "Phase", handoff:false },
+      { item: "Foreman:", handoff:false },
+      { item: "Equip ID:", handoff:false },
 
-    function nowIsoLocalDateTime(){
-      const d = new Date();
-      const pad = (n) => String(n).padStart(2,'0');
-      return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
-    }
+      { item: "Equipment Information:", handoff:false },
+      { item: "RIF Completed", handoff:false },
+      { item: "Labels installed by QCX:", handoff:false },
+      { item: "Phenolic", handoff:false },
+      { item: "Arc Flash", handoff:false },
 
-    function downloadText(filename, text, mime="text/plain"){
-      const blob = new Blob([text], {type: mime});
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      setTimeout(()=>URL.revokeObjectURL(a.href), 500);
-    }
+      { item: "QCX", handoff:true }, /* green signoff line */
 
-    function toCSV(data){
-      const headers = [
-        "rowType","item","notes",
-        "constructionSignOff","constructionDate",
-        "qcxSignOff","qcxDate"
-      ];
-      const esc = (v) => {
-        const s = (v ?? "").toString();
-        if (/[",\n]/.test(s)) return `"${s.replace(/"/g,'""')}"`;
-        return s;
-      };
-      const lines = [];
-      lines.push(headers.join(","));
-      for (const r of data.rows){
-        lines.push(headers.map(h => esc(r[h])).join(","));
-      }
-      return lines.join("\n");
-    }
+      { item: "Equipment Mounted / Installation Specs", handoff:false },
+      { item: '6" clearance from walls and panels', handoff:false },
+      { item: "Remove front cover bolts, bag & tag, leaving proper amount of bolts to hold cover in place", handoff:false },
+      { item: "Shipping assembly (if required)", handoff:false },
+      { item: "Apply proper cover for equipment protection", handoff:false },
+      { item: 'Anchored using 1/2" concrete wedge anchors', handoff:false },
+      { item: "Housing is mounted squared and leveled", handoff:false },
+      { item: "XFMR Neta Tested (validated by QCx)", handoff:false },
 
-    function autoGrowTextarea(el){
-      if (!el) return;
-      el.style.height = "auto";
-      el.style.height = Math.min(el.scrollHeight, 420) + "px";
-    }
+      { item: "QCX Handoff to Construction", handoff:true }, /* green signoff line */
 
-    function setStatus(text, ok=false){
-      const el = $("statusLine");
-      el.textContent = text;
-      el.style.color = ok ? "rgba(37,192,109,.95)" : "rgba(17,19,24,.70)";
-    }
+      { item: "Internal Wiring and Termination Specifications", handoff:false },
+      { item: "1. Hardware Installation:", handoff:false },
+      { item: 'Install proper/correct phase lugs (with min 1" gap from nearest item)', handoff:false },
+      { item: "Install proper ground bar (if required)", handoff:false },
 
-    /**********************
-     * Role gating (Foreman only add/delete)
-     **********************/
-    const ROLE_KEY = "nexus_role";
-    const DEFAULT_PIN = "1234";
+      { item: "2. Primary / High Side:", handoff:false },
+      { item: "Primary wire matches 1 Line Diagram: (3) AL #1/0 and 1 CU #6 Ground (A100.3)", handoff:false },
+      { item: "Verify primary wire phase color: H1/A-Brown H2/B-Orange H3/C-Yellow Ground-Green", handoff:false },
+      { item: "Verify installation and termination of ground bonding bushing", handoff:false },
 
-    function isForeman(){
-      const urlRole = new URLSearchParams(location.search).get("role");
-      if (urlRole && urlRole.toLowerCase() === "foreman") return true;
-      return localStorage.getItem(ROLE_KEY) === "foreman";
-    }
-    function setForeman(on){
-      if (on) localStorage.setItem(ROLE_KEY, "foreman");
-      else localStorage.removeItem(ROLE_KEY);
-      document.documentElement.classList.toggle("is-foreman", isForeman());
-      render();
-    }
-    document.documentElement.classList.toggle("is-foreman", isForeman());
+      { item: "3. Secondary / Low Side:", handoff:false },
+      { item: "Secondary wire matches 1 Line Diagram: (3) AL #1/0 and Ground 1 CU #6 (A100.3) Neutral wire AL #1/0 (A110.T)", handoff:false },
+      { item: "Verify secondary wire phase color: X1/A-Black X2/B-Red X3/C-Blue Ground-Green Neutral-White", handoff:false },
+      { item: "Verify installation and termination of ground bonding bushing", handoff:false },
 
-    $("pageTitle").addEventListener("dblclick", () => {
-      const pin = prompt("Enter Foreman PIN:");
-      if (pin === null) return;
-      const expected = localStorage.getItem("nexus_foreman_pin") || DEFAULT_PIN;
-      if (pin === expected){
-        setForeman(!isForeman());
-      } else {
-        alert("Incorrect PIN.");
-      }
-    });
+      { item: "4. Building Steel:", handoff:false },
+      { item: "Verify that ground is #8 copper or larger", handoff:false },
 
-    /**********************
-     * Routing / Keys
-     **********************/
-    const params = new URLSearchParams(window.location.search);
-    const eqParam = params.get("eq") || "";
-    $("hdrEquipment").value = eqParam || "";
-    $("hdrEquipId").value = eqParam || "";
-    $("equipLine").textContent = eqParam ? ("Equipment: " + eqParam) : "Equipment: (none)";
+      { item: "5. Bonding Jumper:", handoff:false },
+      { item: "Bonding jumper must be AL #1/0 wire (or same size as biggest conducter on pri. or sec.) and all black", handoff:false },
 
-    const backUrl = "equipment.html" + (eqParam ? ("?eq=" + encodeURIComponent(eqParam)) : "");
-    $("backBtn").addEventListener("click", () => location.href = backUrl);
+      { item: "6. Verify hardware kit matches attached inventory sheet", handoff:false },
+      { item: "7. Install front cover with all hardware", handoff:false },
 
-    function storageKey(){
-      const eq = $("hdrEquipment").value.trim() || eqParam || "UNKNOWN";
-      return `nexus/equipment/${eq}/construction/ConstructionCheckSheet`;
-    }
-    function refreshStorageKeyLine(){
-      $("storageKeyLine").textContent = "Storage key: " + storageKey();
-    }
-    refreshStorageKeyLine();
-
-    $("hdrEquipment").addEventListener("input", () => {
-      $("equipLine").textContent = $("hdrEquipment").value.trim() ? ("Equipment: " + $("hdrEquipment").value.trim()) : "Equipment: (none)";
-      refreshStorageKeyLine();
-      markDirty();
-    });
-
-    /**********************
-     * Data Model
-     **********************/
-    const DEFAULT_ROWS = [
-      { rowType:"item", item:"LV Transformer 001", notes:"", constructionSignOff:"", constructionDate:"", qcxSignOff:"", qcxDate:"" },
-      { rowType:"item", item:"Building Number", notes:"", constructionSignOff:"", constructionDate:"", qcxSignOff:"", qcxDate:"" },
-      { rowType:"item", item:"Phase", notes:"", constructionSignOff:"", constructionDate:"", qcxSignOff:"", qcxDate:"" },
-      { rowType:"item", item:"Foreman:", notes:"", constructionSignOff:"", constructionDate:"", qcxSignOff:"", qcxDate:"" },
-
-      { rowType:"section", item:"Equipment Information", notes:"", constructionSignOff:"", constructionDate:"", qcxSignOff:"", qcxDate:"" },
-      { rowType:"item", item:"RIF Completed", notes:"", constructionSignOff:"", constructionDate:"", qcxSignOff:"", qcxDate:"" },
-      { rowType:"item", item:"Labels installed by QCX:", notes:"", constructionSignOff:"", constructionDate:"", qcxSignOff:"", qcxDate:"" },
-      { rowType:"item", item:"Phenolic", notes:"", constructionSignOff:"", constructionDate:"", qcxSignOff:"", qcxDate:"" },
-      { rowType:"item", item:"Arc Flash", notes:"", constructionSignOff:"", constructionDate:"", qcxSignOff:"", qcxDate:"" },
-
-      { rowType:"handoff", item:"QCX (Sign-Off / Pass to Next Stage)", notes:"", constructionSignOff:"", constructionDate:"", qcxSignOff:"", qcxDate:"" },
-
-      { rowType:"section", item:"Equipment Mounted / Installation Specs", notes:"", constructionSignOff:"", constructionDate:"", qcxSignOff:"", qcxDate:"" },
-      { rowType:"item", item:"6\" clearance from walls and panels", notes:"", constructionSignOff:"", constructionDate:"", qcxSignOff:"", qcxDate:"" },
-      { rowType:"item", item:"Remove front cover bolts, bag & tag, leaving proper amount of bolts to hold cover in place", notes:"", constructionSignOff:"", constructionDate:"", qcxSignOff:"", qcxDate:"" },
-      { rowType:"item", item:"Shipping assembly (if required)", notes:"", constructionSignOff:"", constructionDate:"", qcxSignOff:"", qcxDate:"" },
-      { rowType:"item", item:"Apply proper cover for equipment protection", notes:"", constructionSignOff:"", constructionDate:"", qcxSignOff:"", qcxDate:"" },
-      { rowType:"item", item:"Anchored using 1/2\" concrete wedge anchors", notes:"", constructionSignOff:"", constructionDate:"", qcxSignOff:"", qcxDate:"" },
-      { rowType:"item", item:"Housing is mounted squared and leveled", notes:"", constructionSignOff:"", constructionDate:"", qcxSignOff:"", qcxDate:"" },
-      { rowType:"item", item:"XFMR Neta Tested (validated by QCx)", notes:"", constructionSignOff:"", constructionDate:"", qcxSignOff:"", qcxDate:"" },
-
-      { rowType:"handoff", item:"QCX Handoff to Construction", notes:"", constructionSignOff:"", constructionDate:"", qcxSignOff:"", qcxDate:"" },
-
-      { rowType:"section", item:"Internal Wiring and Termination Specifications", notes:"", constructionSignOff:"", constructionDate:"", qcxSignOff:"", qcxDate:"" },
-
-      { rowType:"section", item:"1. Hardware Installation", notes:"", constructionSignOff:"", constructionDate:"", qcxSignOff:"", qcxDate:"" },
-      { rowType:"item", item:"Install proper/correct phase lugs (with min 1\" gap from nearest item)", notes:"", constructionSignOff:"", constructionDate:"", qcxSignOff:"", qcxDate:"" },
-      { rowType:"item", item:"Install proper ground bar (if required)", notes:"", constructionSignOff:"", constructionDate:"", qcxSignOff:"", qcxDate:"" },
-
-      { rowType:"section", item:"2. Primary / High Side", notes:"", constructionSignOff:"", constructionDate:"", qcxSignOff:"", qcxDate:"" },
-      { rowType:"item", item:"Primary wire matches 1 Line Diagram: (3) AL #1/0 and 1 CU #6 Ground (A100.3)", notes:"", constructionSignOff:"", constructionDate:"", qcxSignOff:"", qcxDate:"" },
-      { rowType:"item", item:"Verify primary wire phase color: H1/A-Brown H2/B-Orange H3/C-Yellow Ground-Green", notes:"", constructionSignOff:"", constructionDate:"", qcxSignOff:"", qcxDate:"" },
-      { rowType:"item", item:"Verify installation and termination of ground bonding bushing", notes:"", constructionSignOff:"", constructionDate:"", qcxSignOff:"", qcxDate:"" },
-
-      { rowType:"section", item:"3. Secondary / Low Side", notes:"", constructionSignOff:"", constructionDate:"", qcxSignOff:"", qcxDate:"" },
-      { rowType:"item", item:"Secondary wire matches 1 Line Diagram: (3) AL #1/0 and Ground 1 CU #8 (A100.3) Neutral wire AL #1/0 (A110.T)", notes:"", constructionSignOff:"", constructionDate:"", qcxSignOff:"", qcxDate:"" },
-      { rowType:"item", item:"Verify secondary wire phase color: X1/A-Black X2/B-Red X3/C-Blue Ground-Green Neutral-White", notes:"", constructionSignOff:"", constructionDate:"", qcxSignOff:"", qcxDate:"" },
-      { rowType:"item", item:"Verify installation and termination of ground bonding bushing", notes:"", constructionSignOff:"", constructionDate:"", qcxSignOff:"", qcxDate:"" },
-
-      { rowType:"section", item:"4. Building Steel", notes:"", constructionSignOff:"", constructionDate:"", qcxSignOff:"", qcxDate:"" },
-      { rowType:"item", item:"Verify that ground is #8 copper or larger", notes:"", constructionSignOff:"", constructionDate:"", qcxSignOff:"", qcxDate:"" },
-
-      { rowType:"section", item:"5. Bonding Jumper", notes:"", constructionSignOff:"", constructionDate:"", qcxSignOff:"", qcxDate:"" },
-      { rowType:"item", item:"Bonding jumper must be AL #1/0 wire (or the same size as biggest conductor on pri. or sec.) and all black", notes:"", constructionSignOff:"", constructionDate:"", qcxSignOff:"", qcxDate:"" },
-
-      { rowType:"section", item:"6. Verify hardware kit matches attached inventory sheet", notes:"", constructionSignOff:"", constructionDate:"", qcxSignOff:"", qcxDate:"" },
-      { rowType:"section", item:"7. Install front cover with all hardware", notes:"", constructionSignOff:"", constructionDate:"", qcxSignOff:"", qcxDate:"" },
-
-      { rowType:"handoff", item:"Foreman in charge verify all complete and handoff to QCX", notes:"", constructionSignOff:"", constructionDate:"", qcxSignOff:"", qcxDate:"" }
+      { item: "FOREMAN IN CHARGE VERIFY ALL COMPLETE AND HANDOFF TO QCX", handoff:true } /* green signoff line */
     ];
 
-    let state = {
-      meta: {
-        equipment: $("hdrEquipment").value.trim(),
-        building: "",
-        phase: "",
-        equipId: $("hdrEquipId").value.trim(),
-        foreman: ""
-      },
-      final: {
-        constructionForemanName: "",
-        qcxForemanName: "",
-        date: "",
-        notes: ""
-      },
-      rows: structuredClone(DEFAULT_ROWS)
+    /***************
+     * State
+     ***************/
+    const state = {
+      eq: "",
+      docKey: "",
+      role: localStorage.getItem("nexus_ccs_role") || "viewer",
+      rows: [],
+      final: { consName:"", qcxName:"", date:"", notes:"" },
+      baselineHash: "",
     };
 
-    let baseline = null;
-    let dirty = false;
+    const $ = (id) => document.getElementById(id);
 
-    function markDirty(){
-      dirty = true;
-      if (baseline) setStatus("Unsaved changes", false);
-      else setStatus("Not saved", false);
+    function isoDateKey(d=new Date()){
+      const y = d.getFullYear();
+      const m = String(d.getMonth()+1).padStart(2,"0");
+      const day = String(d.getDate()).padStart(2,"0");
+      return `${y}${m}${day}`;
     }
 
-    /**********************
+    function makeDocKey(eq){
+      // stable + readable; you can change later without breaking page
+      return `nexus/equipment/${eq}/construction/CCS-${isoDateKey()}`;
+    }
+
+    function deepClone(obj){ return JSON.parse(JSON.stringify(obj)); }
+
+    function hashForBaseline(payload){
+      // fast-ish stable string; good enough for "changed" UI behavior
+      return JSON.stringify(payload);
+    }
+
+    /***************
+     * Permissions
+     ***************/
+    function canEditRowButtons(){
+      return state.role === "foreman";
+    }
+
+    function applyPermissions(){
+      // top role persisted
+      localStorage.setItem("nexus_ccs_role", state.role);
+
+      // enable/disable +/x buttons
+      document.querySelectorAll(".icon-btn.add, .icon-btn.del").forEach(btn=>{
+        btn.disabled = !canEditRowButtons();
+        btn.style.display = canEditRowButtons() ? "" : "none";
+      });
+
+      // mobile row actions
+      document.querySelectorAll(".row-actions-mobile").forEach(w=>{
+        w.style.display = canEditRowButtons() ? "flex" : "none";
+      });
+    }
+
+    /***************
      * Render
-     **********************/
+     ***************/
+    function makeRow(seed, idx){
+      return {
+        id: crypto.randomUUID(),
+        num: idx+1,
+        item: seed.item || "",
+        notes: "",
+        consInit: "",
+        consDate: "",
+        qcxInit: "",
+        qcxDate: "",
+        handoff: !!seed.handoff
+      };
+    }
+
+    function renumber(){
+      state.rows.forEach((r,i)=> r.num = i+1);
+    }
+
+    function autoGrow(el){
+      el.style.height = "auto";
+      el.style.height = Math.min(el.scrollHeight, 220) + "px";
+    }
+
+    function rowTr(row){
+      const tr = document.createElement("tr");
+      if(row.handoff) tr.classList.add("handoff-row");
+
+      // #
+      const tdNum = document.createElement("td");
+      tdNum.className = "col-num";
+      tdNum.textContent = row.num;
+      tr.appendChild(tdNum);
+
+      // item
+      const tdItem = document.createElement("td");
+      tdItem.className = "col-item";
+      const itemDiv = document.createElement("div");
+      itemDiv.className = "item-text";
+      itemDiv.contentEditable = state.role !== "viewer"; // allow editing by QCx/Foreman
+      itemDiv.spellcheck = false;
+      itemDiv.textContent = row.item;
+      itemDiv.addEventListener("input", ()=> {
+        row.item = itemDiv.textContent;
+        itemDiv.classList.add("changed");
+        markDirty();
+      });
+      tdItem.appendChild(itemDiv);
+
+      // mobile label helper
+      if(window.matchMedia("(max-width: 860px)").matches){
+        const lab = document.createElement("span");
+        lab.className = "mobile-label";
+        lab.textContent = "Construction Items";
+        tdItem.prepend(lab);
+      }
+      tr.appendChild(tdItem);
+
+      // notes
+      const tdNotes = document.createElement("td");
+      tdNotes.className = "col-notes";
+      const notes = document.createElement("textarea");
+      notes.placeholder = "Enter notes...";
+      notes.value = row.notes || "";
+      notes.addEventListener("input", ()=>{
+        row.notes = notes.value;
+        autoGrow(notes);
+        notes.classList.add("changed");
+        markDirty();
+      });
+      setTimeout(()=>autoGrow(notes),0);
+
+      if(window.matchMedia("(max-width: 860px)").matches){
+        const lab = document.createElement("span");
+        lab.className = "mobile-label";
+        lab.textContent = "Notes";
+        tdNotes.appendChild(lab);
+      }
+      tdNotes.appendChild(notes);
+      tr.appendChild(tdNotes);
+
+      // Construction signoff (initials + date)
+      const tdCons = document.createElement("td");
+      tdCons.className = "col-sign";
+      if(window.matchMedia("(max-width: 860px)").matches){
+        const lab = document.createElement("span");
+        lab.className = "mobile-label";
+        lab.textContent = "Construction Sign-Off";
+        tdCons.appendChild(lab);
+      } else {
+        const lab = document.createElement("div");
+        lab.className = "tiny-label";
+        lab.textContent = "Construction";
+        tdCons.appendChild(lab);
+      }
+
+      const consPack = document.createElement("div");
+      consPack.className = "sign-pack";
+      const consInit = document.createElement("input");
+      consInit.className = "cell-init";
+      consInit.placeholder = "Initials";
+      consInit.value = row.consInit || "";
+      consInit.addEventListener("input", ()=>{ row.consInit = consInit.value; consInit.classList.add("changed"); markDirty(); });
+
+      const consDate = document.createElement("input");
+      consDate.className = "cell-date";
+      consDate.type = "date";
+      consDate.value = row.consDate || "";
+      consDate.addEventListener("input", ()=>{ row.consDate = consDate.value; consDate.classList.add("changed"); markDirty(); });
+
+      consPack.appendChild(consInit);
+      consPack.appendChild(consDate);
+      tdCons.appendChild(consPack);
+      tr.appendChild(tdCons);
+
+      // QCx signoff (initials + date)
+      const tdQcx = document.createElement("td");
+      tdQcx.className = "col-date";
+      if(window.matchMedia("(max-width: 860px)").matches){
+        const lab = document.createElement("span");
+        lab.className = "mobile-label";
+        lab.textContent = "QCx Sign-Off";
+        tdQcx.appendChild(lab);
+      } else {
+        const lab = document.createElement("div");
+        lab.className = "tiny-label";
+        lab.textContent = "QCx";
+        tdQcx.appendChild(lab);
+      }
+
+      const qcxPack = document.createElement("div");
+      qcxPack.className = "sign-pack";
+      const qcxInit = document.createElement("input");
+      qcxInit.className = "cell-init";
+      qcxInit.placeholder = "Initials";
+      qcxInit.value = row.qcxInit || "";
+      qcxInit.addEventListener("input", ()=>{ row.qcxInit = qcxInit.value; qcxInit.classList.add("changed"); markDirty(); });
+
+      const qcxDate = document.createElement("input");
+      qcxDate.className = "cell-date";
+      qcxDate.type = "date";
+      qcxDate.value = row.qcxDate || "";
+      qcxDate.addEventListener("input", ()=>{ row.qcxDate = qcxDate.value; qcxDate.classList.add("changed"); markDirty(); });
+
+      qcxPack.appendChild(qcxInit);
+      qcxPack.appendChild(qcxDate);
+      tdQcx.appendChild(qcxPack);
+      tr.appendChild(tdQcx);
+
+      // + (insert below)
+      const tdAdd = document.createElement("td");
+      tdAdd.className = "col-add";
+      const addBtn = document.createElement("button");
+      addBtn.className = "icon-btn add";
+      addBtn.type = "button";
+      addBtn.textContent = "+";
+      addBtn.title = "Insert row below";
+      addBtn.addEventListener("click", ()=> insertRowBelow(row.id));
+      tdAdd.appendChild(addBtn);
+      tr.appendChild(tdAdd);
+
+      // x (delete)
+      const tdDel = document.createElement("td");
+      tdDel.className = "col-del";
+      const delBtn = document.createElement("button");
+      delBtn.className = "icon-btn del";
+      delBtn.type = "button";
+      delBtn.textContent = "×";
+      delBtn.title = "Delete row";
+      delBtn.addEventListener("click", ()=> deleteRow(row.id));
+      tdDel.appendChild(delBtn);
+      tr.appendChild(tdDel);
+
+      // Mobile row actions bar (foreman only)
+      if(window.matchMedia("(max-width: 860px)").matches){
+        const actionsTr = document.createElement("tr");
+        const td = document.createElement("td");
+        td.colSpan = 7;
+
+        const wrap = document.createElement("div");
+        wrap.className = "row-actions-mobile";
+        const add2 = document.createElement("button");
+        add2.className = "icon-btn add";
+        add2.type = "button";
+        add2.textContent = "+";
+        add2.addEventListener("click", ()=> insertRowBelow(row.id));
+        const del2 = document.createElement("button");
+        del2.className = "icon-btn del";
+        del2.type = "button";
+        del2.textContent = "×";
+        del2.addEventListener("click", ()=> deleteRow(row.id));
+        wrap.appendChild(add2);
+        wrap.appendChild(del2);
+
+        td.appendChild(wrap);
+        actionsTr.appendChild(td);
+
+        // Return a fragment-like structure by attaching to tr as a property
+        tr._mobileActionsRow = actionsTr;
+      }
+
+      return tr;
+    }
+
     function render(){
+      renumber();
       const tbody = $("tbody");
       tbody.innerHTML = "";
 
-      state.meta.equipment = $("hdrEquipment").value.trim();
-      state.meta.building = $("hdrBuilding").value;
-      state.meta.phase = $("hdrPhase").value;
-      state.meta.equipId = $("hdrEquipId").value;
-      state.meta.foreman = $("hdrForeman").value;
-
-      $("rowCount").textContent = `${state.rows.length} rows`;
-
-      state.rows.forEach((r, idx) => {
-        const tr = document.createElement("tr");
-        tr.dataset.idx = idx;
-
-        if (r.rowType === "handoff") tr.classList.add("handoff");
-        if (r.rowType === "section") tr.classList.add("section-row");
-
-        const tdNum = document.createElement("td");
-        tdNum.className = "col-num";
-        tdNum.textContent = String(idx + 1);
-        tdNum.setAttribute("data-label", "#");
-        tr.appendChild(tdNum);
-
-        const tdItem = document.createElement("td");
-        tdItem.className = "col-item";
-        tdItem.setAttribute("data-label", "Construction Items");
-
-        const itemDiv = document.createElement("div");
-        itemDiv.className = "cell-edit";
-        itemDiv.contentEditable = (r.rowType !== "section");
-        itemDiv.spellcheck = false;
-        itemDiv.innerText = r.item || "";
-
-        if (r.rowType === "handoff"){
-          itemDiv.classList.add("handoff-label");
-        }
-
-        itemDiv.addEventListener("input", () => {
-          r.item = itemDiv.innerText.replace(/\u00A0/g, " ");
-          markDirty();
-          applyChangedStyling();
-        });
-        itemDiv.addEventListener("keydown", (e) => handleNavKeys(e, itemDiv));
-        tdItem.appendChild(itemDiv);
-        tr.appendChild(tdItem);
-
-        const tdNotes = document.createElement("td");
-        tdNotes.className = "col-notes cell-note";
-        tdNotes.setAttribute("data-label", "Notes");
-
-        const notes = document.createElement("textarea");
-        notes.className = "textarea";
-        notes.placeholder = "Enter notes...";
-        notes.value = r.notes || "";
-        notes.addEventListener("input", () => {
-          r.notes = notes.value;
-          autoGrowTextarea(notes);
-          markDirty();
-          applyChangedStyling();
-        });
-        notes.addEventListener("keydown", (e) => handleNavKeys(e, notes));
-        tdNotes.appendChild(notes);
-        tr.appendChild(tdNotes);
-
-        tr.appendChild(makeSmallInputCell("Construction Sign Off", "col-sign", r, "constructionSignOff", "Initials...", "text"));
-        tr.appendChild(makeSmallInputCell("Construction Date", "col-date", r, "constructionDate", "", "date"));
-
-        tr.appendChild(makeSmallInputCell("QCx Sign Off", "col-sign", r, "qcxSignOff", "Initials...", "text"));
-        tr.appendChild(makeSmallInputCell("QCx Date", "col-date", r, "qcxDate", "", "date"));
-
-        const tdAdd = document.createElement("td");
-        tdAdd.className = "col-actions";
-        tdAdd.setAttribute("data-label", "Add Row");
-        const addBtn = document.createElement("button");
-        addBtn.className = "action-btn add foreman-only";
-        addBtn.type = "button";
-        addBtn.title = "Add row below";
-        addBtn.textContent = "+";
-        addBtn.addEventListener("click", () => insertRowBelow(idx));
-        tdAdd.appendChild(addBtn);
-        tr.appendChild(tdAdd);
-
-        const tdDel = document.createElement("td");
-        tdDel.className = "col-actions";
-        tdDel.setAttribute("data-label", "Delete Row");
-        const delBtn = document.createElement("button");
-        delBtn.className = "action-btn del foreman-only";
-        delBtn.type = "button";
-        delBtn.title = "Delete row";
-        delBtn.textContent = "×";
-        delBtn.addEventListener("click", () => deleteRow(idx));
-        tdDel.appendChild(delBtn);
-        tr.appendChild(tdDel);
-
+      state.rows.forEach(r=>{
+        const tr = rowTr(r);
         tbody.appendChild(tr);
-
-        autoGrowTextarea(notes);
+        if(tr._mobileActionsRow) tbody.appendChild(tr._mobileActionsRow);
       });
 
-      document.documentElement.classList.toggle("is-foreman", isForeman());
-      applyChangedStyling();
+      applyPermissions();
     }
 
-    function makeSmallInputCell(label, className, rowObj, key, placeholder, type){
-      const td = document.createElement("td");
-      td.className = className;
-      td.setAttribute("data-label", label);
-
-      const inp = document.createElement("input");
-      inp.className = "small";
-      inp.type = type;
-      inp.placeholder = placeholder || "";
-      inp.value = rowObj[key] || "";
-
-      inp.addEventListener("input", () => {
-        rowObj[key] = inp.value;
-        markDirty();
-        applyChangedStyling();
+    /***************
+     * Row ops (foreman-only)
+     ***************/
+    function insertRowBelow(rowId){
+      if(!canEditRowButtons()) return;
+      const idx = state.rows.findIndex(r=>r.id===rowId);
+      if(idx < 0) return;
+      state.rows.splice(idx+1, 0, {
+        id: crypto.randomUUID(),
+        num: 0,
+        item: "New item",
+        notes: "",
+        consInit: "",
+        consDate: "",
+        qcxInit: "",
+        qcxDate: "",
+        handoff: false
       });
-      inp.addEventListener("keydown", (e) => handleNavKeys(e, inp));
-
-      td.appendChild(inp);
-      return td;
-    }
-
-    /**********************
-     * Row add/delete (Foreman only)
-     **********************/
-    function insertRowBelow(idx){
-      if (!isForeman()){ alert("Foreman only."); return; }
-      state.rows.splice(idx + 1, 0, { rowType:"item", item:"", notes:"", constructionSignOff:"", constructionDate:"", qcxSignOff:"", qcxDate:"" });
-      markDirty();
       render();
-      focusRowCell(idx + 1, 1);
+      markDirty();
     }
 
-    function deleteRow(idx){
-      if (!isForeman()){ alert("Foreman only."); return; }
-      if (!confirm("Delete this row?")) return;
+    function deleteRow(rowId){
+      if(!canEditRowButtons()) return;
+      if(state.rows.length <= 1) return;
+      const idx = state.rows.findIndex(r=>r.id===rowId);
+      if(idx < 0) return;
       state.rows.splice(idx, 1);
-      markDirty();
       render();
+      markDirty();
     }
 
-    function focusRowCell(rowIdx, cellIndex){
-      const tr = $("tbody").querySelector(`tr[data-idx="${rowIdx}"]`);
-      if (!tr) return;
-      const tds = tr.querySelectorAll("td");
-      const td = tds[cellIndex];
-      if (!td) return;
-      const focusable = td.querySelector("textarea, input, [contenteditable='true']");
-      if (focusable) focusable.focus();
+    /***************
+     * Keyboard nav: Enter advances; Tab works naturally
+     ***************/
+    function allFocusable(){
+      return Array.from(document.querySelectorAll("textarea, input, [contenteditable='true']"))
+        .filter(el => !el.disabled && el.offsetParent !== null);
     }
 
-    /**********************
-     * Navigation: Enter to next cell
-     **********************/
-    function handleNavKeys(e, el){
-      if (e.key === "Enter"){
-        if (el.tagName === "TEXTAREA" && !e.shiftKey && !e.ctrlKey && !e.metaKey){
-          e.preventDefault();
-          focusNextCell(el, +1);
-          return;
-        }
-        if (el.isContentEditable){
-          e.preventDefault();
-          focusNextCell(el, +1);
-          return;
-        }
-      }
-      if (e.key === "Enter" && e.shiftKey && el.tagName !== "TEXTAREA"){
+    document.addEventListener("keydown", (e)=>{
+      if(e.key !== "Enter") return;
+      const target = e.target;
+      if(target && target.tagName === "TEXTAREA"){
+        // allow enter to move next (not new line) unless Shift+Enter
+        if(e.shiftKey) return;
         e.preventDefault();
-        focusNextCell(el, -1);
+      } else if(target && target.isContentEditable){
+        e.preventDefault();
+      } else if(target && target.tagName === "INPUT"){
+        e.preventDefault();
+      } else {
         return;
       }
+
+      const list = allFocusable();
+      const i = list.indexOf(target);
+      const next = list[i+1] || list[0];
+      next?.focus?.();
+      if(next && next.tagName === "INPUT") next.select?.();
+    });
+
+    /***************
+     * Validation
+     ***************/
+    function clearValidationMarks(){
+      document.querySelectorAll(".missing").forEach(el=>el.classList.remove("missing"));
     }
 
-    function focusNextCell(el, dir){
-      const td = el.closest("td");
-      const tr = el.closest("tr");
-      if (!td || !tr) return;
-      const rowIdx = parseInt(tr.dataset.idx, 10);
-      const tds = Array.from(tr.querySelectorAll("td"));
-      const col = tds.indexOf(td);
-
-      const focusCols = [1,2,3,4,5,6];
-      const focusPos = focusCols.indexOf(col);
-      if (focusPos === -1) return;
-
-      let nextPos = focusPos + dir;
-      let nextRow = rowIdx;
-
-      if (nextPos < 0){ nextRow = rowIdx - 1; nextPos = focusCols.length - 1; }
-      if (nextPos >= focusCols.length){ nextRow = rowIdx + 1; nextPos = 0; }
-
-      if (nextRow < 0) return;
-      if (nextRow >= state.rows.length) return;
-
-      focusRowCell(nextRow, focusCols[nextPos]);
-    }
-
-    /**********************
-     * Change highlighting
-     **********************/
-    function applyChangedStyling(){
-      if (!baseline) return;
-
-      const headerMap = [
-        ["hdrBuilding", baseline.meta.building],
-        ["hdrPhase", baseline.meta.phase],
-        ["hdrEquipId", baseline.meta.equipId],
-        ["hdrForeman", baseline.meta.foreman],
-        ["finalConstName", baseline.final.constructionForemanName],
-        ["finalQcxName", baseline.final.qcxForemanName],
-        ["finalDate", baseline.final.date],
-        ["finalNotes", baseline.final.notes]
-      ];
-      headerMap.forEach(([id, baseVal]) => {
-        const el = $(id);
-        const v = (el.value ?? "");
-        el.classList.toggle("changed", v !== (baseVal ?? ""));
-      });
-
-      const tbody = $("tbody");
-      const trs = tbody.querySelectorAll("tr");
-      trs.forEach((tr) => {
-        const idx = parseInt(tr.dataset.idx,10);
-        const row = state.rows[idx];
-        const base = baseline.rows[idx];
-
-        if (!base){
-          tr.querySelectorAll(".cell-edit, .textarea, .small").forEach(x => x.classList.add("changed"));
-          return;
-        }
-
-        const itemDiv = tr.querySelector(".cell-edit");
-        const note = tr.querySelector("textarea");
-        const inputs = tr.querySelectorAll("input.small");
-        if (itemDiv) itemDiv.classList.toggle("changed", (row.item ?? "") !== (base.item ?? ""));
-        if (note) note.classList.toggle("changed", (row.notes ?? "") !== (base.notes ?? ""));
-        if (inputs[0]) inputs[0].classList.toggle("changed", (row.constructionSignOff ?? "") !== (base.constructionSignOff ?? ""));
-        if (inputs[1]) inputs[1].classList.toggle("changed", (row.constructionDate ?? "") !== (base.constructionDate ?? ""));
-        if (inputs[2]) inputs[2].classList.toggle("changed", (row.qcxSignOff ?? "") !== (base.qcxSignOff ?? ""));
-        if (inputs[3]) inputs[3].classList.toggle("changed", (row.qcxDate ?? "") !== (base.qcxDate ?? ""));
-      });
-    }
-
-    /**********************
-     * Validation (Required fields + handoff rows)
-     **********************/
-    function clearValidationUI(){
-      document.querySelectorAll(".invalid").forEach(el => el.classList.remove("invalid"));
-    }
-
-    function validateAll(){
-      clearValidationUI();
+    function validate(){
+      clearValidationMarks();
       let ok = true;
 
-      ["finalConstName", "finalQcxName", "finalDate"].forEach((id) => {
-        const el = $(id);
-        const v = (el.value || "").trim();
-        if (!v){ el.classList.add("invalid"); ok = false; }
-      });
+      // Final required
+      const finalConsName = $("finalConsName");
+      const finalQcxName  = $("finalQcxName");
+      const finalDate     = $("finalDate");
 
-      const trs = $("tbody").querySelectorAll("tr");
-      trs.forEach((tr) => {
-        const idx = parseInt(tr.dataset.idx,10);
-        const row = state.rows[idx];
-        if (row.rowType !== "handoff") return;
+      if(!finalConsName.value.trim()){ finalConsName.classList.add("missing"); ok=false; }
+      if(!finalQcxName.value.trim()){ finalQcxName.classList.add("missing"); ok=false; }
+      if(!finalDate.value){ finalDate.classList.add("missing"); ok=false; }
 
-        const inputs = tr.querySelectorAll("input.small");
-        const must = [inputs[0], inputs[1], inputs[2], inputs[3]];
-        must.forEach((el) => {
-          if (!el) return;
-          if (!(el.value || "").trim()){
-            el.classList.add("invalid");
-            ok = false;
-          }
+      // Handoff rows required signoffs
+      const tbody = $("tbody");
+      const rowEls = Array.from(tbody.querySelectorAll("tr")).filter(tr=>tr.querySelector("td")); // includes mobile action rows but harmless
+      state.rows.forEach((r, idx)=>{
+        if(!r.handoff) return;
+
+        // find the actual main row element for this index
+        const mainRow = rowEls.find(tr=>{
+          const td0 = tr.querySelector("td.col-num");
+          return td0 && Number(td0.textContent) === r.num;
         });
+        if(!mainRow) return;
+
+        const inputs = mainRow.querySelectorAll("input");
+        // order: consInit, consDate, qcxInit, qcxDate
+        const consInit = inputs[0], consDate = inputs[1], qcxInit = inputs[2], qcxDate = inputs[3];
+
+        if(!r.consInit.trim()){ consInit.classList.add("missing"); ok=false; }
+        if(!r.consDate){ consDate.classList.add("missing"); ok=false; }
+        if(!r.qcxInit.trim()){ qcxInit.classList.add("missing"); ok=false; }
+        if(!r.qcxDate){ qcxDate.classList.add("missing"); ok=false; }
       });
 
-      if (!ok){
-        alert("Missing required fields. Please complete highlighted fields (hand-off rows + Final Sign-Off).");
-      }
       return ok;
     }
 
-    /**********************
-     * Save/Load (Firebase if available, else localStorage)
-     **********************/
-    function localKey(){
-      const eq = ($("hdrEquipment").value.trim() || eqParam || "UNKNOWN").replace(/[^\w\-]/g, "_");
-      return `NEXUS_CCS_${eq}`;
+    /***************
+     * Save / Load (Firebase bridge + local fallback)
+     ***************/
+    function setLoadState(kind, text){
+      const b = $("loadState");
+      b.textContent = text;
+      b.classList.remove("ok","bad","warn");
+      if(kind) b.classList.add(kind);
     }
 
-    function snapshot(){
-      state.meta = {
-        equipment: $("hdrEquipment").value.trim(),
-        building: $("hdrBuilding").value,
-        phase: $("hdrPhase").value,
-        equipId: $("hdrEquipId").value,
-        foreman: $("hdrForeman").value
-      };
-      state.final = {
-        constructionForemanName: $("finalConstName").value,
-        qcxForemanName: $("finalQcxName").value,
-        date: $("finalDate").value,
-        notes: $("finalNotes").value
-      };
+    function payload(){
       return {
-        version: "1.0",
-        kind: "construction_check_sheet",
-        savedAt: nowIsoLocalDateTime(),
-        storageKey: storageKey(),
-        meta: structuredClone(state.meta),
-        final: structuredClone(state.final),
-        rows: structuredClone(state.rows)
+        eq: state.eq,
+        docKey: state.docKey,
+        role: state.role,
+        rows: deepClone(state.rows),
+        final: deepClone(state.final),
+        savedAt: new Date().toISOString()
       };
     }
 
-    async function tryFirebaseSave(doc){
-      const key = doc.storageKey;
-      const candidates = [
-        window?.nexusFirebaseBridge,
-        window?.NEXUS_FIREBASE,
-        window?.FirebaseBridge,
-        window?.nexusFirebase,
-        window?.NexusFirebaseBridge
-      ].filter(Boolean);
-
-      for (const c of candidates){
-        const fn = c.save || c.saveDoc || c.write || c.put || c.set;
-        if (typeof fn === "function"){
-          await fn.call(c, key, doc);
-          return true;
-        }
-      }
-      return false;
+    function markDirty(){
+      // Only used for simple UI; you can extend later
+      // (no banner requested, so keep minimal)
     }
 
     async function tryFirebaseLoad(key){
-      const candidates = [
-        window?.nexusFirebaseBridge,
-        window?.NEXUS_FIREBASE,
-        window?.FirebaseBridge,
-        window?.nexusFirebase,
-        window?.NexusFirebaseBridge
-      ].filter(Boolean);
+      // Bridge is unknown; support a few common shapes safely
+      const fb = window.nexusFirebase || window.NEXUS_FIREBASE || window.nexusFirebaseBridge || window.NEXUS || null;
 
-      for (const c of candidates){
-        const fn = c.load || c.loadDoc || c.read || c.get || c.fetch;
-        if (typeof fn === "function"){
-          const doc = await fn.call(c, key);
-          if (doc) return doc;
-        }
+      const candidates = [
+        fb?.load,
+        fb?.get,
+        fb?.docGet,
+        fb?.read,
+        fb?.db?.load
+      ].filter(fn => typeof fn === "function");
+
+      for(const fn of candidates){
+        try{
+          const res = await fn.call(fb, key);
+          if(res) return res;
+        }catch(_e){}
       }
       return null;
     }
 
-    async function save(){
-      if (!validateAll()) return;
+    async function tryFirebaseSave(key, data){
+      const fb = window.nexusFirebase || window.NEXUS_FIREBASE || window.nexusFirebaseBridge || window.NEXUS || null;
 
-      const doc = snapshot();
+      const candidates = [
+        fb?.save,
+        fb?.set,
+        fb?.docSet,
+        fb?.write,
+        fb?.db?.save
+      ].filter(fn => typeof fn === "function");
 
-      localStorage.setItem(localKey(), JSON.stringify(doc));
-
-      try{
-        const did = await tryFirebaseSave(doc);
-        setStatus(did ? "Saved (Firebase + local)" : "Saved (local)", true);
-      } catch (e){
-        setStatus("Saved (local) - Firebase error", false);
+      for(const fn of candidates){
+        try{
+          await fn.call(fb, key, data);
+          return true;
+        }catch(_e){}
       }
-
-      baseline = structuredClone(doc);
-      dirty = false;
-      applyChangedStyling();
+      return false;
     }
 
-    async function load(){
-      const key = storageKey();
-      let doc = null;
+    function localKey(key){ return `local:${key}`; }
 
-      try{ doc = await tryFirebaseLoad(key); } catch(e){ doc = null; }
+    async function loadAll(){
+      setLoadState("warn","Loading…");
+      $("docKeyBadge").textContent = `Key: ${state.docKey}`;
 
-      if (!doc){
-        const raw = localStorage.getItem(localKey());
-        if (raw){
-          try{ doc = JSON.parse(raw); } catch(e){ doc = null; }
-        }
+      // 1) Firebase attempt
+      const fbData = await tryFirebaseLoad(state.docKey);
+      if(fbData && (fbData.rows || fbData.final)){
+        hydrate(fbData);
+        setLoadState("ok","Loaded");
+        return;
       }
 
-      if (doc && doc.rows && Array.isArray(doc.rows)){
-        $("hdrEquipment").value = doc.meta?.equipment || $("hdrEquipment").value || "";
-        $("hdrBuilding").value = doc.meta?.building || "";
-        $("hdrPhase").value = doc.meta?.phase || "";
-        $("hdrEquipId").value = doc.meta?.equipId || "";
-        $("hdrForeman").value = doc.meta?.foreman || "";
+      // 2) local fallback
+      const raw = localStorage.getItem(localKey(state.docKey));
+      if(raw){
+        try{
+          const parsed = JSON.parse(raw);
+          hydrate(parsed);
+          setLoadState("ok","Loaded (local)");
+          return;
+        }catch(_e){}
+      }
 
-        $("finalConstName").value = doc.final?.constructionForemanName || "";
-        $("finalQcxName").value = doc.final?.qcxForemanName || "";
-        $("finalDate").value = doc.final?.date || "";
-        $("finalNotes").value = doc.final?.notes || "";
+      // 3) seed
+      seed();
+      setLoadState("warn","New");
+    }
 
-        state.rows = doc.rows;
-        baseline = structuredClone(doc);
-        dirty = false;
-        setStatus("Loaded", true);
-        refreshStorageKeyLine();
-        $("equipLine").textContent = ($("hdrEquipment").value.trim()) ? ("Equipment: " + $("hdrEquipment").value.trim()) : "Equipment: (none)";
+    function hydrate(data){
+      // Rows
+      if(Array.isArray(data.rows) && data.rows.length){
+        state.rows = data.rows.map(r=>({
+          id: r.id || crypto.randomUUID(),
+          num: Number(r.num)||0,
+          item: String(r.item ?? ""),
+          notes: String(r.notes ?? ""),
+          consInit: String(r.consInit ?? ""),
+          consDate: String(r.consDate ?? ""),
+          qcxInit: String(r.qcxInit ?? ""),
+          qcxDate: String(r.qcxDate ?? ""),
+          handoff: !!r.handoff
+        }));
       } else {
-        state.rows = structuredClone(DEFAULT_ROWS);
-        setStatus("No saved sheet found (using template)", false);
+        seed();
       }
 
+      // Final
+      const f = data.final || {};
+      state.final = {
+        consName: String(f.consName ?? ""),
+        qcxName: String(f.qcxName ?? ""),
+        date: String(f.date ?? ""),
+        notes: String(f.notes ?? "")
+      };
+
+      // Apply to UI
       render();
+      $("finalConsName").value = state.final.consName;
+      $("finalQcxName").value  = state.final.qcxName;
+      $("finalDate").value     = state.final.date;
+      $("finalNotes").value    = state.final.notes;
     }
 
-    /**********************
-     * Exports (hotkeys)
-     *  - Ctrl+J: JSON
-     *  - Ctrl+E: CSV
-     **********************/
-    function exportJSON(){
-      const doc = snapshot();
-      downloadText(`ConstructionCheckSheet_${(doc.meta.equipment||"UNKNOWN")}.json`, JSON.stringify(doc, null, 2), "application/json");
-    }
-    function exportCSV(){
-      const doc = snapshot();
-      const csv = toCSV(doc);
-      downloadText(`ConstructionCheckSheet_${(doc.meta.equipment||"UNKNOWN")}.csv`, csv, "text/csv");
+    function seed(){
+      state.rows = SEED_ROWS.map(makeRow);
+      state.final = { consName:"", qcxName:"", date:"", notes:"" };
+      render();
+      $("finalConsName").value = "";
+      $("finalQcxName").value  = "";
+      $("finalDate").value     = "";
+      $("finalNotes").value    = "";
     }
 
-    window.addEventListener("keydown", (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s"){ e.preventDefault(); save(); }
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "j"){ e.preventDefault(); exportJSON(); }
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "e"){ e.preventDefault(); exportCSV(); }
-    });
+    async function saveAll(){
+      // Pull final fields from UI into state
+      state.final.consName = $("finalConsName").value;
+      state.final.qcxName  = $("finalQcxName").value;
+      state.final.date     = $("finalDate").value;
+      state.final.notes    = $("finalNotes").value;
 
-    /**********************
-     * Wire inputs -> dirty + highlight
-     **********************/
-    ["hdrBuilding","hdrPhase","hdrEquipId","hdrForeman","finalConstName","finalQcxName","finalDate","finalNotes"].forEach((id) => {
-      $(id).addEventListener("input", () => { markDirty(); applyChangedStyling(); });
-    });
-
-    $("saveBtn").addEventListener("click", save);
-    $("printBtn").addEventListener("click", () => {
-      if (!validateAll()) return;
-      window.print();
-    });
-
-    /**********************
-     * Init
-     **********************/
-    (async function init(){
-      if (eqParam){
-        $("hdrEquipment").value = eqParam;
-        $("hdrEquipId").value = eqParam;
-        $("equipLine").textContent = "Equipment: " + eqParam;
+      const ok = validate();
+      if(!ok){
+        setLoadState("bad","Missing required");
+        return;
       }
-      await load();
+
+      setLoadState("warn","Saving…");
+      const data = payload();
+
+      // local always
+      localStorage.setItem(localKey(state.docKey), JSON.stringify(data));
+
+      // firebase best-effort
+      const fbOk = await tryFirebaseSave(state.docKey, data);
+      setLoadState("ok", fbOk ? "Saved" : "Saved (local)");
+    }
+
+    /***************
+     * Exports
+     ***************/
+    function downloadFile(filename, content, mime){
+      const blob = new Blob([content], { type: mime || "text/plain" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function exportJSON(){
+      const data = payload();
+      downloadFile(`${state.eq || "equipment"}_construction_check_sheet.json`, JSON.stringify(data, null, 2), "application/json");
+    }
+
+    function toCSV(){
+      const headers = [
+        "#","Construction Items","Notes",
+        "Construction Initials","Construction Date",
+        "QCx Initials","QCx Date",
+        "Handoff"
+      ];
+
+      const rows = state.rows.map(r=>[
+        r.num,
+        r.item,
+        r.notes,
+        r.consInit,
+        r.consDate,
+        r.qcxInit,
+        r.qcxDate,
+        r.handoff ? "YES":"NO"
+      ]);
+
+      const esc = (v)=> `"${String(v ?? "").replaceAll('"','""')}"`;
+      const lines = [headers.map(esc).join(",")].concat(rows.map(row=>row.map(esc).join(",")));
+
+      // append final signoff
+      lines.push("");
+      lines.push(esc("Final Sign-Off"));
+      lines.push([esc("Construction Foreman Name"), esc(state.final.consName)].join(","));
+      lines.push([esc("QCx Foreman Name"), esc(state.final.qcxName)].join(","));
+      lines.push([esc("Date"), esc(state.final.date)].join(","));
+      lines.push([esc("Notes"), esc(state.final.notes)].join(","));
+
+      return lines.join("\n");
+    }
+
+    function exportCSV(){
+      downloadFile(`${state.eq || "equipment"}_construction_check_sheet.csv`, toCSV(), "text/csv");
+    }
+
+    function exportExcel(){
+      // Simple HTML-table-as-xls (works in Excel)
+      const data = payload();
+      const rowsHtml = data.rows.map(r=>`
+        <tr>
+          <td>${r.num}</td>
+          <td>${escapeHtml(r.item)}</td>
+          <td>${escapeHtml(r.notes)}</td>
+          <td>${escapeHtml(r.consInit)}</td>
+          <td>${escapeHtml(r.consDate)}</td>
+          <td>${escapeHtml(r.qcxInit)}</td>
+          <td>${escapeHtml(r.qcxDate)}</td>
+          <td>${r.handoff ? "YES":"NO"}</td>
+        </tr>
+      `).join("");
+
+      const html = `
+        <html><head><meta charset="UTF-8"></head><body>
+        <table border="1">
+          <tr>
+            <th>#</th><th>Construction Items</th><th>Notes</th>
+            <th>Construction Initials</th><th>Construction Date</th>
+            <th>QCx Initials</th><th>QCx Date</th><th>Handoff</th>
+          </tr>
+          ${rowsHtml}
+        </table>
+        <br/>
+        <table border="1">
+          <tr><th colspan="2">Final Sign-Off</th></tr>
+          <tr><td>Construction Foreman Name</td><td>${escapeHtml(data.final.consName)}</td></tr>
+          <tr><td>QCx Foreman Name</td><td>${escapeHtml(data.final.qcxName)}</td></tr>
+          <tr><td>Date</td><td>${escapeHtml(data.final.date)}</td></tr>
+          <tr><td>Notes</td><td>${escapeHtml(data.final.notes)}</td></tr>
+        </table>
+        </body></html>
+      `.trim();
+
+      downloadFile(`${state.eq || "equipment"}_construction_check_sheet.xls`, html, "application/vnd.ms-excel");
+    }
+
+    function escapeHtml(s){
+      return String(s ?? "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    /***************
+     * Init
+     ***************/
+    function initRouting(){
+      const params = new URLSearchParams(window.location.search);
+      state.eq = params.get("eq") || "";
+      $("equipTop").textContent = state.eq ? `Equipment: ${state.eq}` : "Equipment: —";
+      $("equipSub").textContent = state.eq ? `Equipment: ${state.eq}` : "Equipment: —";
+      $("backBtn").href = "equipment.html" + (state.eq ? ("?eq=" + encodeURIComponent(state.eq)) : "");
+
+      state.docKey = makeDocKey(state.eq || "UNKNOWN");
+      $("docKeyBadge").textContent = `Key: ${state.docKey}`;
+    }
+
+    function bindUI(){
+      $("roleSel").value = state.role;
+      $("roleSel").addEventListener("change", ()=>{
+        state.role = $("roleSel").value;
+        render();
+      });
+
+      $("saveBtn").addEventListener("click", saveAll);
+      $("printBtn").addEventListener("click", ()=> window.print());
+
+      $("exportJsonBtn").addEventListener("click", exportJSON);
+      $("exportCsvBtn").addEventListener("click", exportCSV);
+      $("exportXlsBtn").addEventListener("click", exportExcel);
+
+      // Final fields change tracking
+      ["finalConsName","finalQcxName","finalDate","finalNotes"].forEach(id=>{
+        $(id).addEventListener("input", (e)=>{
+          e.target.classList.add("changed");
+        });
+      });
+      $("finalNotes").addEventListener("input", (e)=> autoGrow(e.target));
+      setTimeout(()=>autoGrow($("finalNotes")),0);
+    }
+
+    (async function start(){
+      initRouting();
+      bindUI();
+      await loadAll();
+      applyPermissions();
     })();
   </script>
 </body>

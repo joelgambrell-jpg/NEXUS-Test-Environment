@@ -75,6 +75,7 @@ window.FORMS = {
     ]
   },
 
+  // Prefod already links to the SharePoint/OneDrive checklist here (first button).
   prefod: {
     title: "Pre-FOD Inspection",
     sectionTitle: "Pre-FOD Inspection",
@@ -98,10 +99,7 @@ window.FORMS = {
     ]
   },
 
-  /* =============================
-     FIXED DIAGRAM PAGE
-     (added real button to remove blank ghost button)
-     ============================= */
+  /* Diagram page: gives it a real button (prevents ghost/blank button) */
   transformer: {
     title: "Diagram Image",
     sectionTitle: "Diagram",
@@ -114,9 +112,7 @@ window.FORMS = {
     ]
   },
 
-  /* =============================
-     FIXED BUTTON TEXT HERE
-     ============================= */
+  /* Supporting page: renamed button text from Transformer Image -> Diagram Image */
   supporting: {
     title: "Supporting Documents",
     sectionTitle: "Supporting Documents",
@@ -126,8 +122,6 @@ window.FORMS = {
       { text: "Training PowerPoint Documents", href: "https://aceelectricnet.sharepoint.com/:f:/s/CMH098QAQC/IgDTzSdCCowiQJ0Rza9oIXlUASycInMyNn5KL8kpLPbjxkU?e=9fAnPb" },
       { text: "Supporting Documentation Repository", href: "https://aceelectricnet.sharepoint.com/:f:/s/CMH098QAQC/IgAuRbIpwO8IQog9sZN4umvUAb8FLYz2qqSu8oOUvYa1Yq4?e=QHL9IJ" },
       { text: "SOP General Folder", href: "https://aceelectricnet.sharepoint.com/:f:/s/CMH098QAQC/IgAQM-row4waQbd2QWYR27mvAYSIW3WLiCt2W0EwVWlYsng?e=Brrj7W" },
-
-      /* CHANGED TEXT */
       { text: "Diagram Image", href: "form.html?id=transformer" }
     ]
   },

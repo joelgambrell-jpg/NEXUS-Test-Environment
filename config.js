@@ -82,7 +82,7 @@ window.FORMS = {
     backgroundImage: "transformer.jpg",
     completedKey: "prefodCompleted",
     buttons: [
-      { text: "Pre-FOD Inspection Check List (Use if Procore is not updated)", href: "https://aceelectricnet.sharepoint.com/:x:/s/CMH098QAQC/IQAHAXu_Aw6QTZrPr5bW8C7gAVl6i7okKXjBwKACDcpOD6I?e=OhSbvH" },
+      { text: "Pre-FOD Inspection Check List (Use if Procore is not updated)", href: "prefod_checklist.html" },
       { text: "Pre-FOD SOP", href: "prefod_sop.html" },
       { text: "Pre-FOD Inspection Link to Procore (Live after updated by customer)", href: "https://aceelectricnet.sharepoint.com/:w:/s/CMH098QAQC/IQCpW0cDseVESZtxpMJhVbtoARkKtiVva1DMB0G5HlUuGPc?e=S2yeDr" }
     ]

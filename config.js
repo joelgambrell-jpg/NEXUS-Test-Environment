@@ -1,4 +1,5 @@
-// forms.js (or config.js) — ONLY window.FORMS
+// config.js (FULL DROP-IN) — ONLY window.FORMS
+// NOTE: Full Export is NOT added here. Export stays ONLY on equipment.html.
 window.FORMS = {
   rif: {
     title: "Receipt Inspection Form",
@@ -75,7 +76,7 @@ window.FORMS = {
     ]
   },
 
-  // Prefod already links to the SharePoint/OneDrive checklist here (first button).
+  // Pre-FOD: NO Full Export button here (export stays on equipment.html only)
   prefod: {
     title: "Pre-FOD Inspection",
     sectionTitle: "Pre-FOD Inspection",

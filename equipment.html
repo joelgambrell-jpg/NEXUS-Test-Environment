@@ -1,4 +1,4 @@
-<!-- equipment.html (FULL DROP-IN) — ONLY CHANGE: point Finished Photo button at fpv_photo_capture.html -->
+<!-- equipment.html (FULL DROP-IN) — ADDED: Equipment Image Upload (GitHub-first localStorage, Firebase-ready hook) -->
 <!doctype html>
 <html lang="en">
 <head>
@@ -216,6 +216,45 @@
     background: rgba(0,0,0,0.35);
     border-top: 1px solid rgba(255,255,255,0.18);
   }
+
+  /* ===== NEW: Equipment image upload block ===== */
+  .equip-image-block{
+    margin-top: 10px;
+    padding: 14px 14px 12px;
+    border-radius: 18px;
+    background: rgba(0,0,0,0.18);
+    border: 1px solid rgba(255,255,255,0.20);
+  }
+  .equip-image-title{ font-weight:900; margin-bottom:10px; }
+  .equip-image-row{ display:flex; gap:12px; flex-wrap:wrap; align-items:flex-start; }
+  .equip-image-row input[type="file"]{
+    max-width: 100%;
+  }
+  .equip-image-preview{
+    display:none;
+    max-width: 260px;
+    max-height: 200px;
+    border-radius: 12px;
+    box-shadow: 0 10px 22px rgba(0,0,0,.28);
+    border: 1px solid rgba(255,255,255,0.18);
+    background: rgba(255,255,255,0.06);
+  }
+  .equip-image-status{
+    margin-top:10px;
+    font-size:12px;
+    font-weight:800;
+    opacity:.9;
+  }
+  .equip-image-actions{
+    margin-top:10px;
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .equip-image-actions .btn{
+    padding:10px 14px;
+    font-size:13px;
+  }
 </style>
 
 <link rel="stylesheet" href="assets/css/nexus-core.css">
@@ -263,6 +302,24 @@
   <div class="card">
     <h1>Equipment Page</h1>
     <div class="eq" id="eqLabel"></div>
+
+    <!-- ===== NEW: Equipment Image Upload (GitHub-first) ===== -->
+    <div class="equip-image-block" id="equipImageBlock">
+      <div class="equip-image-title">Equipment Image</div>
+
+      <div class="equip-image-row">
+        <div style="min-width:260px;flex:1;">
+          <input id="nexusEquipImageInput" type="file" accept="image/*" capture="environment" />
+          <div class="equip-image-status" id="nexusEquipImageStatus">Choose a photo to save it for this equipment ID.</div>
+
+          <div class="equip-image-actions">
+            <button class="btn secondary" type="button" id="nexusEquipImageClearBtn">Clear Image</button>
+          </div>
+        </div>
+
+        <img id="nexusEquipImagePreview" class="equip-image-preview" alt="Equipment image preview" />
+      </div>
+    </div>
 
     <div class="progress-wrap">
       <div class="progress-label">
@@ -720,6 +777,122 @@
   window.addEventListener("beforeunload", () => {
     try{ if (fbStepsUnsub) fbStepsUnsub(); }catch(e){}
   });
+
+  /* ============================
+     NEW: Equipment Image Save/Load (GitHub-first, Firebase-ready)
+     Storage format (GitHub): localStorage["nexus_equipment_<eq>"] = { imageDataUrl: "data:image/..." }
+     ============================ */
+  (function initEquipImage(){
+    const fileInput = document.getElementById("nexusEquipImageInput");
+    const preview = document.getElementById("nexusEquipImagePreview");
+    const status  = document.getElementById("nexusEquipImageStatus");
+    const clearBtn= document.getElementById("nexusEquipImageClearBtn");
+
+    if (!fileInput || !preview) return;
+
+    function setStatus(msg){
+      if (status) status.textContent = msg || "";
+    }
+
+    function equipKey(){
+      return `nexus_equipment_${eq || "NO_EQ"}`;
+    }
+
+    function readEquip(){
+      try{ return JSON.parse(localStorage.getItem(equipKey()) || "{}"); }
+      catch(e){ return {}; }
+    }
+
+    function writeEquip(patch){
+      const merged = { ...readEquip(), ...patch, _updatedAt: Date.now() };
+      localStorage.setItem(equipKey(), JSON.stringify(merged));
+      return merged;
+    }
+
+    function removeEquipField(field){
+      const cur = readEquip();
+      if (field in cur) delete cur[field];
+      cur._updatedAt = Date.now();
+      localStorage.setItem(equipKey(), JSON.stringify(cur));
+      return cur;
+    }
+
+    function show(url){
+      if (!url) return;
+      preview.src = url;
+      preview.style.display = "block";
+    }
+
+    function hide(){
+      preview.removeAttribute("src");
+      preview.style.display = "none";
+    }
+
+    function fileToDataUrl(file){
+      return new Promise((resolve, reject) => {
+        const r = new FileReader();
+        r.onload = () => resolve(String(r.result || ""));
+        r.onerror = reject;
+        r.readAsDataURL(file);
+      });
+    }
+
+    // Load existing image for current eq
+    const existing = readEquip();
+    if (existing.imageDataUrl){
+      show(existing.imageDataUrl);
+      setStatus("Saved image loaded for this equipment.");
+    } else {
+      hide();
+      setStatus("Choose a photo to save it for this equipment ID.");
+    }
+
+    // Save on selection
+    fileInput.addEventListener("change", async (e) => {
+      try{
+        if (!eq){
+          setStatus("Enter an equipment ID first.");
+          fileInput.value = "";
+          return;
+        }
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+
+        setStatus("Reading image…");
+        const dataUrl = await fileToDataUrl(file);
+
+        show(dataUrl);
+        writeEquip({ imageDataUrl: dataUrl });
+
+        setStatus("Saved locally (GitHub mode). Open a form and it will display automatically.");
+      }catch(err){
+        console.warn(err);
+        setStatus("Image save failed.");
+      }
+    });
+
+    // Clear
+    if (clearBtn){
+      clearBtn.addEventListener("click", () => {
+        removeEquipField("imageDataUrl");
+        hide();
+        fileInput.value = "";
+        setStatus("Image cleared for this equipment.");
+      });
+    }
+
+    // Firebase-ready hook: later your Firebase code can call this to sync URL into form.html
+    // Example later: window.NEXUS_setEquipmentImageUrlFromEquipmentPage("https://...")
+    window.NEXUS_setEquipmentImageUrlFromEquipmentPage = function(url){
+      // store URL for future form loader (you can switch form.html to prefer imageURL when present)
+      if (!eq) return;
+      if (url) {
+        writeEquip({ imageURL: url });
+        setStatus("Image URL saved (Firebase-ready).");
+      }
+    };
+  })();
+
 })();
 </script>
 
@@ -744,7 +917,4 @@
   © 2026 NEXUS Data Science — Built for ACE Electric — All Rights Reserved
 </footer>
 
-<script src="assets/js/nexus-core.js"></script>
-<script src="assets/js/nexus-firebase-bridge.js"></script>
-</body>
-</html>
+<script src="assets/js

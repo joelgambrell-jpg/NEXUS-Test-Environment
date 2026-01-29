@@ -1,5 +1,4 @@
-// config.js (FULL DROP-IN) — ONLY window.FORMS
-// NOTE: Full Export is NOT added here. Export stays ONLY on equipment.html.
+// forms.js (or config.js) — ONLY window.FORMS
 window.FORMS = {
   rif: {
     title: "Receipt Inspection Form",
@@ -76,7 +75,8 @@ window.FORMS = {
     ]
   },
 
-  // Pre-FOD: NO Full Export button here (export stays on equipment.html only)
+  // Pre-FOD: FIRST button goes to your new HTML checklist (local).
+  // No "Full Export PDF" here — export stays on equipment.html only.
   prefod: {
     title: "Pre-FOD Inspection",
     sectionTitle: "Pre-FOD Inspection",
@@ -100,7 +100,6 @@ window.FORMS = {
     ]
   },
 
-  /* Diagram page: gives it a real button (prevents ghost/blank button) */
   transformer: {
     title: "Diagram Image",
     sectionTitle: "Diagram",
@@ -113,7 +112,6 @@ window.FORMS = {
     ]
   },
 
-  /* Supporting page: renamed button text from Transformer Image -> Diagram Image */
   supporting: {
     title: "Supporting Documents",
     sectionTitle: "Supporting Documents",

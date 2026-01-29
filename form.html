@@ -172,4 +172,131 @@ h1{font-size:32px;font-weight:700;margin-top:0;}
     <a class="btn" id="rifNoProcoreBtn" href="rif_no_procore.html">RIF — No Procore</a>
 
     <!-- SOP button (behavior configured per-form in app.js) -->
-    <button class="btn" id="ope
+    <button class="btn" id="openSopBtn" type="button">Open SOP</button>
+
+    <button class="btn" id="stepCompleteBtn" type="button">Mark Step Complete</button>
+  </div>
+
+  <div id="media" class="media" style="display:none;"></div>
+</div>
+
+<script src="config.js"></script>
+<script src="app.js"></script>
+
+<script>
+(function () {
+  const qs = new URLSearchParams(location.search);
+  const eq = (qs.get("eq") || "").trim();
+  const id = (qs.get("id") || "").trim();
+  const rif = (qs.get("rif") || "").trim();
+
+  const backLink = document.getElementById("backLink");
+  if (backLink){
+    backLink.href = eq ? `equipment.html?eq=${encodeURIComponent(eq)}` : "index.html";
+    backLink.textContent = eq ? "← Back to Equipment" : "← Back to Home";
+  }
+
+  const label = document.getElementById("eqLabel");
+  if (label) label.textContent = eq ? `Equipment: ${eq}` : "";
+
+  // Show + wire No-Procore RIF button only on the RIF launcher
+  (function(){
+    const btn = document.getElementById("rifNoProcoreBtn");
+    if(!btn) return;
+
+    if (id !== "rif"){
+      btn.style.display = "none";
+      return;
+    }
+
+    const p = new URLSearchParams();
+    if (eq) p.set("eq", eq);
+    if (rif) p.set("rif", rif);
+
+    btn.href = "rif_no_procore.html" + (p.toString() ? ("?" + p.toString()) : "");
+    btn.style.display = "block";
+  })();
+
+  // If you want ALL internal links to preserve eq (already) and ALSO rif when present:
+  function patchLinks(){
+    document.querySelectorAll('a[href]').forEach(a => {
+      try{
+        const href = a.getAttribute("href");
+        if (!href) return;
+
+        const url = new URL(href, location.href);
+        if (url.origin !== location.origin) return;
+
+        if (eq) url.searchParams.set("eq", eq);
+        if (rif) url.searchParams.set("rif", rif);
+
+        a.setAttribute("href", url.pathname + url.search + url.hash);
+      }catch(e){}
+    });
+  }
+
+  patchLinks();
+  const observer = new MutationObserver(patchLinks);
+  observer.observe(document.getElementById("buttons") || document.body, { childList:true, subtree:true });
+})();
+</script>
+
+<!-- NEW: Equipment image loader (GitHub-first localStorage; Firebase-ready hook) -->
+<script>
+(function(){
+  const qs = new URLSearchParams(location.search);
+  const eq = (qs.get("eq") || "").trim();
+  if(!eq) return;
+
+  const img = document.getElementById("nexusEquipImageDisplay");
+  if(!img) return;
+
+  // 1) GitHub Pages mode (localStorage DataURL)
+  function readLocalRecord(){
+    try{
+      return JSON.parse(localStorage.getItem(`nexus_equipment_${eq}`) || "{}");
+    }catch(e){
+      return {};
+    }
+  }
+
+  function show(url){
+    if(!url) return;
+    img.src = url;
+    img.style.display = "block";
+  }
+
+  const local = readLocalRecord();
+  if(local.imageDataUrl){
+    show(local.imageDataUrl);
+  }
+
+  // 2) Firebase-ready: if your bridge exposes an equipment fetch later, it can call this safely.
+  // Example later: window.NEXUS_setEquipmentImageUrl("https://....")
+  window.NEXUS_setEquipmentImageUrl = function(url){
+    show(url);
+  };
+})();
+</script>
+
+<!-- FIXED BACK BUTTON (always equipment page) -->
+<script>
+(function(){
+  window.NEXUS_back = function(){
+    const qs = new URLSearchParams(location.search);
+    const eq = qs.get("eq");
+    location.href = eq ? `equipment.html?eq=${encodeURIComponent(eq)}` : "equipment.html";
+    return false;
+  };
+})();
+</script>
+
+<footer class="nx-footer">
+  © 2026 NEXUS Data Science — Built for ACE Electric — All Rights Reserved
+</footer>
+
+<script src="assets/js/nexus-core.js"></script>
+<script src="assets/js/nexus-firebase-bridge.js"></script>
+
+</body>
+</html>

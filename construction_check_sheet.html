@@ -145,7 +145,6 @@
       outline:none;
     }
 
-    /* Page shell + paper */
     .shell{
       max-width: var(--sheet-max);
       margin: 18px auto 40px;
@@ -318,16 +317,17 @@
       align-items:center;
       justify-content:center;
       user-select:none;
+      margin-left: 6px; /* allows multiple icons in same cell */
     }
-    .icon-btn.add{ color: #0b7a35; }
-    .icon-btn.del{ color: #b91c1c; }
+    .icon-btn.add{ color: #0b7a35; margin-left: 0; }
+    .icon-btn.del{ color: #b91c1c; margin-left: 0; }
 
     .icon-btn[disabled]{
       opacity: 0.35;
       cursor: not-allowed;
     }
 
-    /* NEW: toggle handoff style button */
+    /* Handoff toggle button */
     .icon-btn.toggle{
       color: #1f5d3a;
       font-size: 16px;
@@ -336,6 +336,17 @@
     .icon-btn.toggle.active{
       background: rgba(31,93,58,0.15);
       border-color: rgba(31,93,58,0.35);
+    }
+
+    /* Signoff mode toggle (1 or 2) */
+    .icon-btn.mode{
+      color: #111;
+      font-size: 14px;
+      font-weight: 1000;
+    }
+    .icon-btn.mode.active{
+      background: rgba(0,0,0,0.08);
+      border-color: rgba(0,0,0,0.25);
     }
 
     .changed{
@@ -374,7 +385,6 @@
       grid-template-columns: 1fr 1fr;
       gap: 12px;
     }
-    .grid1{ display:grid; grid-template-columns: 1fr; gap: 12px; }
 
     .field label{
       display:block;
@@ -404,24 +414,20 @@
 
     @media (max-width: 860px){
       table{ min-width: 0; }
-      .scroll-wrap{ border-radius: 14px; }
-
       thead{ display:none; }
       table, tbody, tr, td{ display:block; width:100%; }
       tbody td{
         border-bottom: none;
         padding: 10px 12px;
       }
-      tbody tr{
-        border-bottom: 1px solid var(--line);
-      }
+      tbody tr{ border-bottom: 1px solid var(--line); }
       .col-add, .col-del{ display:none; }
       .row-actions-mobile{
         display:flex;
         gap:10px;
         padding: 0 12px 12px;
       }
-      .row-actions-mobile .icon-btn{ flex: 0 0 auto; }
+      .row-actions-mobile .icon-btn{ flex: 0 0 auto; margin-left: 0; }
 
       .mobile-label{
         display:block;
@@ -494,7 +500,6 @@
                 <th class="col-num">#</th>
                 <th class="col-item">Construction Items</th>
                 <th class="col-notes">Notes</th>
-                <!-- CHANGED: headers -->
                 <th class="col-sign">Sign-Off</th>
                 <th class="col-date">Sign-Off</th>
                 <th class="col-add">+</th>
@@ -557,6 +562,9 @@
   </div>
 
   <script>
+    /***************
+     * Data seed
+     ***************/
     const SEED_ROWS = [
       { item: "LV Transformer 001", handoff:false },
       { item: "Building Number", handoff:false },
@@ -610,6 +618,9 @@
       { item: "FOREMAN IN CHARGE VERIFY ALL COMPLETE AND HANDOFF TO QCX", handoff:true }
     ];
 
+    /***************
+     * State
+     ***************/
     const state = {
       eq: "",
       docKey: "",
@@ -634,6 +645,9 @@
 
     function deepClone(obj){ return JSON.parse(JSON.stringify(obj)); }
 
+    /***************
+     * Permissions
+     ***************/
     function canEditRowButtons(){
       return state.role === "foreman";
     }
@@ -641,7 +655,7 @@
     function applyPermissions(){
       localStorage.setItem("nexus_ccs_role", state.role);
 
-      document.querySelectorAll(".icon-btn.add, .icon-btn.del, .icon-btn.toggle").forEach(btn=>{
+      document.querySelectorAll(".icon-btn.add, .icon-btn.del, .icon-btn.toggle, .icon-btn.mode").forEach(btn=>{
         btn.disabled = !canEditRowButtons();
         btn.style.display = canEditRowButtons() ? "" : "none";
       });
@@ -651,7 +665,11 @@
       });
     }
 
+    /***************
+     * Rows
+     ***************/
     function makeRow(seed, idx){
+      const isHandoff = !!seed.handoff;
       return {
         id: crypto.randomUUID(),
         num: idx+1,
@@ -661,7 +679,9 @@
         consDate: "",
         qcxInit: "",
         qcxDate: "",
-        handoff: !!seed.handoff
+        handoff: isHandoff,
+        // NEW: signoff mode per row. Handoff rows are always dual.
+        signoffMode: isHandoff ? "dual" : "single"
       };
     }
 
@@ -674,6 +694,7 @@
       el.style.height = Math.min(el.scrollHeight, 220) + "px";
     }
 
+    // NEW: Toggle green handoff row (forces dual signoff)
     function toggleHandoff(rowId){
       if(!canEditRowButtons()) return;
       const r = state.rows.find(x=>x.id===rowId);
@@ -681,8 +702,27 @@
 
       r.handoff = !r.handoff;
 
-      // When turning OFF handoff, clear the secondary signoff (since it won't be shown/used)
-      if(!r.handoff){
+      // Handoff rows must stay dual (retain current function)
+      if(r.handoff){
+        r.signoffMode = "dual";
+      }
+
+      render();
+      markDirty();
+    }
+
+    // NEW: Toggle signoff mode (single/dual). Disabled on handoff rows.
+    function toggleSignoffMode(rowId){
+      if(!canEditRowButtons()) return;
+      const r = state.rows.find(x=>x.id===rowId);
+      if(!r) return;
+
+      if(r.handoff) return; // handoff rows retain current function (always dual)
+
+      r.signoffMode = (r.signoffMode === "dual") ? "single" : "dual";
+
+      // When switching to single, clear secondary signoff (it won't be shown/used)
+      if(r.signoffMode === "single"){
         r.qcxInit = "";
         r.qcxDate = "";
       }
@@ -695,11 +735,13 @@
       const tr = document.createElement("tr");
       if(row.handoff) tr.classList.add("handoff-row");
 
+      // #
       const tdNum = document.createElement("td");
       tdNum.className = "col-num";
       tdNum.textContent = row.num;
       tr.appendChild(tdNum);
 
+      // item
       const tdItem = document.createElement("td");
       tdItem.className = "col-item";
       const itemDiv = document.createElement("div");
@@ -722,6 +764,7 @@
       }
       tr.appendChild(tdItem);
 
+      // notes
       const tdNotes = document.createElement("td");
       tdNotes.className = "col-notes";
       const notes = document.createElement("textarea");
@@ -744,20 +787,28 @@
       tdNotes.appendChild(notes);
       tr.appendChild(tdNotes);
 
-      // Signoff 1 (always present; unlabeled on desktop for white rows)
+      const isDual = row.handoff || row.signoffMode === "dual";
+
+      // Signoff 1 (always shown)
       const tdSign1 = document.createElement("td");
       tdSign1.className = "col-sign";
 
       if(window.matchMedia("(max-width: 860px)").matches){
         const lab = document.createElement("span");
         lab.className = "mobile-label";
-        lab.textContent = row.handoff ? "Sign-Off (Construction)" : "Sign-Off";
+        lab.textContent = (row.handoff ? "Sign-Off (Construction)" : (isDual ? "Sign-Off (1)" : "Sign-Off"));
         tdSign1.appendChild(lab);
       } else {
+        // Desktop: unlabeled for single; labeled for dual and handoff
         if(row.handoff){
           const lab = document.createElement("div");
           lab.className = "tiny-label";
           lab.textContent = "Construction";
+          tdSign1.appendChild(lab);
+        } else if(isDual){
+          const lab = document.createElement("div");
+          lab.className = "tiny-label";
+          lab.textContent = "Sign-Off 1";
           tdSign1.appendChild(lab);
         }
       }
@@ -782,20 +833,20 @@
       tdSign1.appendChild(pack1);
       tr.appendChild(tdSign1);
 
-      // Signoff 2 (handoff only)
+      // Signoff 2 (dual only)
       const tdSign2 = document.createElement("td");
       tdSign2.className = "col-date";
 
-      if(row.handoff){
+      if(isDual){
         if(window.matchMedia("(max-width: 860px)").matches){
           const lab = document.createElement("span");
           lab.className = "mobile-label";
-          lab.textContent = "Sign-Off (QCx)";
+          lab.textContent = (row.handoff ? "Sign-Off (QCx)" : "Sign-Off (2)");
           tdSign2.appendChild(lab);
         } else {
           const lab = document.createElement("div");
           lab.className = "tiny-label";
-          lab.textContent = "QCx";
+          lab.textContent = (row.handoff ? "QCx" : "Sign-Off 2");
           tdSign2.appendChild(lab);
         }
 
@@ -823,7 +874,7 @@
 
       tr.appendChild(tdSign2);
 
-      // + (insert below)
+      // + / options (foreman)
       const tdAdd = document.createElement("td");
       tdAdd.className = "col-add";
 
@@ -835,7 +886,20 @@
       addBtn.addEventListener("click", ()=> insertRowBelow(row.id));
       tdAdd.appendChild(addBtn);
 
-      // NEW: handoff toggle (green row) button
+      // NEW: signoff mode toggle (1 or 2). Disabled on handoff rows.
+      const modeBtn = document.createElement("button");
+      modeBtn.className = "icon-btn mode" + ((row.signoffMode === "dual") ? " active" : "");
+      modeBtn.type = "button";
+      modeBtn.textContent = (isDual ? "2" : "1");
+      modeBtn.title = row.handoff ? "Handoff rows always use 2 sign-offs" : (row.signoffMode === "dual" ? "Set to 1 sign-off" : "Set to 2 sign-offs");
+      modeBtn.addEventListener("click", ()=> toggleSignoffMode(row.id));
+      if(row.handoff){
+        modeBtn.disabled = true;
+        modeBtn.style.display = canEditRowButtons() ? "" : "none";
+      }
+      tdAdd.appendChild(modeBtn);
+
+      // Handoff toggle (green row)
       const toggleBtn = document.createElement("button");
       toggleBtn.className = "icon-btn toggle" + (row.handoff ? " active" : "");
       toggleBtn.type = "button";
@@ -846,7 +910,7 @@
 
       tr.appendChild(tdAdd);
 
-      // x (delete)
+      // delete
       const tdDel = document.createElement("td");
       tdDel.className = "col-del";
       const delBtn = document.createElement("button");
@@ -858,7 +922,7 @@
       tdDel.appendChild(delBtn);
       tr.appendChild(tdDel);
 
-      // Mobile row actions bar (foreman only)
+      // Mobile row actions (foreman)
       if(window.matchMedia("(max-width: 860px)").matches){
         const actionsTr = document.createElement("tr");
         const td = document.createElement("td");
@@ -872,6 +936,16 @@
         add2.type = "button";
         add2.textContent = "+";
         add2.addEventListener("click", ()=> insertRowBelow(row.id));
+
+        const mode2 = document.createElement("button");
+        mode2.className = "icon-btn mode" + ((row.signoffMode === "dual" || row.handoff) ? " active" : "");
+        mode2.type = "button";
+        mode2.textContent = (isDual ? "2" : "1");
+        mode2.title = row.handoff ? "Handoff rows always use 2 sign-offs" : (row.signoffMode === "dual" ? "Set to 1 sign-off" : "Set to 2 sign-offs");
+        mode2.addEventListener("click", ()=> toggleSignoffMode(row.id));
+        if(row.handoff){
+          mode2.disabled = true;
+        }
 
         const toggle2 = document.createElement("button");
         toggle2.className = "icon-btn toggle" + (row.handoff ? " active" : "");
@@ -887,6 +961,7 @@
         del2.addEventListener("click", ()=> deleteRow(row.id));
 
         wrap.appendChild(add2);
+        wrap.appendChild(mode2);
         wrap.appendChild(toggle2);
         wrap.appendChild(del2);
 
@@ -912,10 +987,14 @@
       applyPermissions();
     }
 
+    /***************
+     * Row ops
+     ***************/
     function insertRowBelow(rowId){
       if(!canEditRowButtons()) return;
       const idx = state.rows.findIndex(r=>r.id===rowId);
       if(idx < 0) return;
+
       state.rows.splice(idx+1, 0, {
         id: crypto.randomUUID(),
         num: 0,
@@ -925,8 +1004,10 @@
         consDate: "",
         qcxInit: "",
         qcxDate: "",
-        handoff: false
+        handoff: false,
+        signoffMode: "single"
       });
+
       render();
       markDirty();
     }
@@ -941,6 +1022,9 @@
       markDirty();
     }
 
+    /***************
+     * Keyboard nav
+     ***************/
     function allFocusable(){
       return Array.from(document.querySelectorAll("textarea, input, [contenteditable='true']"))
         .filter(el => !el.disabled && el.offsetParent !== null);
@@ -967,6 +1051,9 @@
       if(next && next.tagName === "INPUT") next.select?.();
     });
 
+    /***************
+     * Validation
+     ***************/
     function clearValidationMarks(){
       document.querySelectorAll(".missing").forEach(el=>el.classList.remove("missing"));
     }
@@ -975,6 +1062,7 @@
       clearValidationMarks();
       let ok = true;
 
+      // Final required
       const finalConsName = $("finalConsName");
       const finalQcxName  = $("finalQcxName");
       const finalDate     = $("finalDate");
@@ -983,11 +1071,12 @@
       if(!finalQcxName.value.trim()){ finalQcxName.classList.add("missing"); ok=false; }
       if(!finalDate.value){ finalDate.classList.add("missing"); ok=false; }
 
-      // Handoff rows: require BOTH signoffs
+      // Dual-signoff rows required (handoff rows are always dual)
       const tbody = $("tbody");
       const rowEls = Array.from(tbody.querySelectorAll("tr")).filter(tr=>tr.querySelector("td"));
       state.rows.forEach((r)=>{
-        if(!r.handoff) return;
+        const isDual = r.handoff || r.signoffMode === "dual";
+        if(!isDual) return;
 
         const mainRow = rowEls.find(tr=>{
           const td0 = tr.querySelector("td.col-num");
@@ -1009,6 +1098,9 @@
       return ok;
     }
 
+    /***************
+     * Save / Load (Firebase bridge + local fallback)
+     ***************/
     function setLoadState(kind, text){
       const b = $("loadState");
       b.textContent = text;
@@ -1099,6 +1191,17 @@
     function hydrate(data){
       if(Array.isArray(data.rows) && data.rows.length){
         state.rows = data.rows.map(r=>{
+          const handoff = !!r.handoff;
+
+          // infer signoffMode if missing (back-compat)
+          let signoffMode = (r.signoffMode === "dual" || r.signoffMode === "single") ? r.signoffMode : null;
+          if(!signoffMode){
+            // if it's a handoff row, always dual; otherwise dual only if it already has 2nd signoff data
+            const hasSecond = String(r.qcxInit ?? "").trim() || String(r.qcxDate ?? "").trim();
+            signoffMode = handoff ? "dual" : (hasSecond ? "dual" : "single");
+          }
+          if(handoff) signoffMode = "dual";
+
           const row = ({
             id: r.id || crypto.randomUUID(),
             num: Number(r.num)||0,
@@ -1108,12 +1211,16 @@
             consDate: String(r.consDate ?? ""),
             qcxInit: String(r.qcxInit ?? ""),
             qcxDate: String(r.qcxDate ?? ""),
-            handoff: !!r.handoff
+            handoff,
+            signoffMode
           });
 
-          if(!row.handoff){
+          // If a non-dual row has data in qcx fields (older saves), migrate it into the single slot.
+          if(!row.handoff && row.signoffMode === "single"){
             if(!row.consInit.trim() && row.qcxInit.trim()) row.consInit = row.qcxInit;
             if(!row.consDate && row.qcxDate) row.consDate = row.qcxDate;
+            row.qcxInit = "";
+            row.qcxDate = "";
           }
 
           return row;
@@ -1153,8 +1260,12 @@
       state.final.date     = $("finalDate").value;
       state.final.notes    = $("finalNotes").value;
 
+      // Normalize row rules before validate/save:
+      // - handoff => dual
+      // - single => clear 2nd signoff
       state.rows.forEach(r=>{
-        if(!r.handoff){
+        if(r.handoff) r.signoffMode = "dual";
+        if(!r.handoff && r.signoffMode === "single"){
           r.qcxInit = "";
           r.qcxDate = "";
         }
@@ -1175,6 +1286,9 @@
       setLoadState("ok", fbOk ? "Saved" : "Saved (local)");
     }
 
+    /***************
+     * Exports
+     ***************/
     function downloadFile(filename, content, mime){
       const blob = new Blob([content], { type: mime || "text/plain" });
       const url = URL.createObjectURL(blob);
@@ -1197,7 +1311,7 @@
         "#","Construction Items","Notes",
         "SignOff 1 Initials","SignOff 1 Date",
         "SignOff 2 Initials","SignOff 2 Date",
-        "Handoff"
+        "Handoff","SignoffMode"
       ];
 
       const rows = state.rows.map(r=>[
@@ -1208,7 +1322,8 @@
         r.consDate,
         r.qcxInit,
         r.qcxDate,
-        r.handoff ? "YES":"NO"
+        r.handoff ? "YES":"NO",
+        r.signoffMode
       ]);
 
       const esc = (v)=> `"${String(v ?? "").replaceAll('"','""')}"`;
@@ -1240,6 +1355,7 @@
           <td>${escapeHtml(r.qcxInit)}</td>
           <td>${escapeHtml(r.qcxDate)}</td>
           <td>${r.handoff ? "YES":"NO"}</td>
+          <td>${escapeHtml(r.signoffMode)}</td>
         </tr>
       `).join("");
 
@@ -1249,7 +1365,8 @@
           <tr>
             <th>#</th><th>Construction Items</th><th>Notes</th>
             <th>SignOff 1 Initials</th><th>SignOff 1 Date</th>
-            <th>SignOff 2 Initials</th><th>SignOff 2 Date</th><th>Handoff</th>
+            <th>SignOff 2 Initials</th><th>SignOff 2 Date</th>
+            <th>Handoff</th><th>SignoffMode</th>
           </tr>
           ${rowsHtml}
         </table>
@@ -1276,6 +1393,9 @@
         .replaceAll("'","&#039;");
     }
 
+    /***************
+     * Init
+     ***************/
     function initRouting(){
       const params = new URLSearchParams(window.location.search);
       state.eq = params.get("eq") || "";

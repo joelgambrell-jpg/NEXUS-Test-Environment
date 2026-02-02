@@ -1,4 +1,12 @@
-<!-- form.html (FULL DROP-IN) — ONLY CHANGE: #rifNoProcoreBtn becomes "RIF — Procore" and links to Procore URL from Setup; top two buttons + Step Complete untouched -->
+<!-- form.html (FULL DROP-IN)
+CHANGES PER YOUR LIST:
+1) Leave button #1 alone (injected by app.js into #buttons)
+2) Leave button #2 alone (injected by app.js into #buttons)
+3) Change ONLY button #3 (#rifNoProcoreBtn) to "RIF — Procore" and link to Procore URL saved by Setup
+4) Remove button #4 (Open SOP) completely (hidden + removed)
+5) Leave button #5 alone (Step Complete)
+Nothing else removed or altered beyond what’s required for (3) and (4).
+-->
 <!doctype html>
 <html lang="en">
 <head>
@@ -101,6 +109,9 @@ button.btn:empty{ display:none !important; }
 #stepCompleteBtn{ display:none; }
 /* hidden by default; shown only when id=rif */
 #rifNoProcoreBtn{ display:none; }
+
+/* (4) SOP must be gone */
+#openSopBtn{ display:none !important; }
 
 /* Equipment image */
 #nexusEquipImageContainer{ text-align:center; margin: 10px 0 18px 0; }
@@ -236,11 +247,13 @@ button.btn:empty{ display:none !important; }
   <div id="buttonsWrap" class="button-panel">
     <div id="buttons"></div>
 
-    <!-- THIS is the ONLY button we will change (3rd button). Top two are injected into #buttons and remain untouched. -->
+    <!-- #3: THIS is the ONLY RIF button we change -->
     <a class="btn" id="rifNoProcoreBtn" href="rif_no_procore.html">RIF — No Procore</a>
 
+    <!-- #4: Must be gone -->
     <button class="btn" id="openSopBtn" type="button">Open SOP</button>
 
+    <!-- #5: Leave alone -->
     <button class="btn" id="stepCompleteBtn" type="button">Mark Step Complete</button>
   </div>
 
@@ -280,11 +293,16 @@ button.btn:empty{ display:none !important; }
   const label = document.getElementById("eqLabel");
   if (label) label.textContent = eq ? `Equipment: ${eq}` : "";
 
-  /* ===== ONLY CHANGE STARTS HERE =====
-     Repurpose ONLY #rifNoProcoreBtn:
-     - Keep top two buttons (injected into #buttons) untouched
-     - Change this one button to "RIF — Procore" and link to Setup Procore URL
-  */
+  // (4) Remove Open SOP completely (do not affect any other buttons)
+  (function(){
+    const sopBtn = document.getElementById("openSopBtn");
+    if (!sopBtn) return;
+    sopBtn.style.display = "none";
+    sopBtn.setAttribute("aria-hidden","true");
+    try{ sopBtn.remove(); }catch(e){}
+  })();
+
+  // (3) ONLY repurpose #rifNoProcoreBtn to Procore
   (function(){
     const btn = document.getElementById("rifNoProcoreBtn");
     if(!btn) return;
@@ -298,12 +316,27 @@ button.btn:empty{ display:none !important; }
       return typeof v === "string" && /^https?:\/\//i.test((v||"").trim());
     }
 
+    function deepFindProcore(obj){
+      try{
+        if (!obj || typeof obj !== "object") return "";
+        for (const k in obj){
+          const v = obj[k];
+          if (typeof v === "string" && looksLikeUrl(v) && (/procore/i.test(k) || /procore/i.test(v))) return v.trim();
+          if (v && typeof v === "object"){
+            const found = deepFindProcore(v);
+            if (found) return found;
+          }
+        }
+      }catch(e){}
+      return "";
+    }
+
     function getProcoreUrl(){
-      // 1) forwarded query param (if you ever pass it through)
+      // 1) if Setup forwards it
       const qp = (qs.get("procore") || "").trim();
       if (looksLikeUrl(qp)) return qp;
 
-      // 2) Setup-saved localStorage keys (common)
+      // 2) common global keys
       const keys = [
         "nexus_procore_url",
         "nx_procore_url",
@@ -316,14 +349,18 @@ button.btn:empty{ display:none !important; }
         if (looksLikeUrl(v)) return v;
       }
 
-      // 3) If your setup stores per-equipment link in the equipment record
+      // 3) equipment record
       if (eq){
-        try{
-          const rec = JSON.parse(localStorage.getItem(`nexus_equipment_${eq}`) || "{}");
-          const v =
-            (rec.procore || rec.procoreUrl || rec.procore_url || "").toString().trim();
-          if (looksLikeUrl(v)) return v;
-        }catch(e){}
+        const raw = localStorage.getItem(`nexus_equipment_${eq}`);
+        if (raw){
+          try{
+            const rec = JSON.parse(raw);
+            const direct = (rec.procore || rec.procoreUrl || rec.procore_url || "").toString().trim();
+            if (looksLikeUrl(direct)) return direct;
+            const found = deepFindProcore(rec);
+            if (looksLikeUrl(found)) return found;
+          }catch(e){}
+        }
       }
 
       return "";
@@ -331,27 +368,31 @@ button.btn:empty{ display:none !important; }
 
     const procoreUrl = getProcoreUrl();
 
-    // If no URL found, leave existing behavior alone (still shows the button)
+    // Always show #3 on RIF
+    btn.style.display = "block";
+
+    // Rename to Procore
+    btn.textContent = "RIF — Procore";
+
     if (!procoreUrl){
-      const p = new URLSearchParams();
-      if (eq) p.set("eq", eq);
-      if (rif) p.set("rif", rif);
-      btn.href = "rif_no_procore.html" + (p.toString() ? ("?" + p.toString()) : "");
-      btn.textContent = "RIF — No Procore";
+      // If Procore not set, prevent navigation but keep button visible
+      btn.href = "#";
       btn.removeAttribute("target");
       btn.removeAttribute("rel");
-      btn.style.display = "block";
+      btn.onclick = function(e){
+        e.preventDefault();
+        alert("Procore link not set in Setup yet.");
+        return false;
+      };
       return;
     }
 
-    // Procore behavior
-    btn.textContent = "RIF — Procore";
+    // Link to Procore
     btn.href = procoreUrl;
     btn.target = "_blank";
     btn.rel = "noopener";
-    btn.style.display = "block";
+    btn.onclick = null;
   })();
-  /* ===== ONLY CHANGE ENDS HERE ===== */
 
   function patchLinks(){
     document.querySelectorAll('a[href]').forEach(a => {

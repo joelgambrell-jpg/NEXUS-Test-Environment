@@ -1,4 +1,4 @@
-<!-- form.html (FULL DROP-IN) — FIX: SOP button links correctly via setup URL; RIF—No Procore becomes a link to setup Procore URL; keep everything else intact -->
+<!-- form.html (FULL DROP-IN) — ADD: RIF-Procore button linked to setup Procore URL; keep everything else intact -->
 <!doctype html>
 <html lang="en">
 <head>
@@ -101,6 +101,8 @@ button.btn:empty{ display:none !important; }
 #stepCompleteBtn{ display:none; }
 /* hidden by default; shown only when id=rif */
 #rifNoProcoreBtn{ display:none; }
+/* NEW: hidden by default; shown only when id=rif and procore exists */
+#rifProcoreBtn{ display:none; }
 
 /* Equipment image */
 #nexusEquipImageContainer{ text-align:center; margin: 10px 0 18px 0; }
@@ -236,10 +238,16 @@ button.btn:empty{ display:none !important; }
   <div id="buttonsWrap" class="button-panel">
     <div id="buttons"></div>
 
+    <!-- Existing: keep as-is -->
     <a class="btn" id="rifNoProcoreBtn" href="rif_no_procore.html">RIF — No Procore</a>
 
+    <!-- Existing -->
     <button class="btn" id="openSopBtn" type="button">Open SOP</button>
 
+    <!-- NEW: RIF-Procore button (link) -->
+    <a class="btn" id="rifProcoreBtn" href="#" target="_blank" rel="noopener">RIF — Procore</a>
+
+    <!-- Existing -->
     <button class="btn" id="stepCompleteBtn" type="button">Mark Step Complete</button>
   </div>
 
@@ -279,6 +287,7 @@ button.btn:empty{ display:none !important; }
   const label = document.getElementById("eqLabel");
   if (label) label.textContent = eq ? `Equipment: ${eq}` : "";
 
+  /* Existing block: KEEP, but update behavior ONLY as required */
   (function(){
     const btn = document.getElementById("rifNoProcoreBtn");
     if(!btn) return;
@@ -288,36 +297,27 @@ button.btn:empty{ display:none !important; }
       return;
     }
 
-    // FIX: RIF — No Procore should link to Procore URL provided in setup
-    // Prefer query param forwarded from rif.html/setup; fallback to localStorage keys if present.
-    const procore =
-      (qs.get("procore") || "").trim() ||
-      (localStorage.getItem("nexus_procore_url") || "").trim() ||
-      (localStorage.getItem("nx_procore_url") || "").trim();
+    // Keep existing behavior (still routes to rif_no_procore.html with eq/rif)
+    const p = new URLSearchParams();
+    if (eq) p.set("eq", eq);
+    if (rif) p.set("rif", rif);
 
-    if (!procore){
-      btn.style.display = "none";
-      return;
-    }
-
-    btn.href = procore;
-    btn.target = "_blank";
-    btn.rel = "noopener";
+    btn.href = "rif_no_procore.html" + (p.toString() ? ("?" + p.toString()) : "");
     btn.style.display = "block";
   })();
 
+  /* FIX: SOP button must open SOP link provided in setup */
   (function(){
     const sopBtn = document.getElementById("openSopBtn");
     if (!sopBtn) return;
 
-    // FIX: SOP button should open SOP URL provided in setup
-    // Prefer query param forwarded from rif.html/setup; fallback to localStorage keys if present.
     const sop =
       (qs.get("sop") || "").trim() ||
       (localStorage.getItem("nexus_sop_url") || "").trim() ||
       (localStorage.getItem("nx_sop_url") || "").trim();
 
     if (!sop){
+      // If SOP isn't provided, keep current UX by hiding the button
       sopBtn.style.display = "none";
       return;
     }
@@ -326,6 +326,30 @@ button.btn:empty{ display:none !important; }
     sopBtn.addEventListener("click", () => {
       window.open(sop, "_blank", "noopener");
     });
+  })();
+
+  /* NEW: RIF — Procore button linked to setup Procore URL */
+  (function(){
+    const procoreBtn = document.getElementById("rifProcoreBtn");
+    if(!procoreBtn) return;
+
+    if (id !== "rif"){
+      procoreBtn.style.display = "none";
+      return;
+    }
+
+    const procore =
+      (qs.get("procore") || "").trim() ||
+      (localStorage.getItem("nexus_procore_url") || "").trim() ||
+      (localStorage.getItem("nx_procore_url") || "").trim();
+
+    if (!procore){
+      procoreBtn.style.display = "none";
+      return;
+    }
+
+    procoreBtn.href = procore;
+    procoreBtn.style.display = "block";
   })();
 
   function patchLinks(){

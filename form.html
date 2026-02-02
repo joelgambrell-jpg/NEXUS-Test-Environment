@@ -1,4 +1,4 @@
-<!-- form.html (FULL DROP-IN) — CHANGE: "RIF — No Procore" button becomes "RIF — Procore" and links to Procore URL from Setup (query param or localStorage) -->
+<!-- form.html (FULL DROP-IN) — KEEP injected "RIF — No Procore (Fillable)" button and repurpose it to "RIF — Procore" linking to setup Procore URL -->
 <!doctype html>
 <html lang="en">
 <head>
@@ -99,7 +99,7 @@ button.btn:empty{ display:none !important; }
 }
 
 #stepCompleteBtn{ display:none; }
-/* hidden by default; shown only when id=rif and procore exists */
+/* hidden by default; shown only when id=rif */
 #rifNoProcoreBtn{ display:none; }
 
 /* Equipment image */
@@ -137,7 +137,7 @@ button.btn:empty{ display:none !important; }
   box-shadow:0 14px 40px rgba(0,0,0,.55);
   transform: translate3d(0,0,0) scale(1);
   transform-origin: center center;
-  touch-action: pan-x pan-y; /* keep panning; pinch zoom still works in most mobile browsers */
+  touch-action: pan-x pan-y;
   user-select:none;
 }
 #nxImgModalBar{
@@ -236,7 +236,6 @@ button.btn:empty{ display:none !important; }
   <div id="buttonsWrap" class="button-panel">
     <div id="buttons"></div>
 
-    <!-- This button is being REPURPOSED to be "RIF — Procore" and link to setup Procore URL -->
     <a class="btn" id="rifNoProcoreBtn" href="rif_no_procore.html">RIF — No Procore</a>
 
     <button class="btn" id="openSopBtn" type="button">Open SOP</button>
@@ -280,31 +279,31 @@ button.btn:empty{ display:none !important; }
   const label = document.getElementById("eqLabel");
   if (label) label.textContent = eq ? `Equipment: ${eq}` : "";
 
+  (function(){
+    const btn = document.getElementById("rifNoProcoreBtn");
+    if(!btn) return;
+
+    if (id !== "rif"){
+      btn.style.display = "none";
+      return;
+    }
+
+    const p = new URLSearchParams();
+    if (eq) p.set("eq", eq);
+    if (rif) p.set("rif", rif);
+
+    btn.href = "rif_no_procore.html" + (p.toString() ? ("?" + p.toString()) : "");
+    btn.style.display = "block";
+  })();
+
   function looksLikeUrl(v){
     return typeof v === "string" && /^https?:\/\//i.test(v.trim());
   }
 
-  function deepFindUrl(obj){
-    try{
-      if (!obj || typeof obj !== "object") return "";
-      for (const k in obj){
-        const val = obj[k];
-        if (typeof val === "string" && looksLikeUrl(val) && /procore/i.test(k)) return val.trim();
-        if (val && typeof val === "object"){
-          const found = deepFindUrl(val);
-          if (found) return found;
-        }
-      }
-    }catch(e){}
-    return "";
-  }
-
   function getProcoreUrl(){
-    // 1) query string (if rif.html/setup forwards it)
     const qp = (qs.get("procore") || "").trim();
     if (looksLikeUrl(qp)) return qp;
 
-    // 2) common direct keys
     const directKeys = [
       "procore",
       "procore_url",
@@ -318,70 +317,48 @@ button.btn:empty{ display:none !important; }
       const v = (localStorage.getItem(k) || "").trim();
       if (looksLikeUrl(v)) return v;
     }
-
-    // 3) search JSON blobs in a few likely “setup” keys
-    const jsonKeys = [
-      "nexus_setup",
-      "nx_setup",
-      "nexus_config",
-      "nx_config",
-      "setup",
-      "config"
-    ];
-    for (const k of jsonKeys){
-      const raw = localStorage.getItem(k);
-      if (!raw) continue;
-      try{
-        const obj = JSON.parse(raw);
-        const found = deepFindUrl(obj);
-        if (looksLikeUrl(found)) return found;
-      }catch(e){}
-    }
-
-    // 4) last resort: scan localStorage for any key/value that smells like procore
-    try{
-      for (let i=0; i<localStorage.length; i++){
-        const key = localStorage.key(i);
-        if (!key || !/procore/i.test(key)) continue;
-        const v = (localStorage.getItem(key) || "").trim();
-        if (looksLikeUrl(v)) return v;
-
-        // Sometimes stored as JSON string under a procore-ish key
-        try{
-          const obj = JSON.parse(v);
-          const found = deepFindUrl(obj);
-          if (looksLikeUrl(found)) return found;
-        }catch(e){}
-      }
-    }catch(e){}
-
     return "";
   }
 
-  /* REPURPOSE: rifNoProcoreBtn becomes "RIF — Procore" */
-  (function(){
-    const btn = document.getElementById("rifNoProcoreBtn");
-    if(!btn) return;
-
-    if (id !== "rif"){
-      btn.style.display = "none";
-      return;
-    }
+  /* KEEP the injected "RIF — No Procore (Fillable)" button and repurpose it */
+  function repurposeInjectedRifFillableToProcore(){
+    if (id !== "rif") return;
 
     const procore = getProcoreUrl();
-    if (!procore){
-      btn.style.display = "none";
-      return;
-    }
+    if (!procore) return;
 
-    btn.textContent = "RIF — Procore";
-    btn.href = procore;
-    btn.target = "_blank";
-    btn.rel = "noopener";
-    btn.style.display = "block";
-  })();
+    const scope = document.getElementById("buttonsWrap") || document.body;
+    const candidates = scope.querySelectorAll("a.btn, button.btn, a, button");
 
-  /* SOP button: unchanged behavior except ensure it opens setup SOP link if present */
+    candidates.forEach(el => {
+      const t = (el.textContent || "").trim();
+      if (!t) return;
+
+      // This matches your injected top button text from the screenshot
+      if (t === "RIF — No Procore (Fillable)" || /RIF\s*—\s*No\s*Procore\s*\(Fillable\)/i.test(t)){
+        // Ensure it behaves as a link to Procore
+        if (el.tagName === "A"){
+          el.href = procore;
+          el.target = "_blank";
+          el.rel = "noopener";
+        } else {
+          // If it is a <button>, make it open Procore
+          el.onclick = function(){ window.open(procore, "_blank", "noopener"); };
+        }
+        el.textContent = "RIF — Procore";
+      }
+    });
+  }
+
+  // Run now (in case injected already) and keep watching (in case injected after load)
+  repurposeInjectedRifFillableToProcore();
+
+  const injectObserver = new MutationObserver(() => {
+    repurposeInjectedRifFillableToProcore();
+  });
+  injectObserver.observe(document.getElementById("buttons") || document.body, { childList:true, subtree:true });
+
+  /* SOP button wiring (kept) */
   (function(){
     const sopBtn = document.getElementById("openSopBtn");
     if (!sopBtn) return;
@@ -391,7 +368,6 @@ button.btn:empty{ display:none !important; }
       (localStorage.getItem("nexus_sop_url") || "").trim() ||
       (localStorage.getItem("nx_sop_url") || "").trim();
 
-    // If SOP isn't provided, hide button (avoids dead click)
     if (!sop){
       sopBtn.style.display = "none";
       return;
@@ -506,17 +482,14 @@ button.btn:empty{ display:none !important; }
   closeBtn.addEventListener("click", closeModal);
   resetBtn.addEventListener("click", resetTransform);
 
-  // click outside image closes
   modal.addEventListener("click", (e) => {
     if (e.target === modal || e.target === document.getElementById("nxImgModalInner")) closeModal();
   });
 
-  // ESC closes
   window.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && modal.style.display === "block") closeModal();
   });
 
-  // Mouse wheel zoom (desktop)
   modal.addEventListener("wheel", (e) => {
     if (modal.style.display !== "block") return;
     e.preventDefault();
@@ -526,7 +499,6 @@ button.btn:empty{ display:none !important; }
     applyTransform();
   }, { passive:false });
 
-  // Drag to pan (desktop + mobile single-finger)
   modalImg.addEventListener("pointerdown", (e) => {
     dragging = true;
     startX = e.clientX - panX;
@@ -567,7 +539,6 @@ button.btn:empty{ display:none !important; }
   function isTrulyBlankButton(el){
     if (!el) return false;
 
-    // Only target button-ish elements
     const isButtonish =
       el.matches('a,button,div,span') &&
       (
@@ -577,19 +548,15 @@ button.btn:empty{ display:none !important; }
       );
 
     if (!isButtonish) return false;
-
-    // If it contains any real media/icon, do NOT hide it
     if (el.querySelector('img,svg,canvas,video')) return false;
 
-    // If it has an aria-label or title, treat it as intentional
     const aria = (el.getAttribute('aria-label') || '').trim();
     const title = (el.getAttribute('title') || '').trim();
     if (aria || title) return false;
 
-    // Text content check (kills whitespace / nbsp / zero-width)
     const text = (el.textContent || '')
-      .replace(/\u00A0/g, ' ')   // nbsp
-      .replace(/\u200B/g, '')   // zero width
+      .replace(/\u00A0/g, ' ')
+      .replace(/\u200B/g, '')
       .trim();
 
     return text.length === 0;
@@ -606,10 +573,8 @@ button.btn:empty{ display:none !important; }
     });
   }
 
-  // Run now
   hideBlanks(document);
 
-  // Keep it clean if app.js injects more
   const obs = new MutationObserver((mutations) => {
     for (const m of mutations){
       m.addedNodes && m.addedNodes.forEach(n => {

@@ -1,3 +1,12 @@
+<!-- form.html (FULL DROP-IN)
+CHANGES PER YOUR LIST:
+1) Leave button #1 alone (injected by app.js into #buttons)
+2) Leave button #2 alone (injected by app.js into #buttons)
+3) Button #3 (#rifNoProcoreBtn) is "RIF — Procore" and links to Procore URL saved by Setup
+4) Remove button #4 (Open SOP) completely
+5) Leave button #5 alone (Step Complete)
+NOTE: NO Phenolic button is added here. Phenolic stays ONLY on equipment.html bottom button.
+-->
 <!doctype html>
 <html lang="en">
 <head>
@@ -100,6 +109,9 @@ button.btn:empty{ display:none !important; }
 #stepCompleteBtn{ display:none; }
 /* hidden by default; shown only when id=rif */
 #rifNoProcoreBtn{ display:none; }
+
+/* (4) SOP must be gone */
+#openSopBtn{ display:none !important; }
 
 /* Equipment image */
 #nexusEquipImageContainer{ text-align:center; margin: 10px 0 18px 0; }
@@ -238,10 +250,10 @@ button.btn:empty{ display:none !important; }
     <!-- #3: Procore -->
     <a class="btn" id="rifNoProcoreBtn" href="rif_no_procore.html">RIF — No Procore</a>
 
-    <!-- #4: Phenolic Display (replaces SOP slot) -->
-    <a class="btn" id="phenolicDisplayBtn" href="phenolic_display.html">Display Phenolic</a>
+    <!-- #4: Must be gone -->
+    <button class="btn" id="openSopBtn" type="button">Open SOP</button>
 
-    <!-- #5 -->
+    <!-- #5: Leave alone -->
     <button class="btn" id="stepCompleteBtn" type="button">Mark Step Complete</button>
   </div>
 
@@ -280,7 +292,16 @@ button.btn:empty{ display:none !important; }
   const label = document.getElementById("eqLabel");
   if (label) label.textContent = eq ? `Equipment: ${eq}` : "";
 
-  // #3 Procore button (unchanged logic from your working version)
+  // (4) Remove Open SOP completely
+  (function(){
+    const sopBtn = document.getElementById("openSopBtn");
+    if (!sopBtn) return;
+    sopBtn.style.display = "none";
+    sopBtn.setAttribute("aria-hidden","true");
+    try{ sopBtn.remove(); }catch(e){}
+  })();
+
+  // (3) ONLY repurpose #rifNoProcoreBtn to Procore
   (function(){
     const btn = document.getElementById("rifNoProcoreBtn");
     if(!btn) return;
@@ -310,15 +331,24 @@ button.btn:empty{ display:none !important; }
     }
 
     function getProcoreUrl(){
+      // 1) if Setup forwards it
       const qp = (qs.get("procore") || "").trim();
       if (looksLikeUrl(qp)) return qp;
 
-      const keys = ["nexus_procore_url","nx_procore_url","procore_url","procoreUrl","procore"];
+      // 2) common global keys
+      const keys = [
+        "nexus_procore_url",
+        "nx_procore_url",
+        "procore_url",
+        "procoreUrl",
+        "procore"
+      ];
       for (const k of keys){
         const v = (localStorage.getItem(k) || "").trim();
         if (looksLikeUrl(v)) return v;
       }
 
+      // 3) equipment record
       if (eq){
         const raw = localStorage.getItem(`nexus_equipment_${eq}`);
         if (raw){
@@ -331,10 +361,12 @@ button.btn:empty{ display:none !important; }
           }catch(e){}
         }
       }
+
       return "";
     }
 
     const procoreUrl = getProcoreUrl();
+
     btn.style.display = "block";
     btn.textContent = "RIF — Procore";
 
@@ -354,21 +386,6 @@ button.btn:empty{ display:none !important; }
     btn.target = "_blank";
     btn.rel = "noopener";
     btn.onclick = null;
-  })();
-
-  // #4 Phenolic Display button wiring
-  (function(){
-    const pbtn = document.getElementById("phenolicDisplayBtn");
-    if(!pbtn) return;
-
-    // only show on RIF (adjust if you want it on other pages too)
-    if (id !== "rif"){
-      pbtn.style.display = "none";
-      return;
-    }
-
-    pbtn.style.display = "block";
-    pbtn.href = eq ? `phenolic_display.html?eq=${encodeURIComponent(eq)}` : "phenolic_display.html";
   })();
 
   function patchLinks(){
@@ -405,6 +422,7 @@ button.btn:empty{ display:none !important; }
   const img = document.getElementById("nexusEquipImageDisplay");
   if (!container || !img) return;
 
+  // ONLY show the equipment image on the Diagram Image page
   if (id !== "transformer"){
     container.style.display = "none";
     return;
@@ -426,20 +444,33 @@ button.btn:empty{ display:none !important; }
     if(rec.imageDataUrl) show(rec.imageDataUrl);
   }
 
-  window.NEXUS_setEquipmentImageUrl = function(url){ show(url); };
+  // Firebase-ready hook
+  window.NEXUS_setEquipmentImageUrl = function(url){
+    show(url);
+  };
 
+  // ===== Zoom / Lightbox =====
   const modal = document.getElementById("nxImgModal");
   const modalImg = document.getElementById("nxImgModalImg");
   const closeBtn = document.getElementById("nxImgModalCloseBtn");
   const resetBtn = document.getElementById("nxImgModalResetBtn");
+
   if (!modal || !modalImg || !closeBtn || !resetBtn) return;
 
-  let scale = 1, panX = 0, panY = 0, dragging = false, startX = 0, startY = 0;
+  let scale = 1;
+  let panX = 0;
+  let panY = 0;
+  let dragging = false;
+  let startX = 0;
+  let startY = 0;
 
   function applyTransform(){
     modalImg.style.transform = `translate3d(${panX}px, ${panY}px, 0) scale(${scale})`;
   }
-  function resetTransform(){ scale=1; panX=0; panY=0; applyTransform(); }
+  function resetTransform(){
+    scale = 1; panX = 0; panY = 0;
+    applyTransform();
+  }
   function openModal(){
     if (!img.src) return;
     modalImg.src = img.src;
@@ -456,17 +487,21 @@ button.btn:empty{ display:none !important; }
   }
 
   img.addEventListener("click", openModal);
+
   closeBtn.addEventListener("click", closeModal);
   resetBtn.addEventListener("click", resetTransform);
 
+  // click outside image closes
   modal.addEventListener("click", (e) => {
     if (e.target === modal || e.target === document.getElementById("nxImgModalInner")) closeModal();
   });
 
+  // ESC closes
   window.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && modal.style.display === "block") closeModal();
   });
 
+  // Mouse wheel zoom (desktop)
   modal.addEventListener("wheel", (e) => {
     if (modal.style.display !== "block") return;
     e.preventDefault();
@@ -476,6 +511,7 @@ button.btn:empty{ display:none !important; }
     applyTransform();
   }, { passive:false });
 
+  // Drag to pan (desktop + mobile single-finger)
   modalImg.addEventListener("pointerdown", (e) => {
     dragging = true;
     startX = e.clientX - panX;
@@ -511,6 +547,7 @@ button.btn:empty{ display:none !important; }
 <script src="assets/js/nexus-core.js"></script>
 <script src="assets/js/nexus-firebase-bridge.js"></script>
 <script>
+/* Hide any blank pill/button that gets injected (covers whitespace, nbsp, etc.) */
 (function(){
   function isTrulyBlankButton(el){
     if (!el) return false;

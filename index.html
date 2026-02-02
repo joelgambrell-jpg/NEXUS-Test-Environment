@@ -1,5 +1,7 @@
 <!-- index.html (FULL DROP-IN) — Launcher page with Equipment Image upload (GitHub/localStorage)
-     ADD: Phenolic setup (color code dropdown + FED FROM / EQUIP ID / FEEDS) saved into nexus_meta_${eq} -->
+     ADD: Phenolic fields (color code dropdown + FED FROM + FEEDS + Phenolic Equip ID)
+     Stored under meta.phenolic in nexus_meta_${eq}
+-->
 <!doctype html>
 <html lang="en">
 <head>
@@ -170,25 +172,19 @@
     color:#fff;
   }
 
-  /* ===== NEXUS: Phenolic setup preview pill ===== */
-  .phenolic-mini{
-    margin-top:10px;
-    padding:10px 12px;
-    border-radius:14px;
-    border:1px solid rgba(255,255,255,0.18);
-    background: rgba(0,0,0,0.18);
-    font-weight:900;
-    font-size:12px;
-    line-height:1.35;
+  /* ===== Phenolic section ===== */
+  .section-divider{
+    margin:18px 0 10px;
+    padding-top:14px;
+    border-top:1px solid rgba(255,255,255,0.18);
   }
-  .phenolic-swatch{
-    display:inline-block;
-    width:14px;
-    height:14px;
-    border-radius:4px;
-    margin-right:8px;
-    vertical-align:-2px;
-    border:1px solid rgba(255,255,255,0.28);
+  .section-title{
+    font-weight:900;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    font-size:13px;
+    opacity:.95;
+    margin:0 0 10px;
   }
 
   .footer{
@@ -277,54 +273,45 @@
         </div>
 
         <!-- =========================
-             NEXUS: Phenolic Setup (ADD)
+             ADD: PHENOLIC SECTION
              ========================= -->
+        <div class="section-divider"></div>
+        <div class="section-title">Phenolic</div>
+
         <div class="field">
-          <label for="phenolicColorSelect">Phenolic Color Code (per chart)</label>
-          <select id="phenolicColorSelect">
+          <label for="phenolicColorCode">Color Code</label>
+          <select id="phenolicColorCode">
             <option value="">Select...</option>
-            <!-- Reserved -->
-            <option value="bms_blue">BLUE — BMS (Gravoply #17353)</option>
-            <option value="fire_red">RED — Fire Alarm (Gravoply #17506)</option>
-
-            <!-- Buses -->
-            <option value="bus_a_orange">ORANGE — A Bus (Gravoply #17047)</option>
-            <option value="bus_b_green">GREEN — B Bus (Gravoply #17442)</option>
-            <option value="bus_d_cyan">CYAN — D Bus (Gravoly #45901)</option>
-            <option value="bus_e_yellow_white">YELLOW (white lettering) — E Bus (Gravoply #17366)</option>
-            <option value="catcher_pink">PINK — CATCHER / C Bus (Gravoply #32725)</option>
-
-            <!-- Other -->
-            <option value="nonpod_gray">GRAY — Non-Pod Specific (Gravoply #29584)</option>
-            <option value="global_black">BLACK — Global / Room Designation (Gravoply #17319)</option>
-            <option value="house_brown">BROWN — House Services (Gravoply #17388)</option>
-
-            <!-- EPMS special -->
-            <option value="epms_yellow_black">YELLOW (black lettering) — EPMS (Gravoply #17366)</option>
+            <option value="bms_blue">BLUE — BMS</option>
+            <option value="fire_red">RED — Fire Alarm</option>
+            <option value="bus_a_orange">ORANGE — A Bus</option>
+            <option value="bus_b_green">GREEN — B Bus</option>
+            <option value="bus_d_cyan">CYAN — D Bus</option>
+            <option value="bus_e_yellow_white">YELLOW (white) — E Bus</option>
+            <option value="catcher_pink">PINK — CATCHER / C Bus</option>
+            <option value="nonpod_gray">GRAY — Non-Pod Specific</option>
+            <option value="global_black">BLACK — Global / Room</option>
+            <option value="house_brown">BROWN — House Services</option>
+            <option value="epms_yellow_black">YELLOW (black) — EPMS</option>
           </select>
-
-          <div id="phenolicMiniPreview" class="phenolic-mini" style="display:none;">
-            <span class="phenolic-swatch" id="phenolicSwatch"></span>
-            <span id="phenolicMiniText"></span>
-          </div>
         </div>
 
         <div class="field">
-          <label for="phenolicFedFrom">Phenolic — FED FROM</label>
-          <input id="phenolicFedFrom" type="text" placeholder="CUPP 1.3A" />
+          <label for="phenolicFedFrom">FED FROM</label>
+          <input id="phenolicFedFrom" type="text" placeholder="Example: PDP-1A / SWBD-1 / etc." />
         </div>
 
         <div class="field">
-          <label for="phenolicEquipId">Phenolic — Equipment ID (line 2)</label>
-          <input id="phenolicEquipId" type="text" placeholder="USB 1.3B-MCBC1" />
+          <label for="phenolicEquipId">Phenolic Equipment ID (center line)</label>
+          <input id="phenolicEquipId" type="text" placeholder="Defaults to Equipment ID if blank" />
         </div>
 
         <div class="field">
-          <label for="phenolicFeeds">Phenolic — FEEDS</label>
-          <input id="phenolicFeeds" type="text" placeholder="BUS C1" />
+          <label for="phenolicFeeds">FEEDS</label>
+          <input id="phenolicFeeds" type="text" placeholder="Example: RTU-1 / Panel A / etc." />
         </div>
         <!-- =========================
-             /NEXUS: Phenolic Setup (ADD)
+             /ADD: PHENOLIC SECTION
              ========================= -->
 
         <div class="btnrow">
@@ -379,14 +366,11 @@
   const procoreEquipUrl = document.getElementById("procoreEquipUrl");
   const procoreEnergUrl = document.getElementById("procoreEnergUrl");
 
-  // NEXUS: phenolic fields
-  const phenolicColorSelect = document.getElementById("phenolicColorSelect");
-  const phenolicFedFrom = document.getElementById("phenolicFedFrom");
-  const phenolicEquipId = document.getElementById("phenolicEquipId");
-  const phenolicFeeds = document.getElementById("phenolicFeeds");
-  const phenolicMiniPreview = document.getElementById("phenolicMiniPreview");
-  const phenolicSwatch = document.getElementById("phenolicSwatch");
-  const phenolicMiniText = document.getElementById("phenolicMiniText");
+  // ADD: Phenolic controls
+  const phenolicColorCode = document.getElementById("phenolicColorCode");
+  const phenolicFedFrom   = document.getElementById("phenolicFedFrom");
+  const phenolicEquipId   = document.getElementById("phenolicEquipId");
+  const phenolicFeeds     = document.getElementById("phenolicFeeds");
 
   const openEquipmentBtn = document.getElementById("openEquipmentBtn");
   const generateQrBtn = document.getElementById("generateQrBtn");
@@ -407,78 +391,30 @@
     return {};
   }
 
-  // ===== NEXUS: Phenolic color code table (per spec) =====
-  const PHENOLIC_CODES = {
-    bms_blue:             { label:"BLUE — BMS",                    bg:"#1b4fd6", fg:"#ffffff", gravoply:"#17353" },
-    fire_red:             { label:"RED — Fire Alarm",              bg:"#c01616", fg:"#ffffff", gravoply:"#17506" },
-
-    bus_a_orange:         { label:"ORANGE — A Bus",                bg:"#f57c00", fg:"#ffffff", gravoply:"#17047" },
-    bus_b_green:          { label:"GREEN — B Bus",                 bg:"#168a3a", fg:"#ffffff", gravoply:"#17442" },
-    bus_d_cyan:           { label:"CYAN — D Bus",                  bg:"#00bcd4", fg:"#ffffff", gravoply:"#45901" },
-    bus_e_yellow_white:   { label:"YELLOW (white) — E Bus",        bg:"#ffd400", fg:"#ffffff", gravoply:"#17366" },
-    catcher_pink:         { label:"PINK — CATCHER / C Bus",        bg:"#e91e63", fg:"#ffffff", gravoply:"#32725" },
-
-    nonpod_gray:          { label:"GRAY — Non-Pod Specific",        bg:"#6f7b86", fg:"#ffffff", gravoply:"#29584" },
-    global_black:         { label:"BLACK — Global / Room",         bg:"#111111", fg:"#ffffff", gravoply:"#17319" },
-    house_brown:          { label:"BROWN — House Services",        bg:"#6b3f1a", fg:"#ffffff", gravoply:"#17388" },
-
-    epms_yellow_black:    { label:"YELLOW (black) — EPMS",         bg:"#ffd400", fg:"#111111", gravoply:"#17366" }
-  };
-
-  function getPhenolicEquipIdDefault(){
-    // If user hasn't entered a custom phenolic equip id, default to eq
-    const v = (phenolicEquipId?.value || "").trim();
-    if (v) return v;
-    const eq = getEq();
-    return eq || "";
-  }
-
-  function refreshPhenolicMini(){
-    if (!phenolicMiniPreview || !phenolicColorSelect) return;
-
-    const key = (phenolicColorSelect.value || "").trim();
-    const spec = PHENOLIC_CODES[key];
-
-    if (!key || !spec){
-      phenolicMiniPreview.style.display = "none";
-      return;
-    }
-
-    phenolicMiniPreview.style.display = "block";
-    phenolicSwatch.style.background = spec.bg;
-    phenolicSwatch.style.borderColor = "rgba(255,255,255,0.28)";
-    phenolicMiniText.textContent = `${spec.label} • Gravoply ${spec.gravoply} • Text: ${spec.fg === "#111111" ? "BLACK" : "WHITE"}`;
-  }
-
   function saveMeta(eq){
     if(!eq) return;
 
-    // IMPORTANT: merge with existing meta so we don't overwrite other stored fields
-    const prev = loadMeta(eq) || {};
+    const meta = loadMeta(eq);
 
-    const phenolic = {
-      colorCode: (phenolicColorSelect?.value || "").trim(),
-      fedFrom: (phenolicFedFrom?.value || "").trim(),
-      equipId: (phenolicEquipId?.value || "").trim(),
-      feeds: (phenolicFeeds?.value || "").trim()
-    };
-
-    const meta = {
-      ...prev,
+    // preserve anything already present by merging
+    const next = {
+      ...meta,
       building: (bldgInput.value || "").trim(),
       phase: (phaseSelect.value || "").trim(),
       pod: (podSelect.value || "").trim(),
       procoreEquipUrl: (procoreEquipUrl.value || "").trim(),
       procoreEnergizationUrl: (procoreEnergUrl.value || "").trim(),
       phenolic: {
-        ...(prev.phenolic || {}),
-        ...phenolic
+        ...(meta.phenolic || {}),
+        colorCode: (phenolicColorCode.value || "").trim(),
+        fedFrom: (phenolicFedFrom.value || "").trim(),
+        equipId: (phenolicEquipId.value || "").trim(),
+        feeds: (phenolicFeeds.value || "").trim()
       },
       updatedAt: Date.now()
     };
 
-    localStorage.setItem(metaKey(eq), JSON.stringify(meta));
-    refreshPhenolicMini();
+    localStorage.setItem(metaKey(eq), JSON.stringify(next));
   }
 
   function loadMetaIntoFields(eq){
@@ -490,27 +426,18 @@
     if (meta.procoreEquipUrl != null) procoreEquipUrl.value = meta.procoreEquipUrl || "";
     if (meta.procoreEnergizationUrl != null) procoreEnergUrl.value = meta.procoreEnergizationUrl || "";
 
-    // phenolic
+    // ADD: phenolic
     const p = meta.phenolic || {};
-    if (p.colorCode != null && phenolicColorSelect) phenolicColorSelect.value = p.colorCode || "";
-    if (p.fedFrom != null && phenolicFedFrom) phenolicFedFrom.value = p.fedFrom || "";
-    if (p.equipId != null && phenolicEquipId) phenolicEquipId.value = p.equipId || "";
-    if (p.feeds != null && phenolicFeeds) phenolicFeeds.value = p.feeds || "";
-
-    // If no saved phenolic equipId, default it to eq (without forcing over user input)
-    if (phenolicEquipId && !(phenolicEquipId.value || "").trim()){
-      phenolicEquipId.value = eq || "";
-    }
-
-    refreshPhenolicMini();
+    if (p.colorCode != null) phenolicColorCode.value = p.colorCode || "";
+    if (p.fedFrom != null) phenolicFedFrom.value = p.fedFrom || "";
+    if (p.equipId != null) phenolicEquipId.value = p.equipId || "";
+    if (p.feeds != null) phenolicFeeds.value = p.feeds || "";
   }
 
-  // persist meta on changes
-  [
-    eqInput,bldgInput,phaseSelect,podSelect,procoreEquipUrl,procoreEnergUrl,
-    phenolicColorSelect, phenolicFedFrom, phenolicEquipId, phenolicFeeds
+  // persist meta on changes (ADDED phenolic fields, nothing removed)
+  [eqInput,bldgInput,phaseSelect,podSelect,procoreEquipUrl,procoreEnergUrl,
+   phenolicColorCode, phenolicFedFrom, phenolicEquipId, phenolicFeeds
   ].forEach(el=>{
-    if (!el) return;
     el.addEventListener("change", ()=>{
       const eq = getEq();
       saveMeta(eq);
@@ -524,28 +451,16 @@
   // when eq changes, load meta for that eq
   eqInput.addEventListener("change", ()=>{
     loadMetaIntoFields(getEq());
-    // also refresh image preview state
     loadPreviewForCurrentEq();
-
-    // keep steps link aligned to current eq (no other behavior change)
-    equipmentStepsBtn.href = `equipment_steps.html?eq=${encodeURIComponent(getEq() || "TR-001")}`;
   });
   eqInput.addEventListener("input", ()=>{
-    // refresh image preview state as they type
     loadPreviewForCurrentEq();
-
-    // keep steps link aligned to current eq as they type
-    equipmentStepsBtn.href = `equipment_steps.html?eq=${encodeURIComponent(getEq() || "TR-001")}`;
   });
 
   // buttons
   openEquipmentBtn.addEventListener("click", ()=>{
     const eq = getEq();
     if(!eq) return alert("Enter Equipment ID first.");
-    // If phenolic equip id is blank, default it to eq before saving
-    if (phenolicEquipId && !(phenolicEquipId.value || "").trim()){
-      phenolicEquipId.value = eq;
-    }
     saveMeta(eq);
     location.href = `equipment.html?eq=${encodeURIComponent(eq)}`;
   });
@@ -553,9 +468,6 @@
   generateQrBtn.addEventListener("click", ()=>{
     const eq = getEq();
     if(!eq) return alert("Enter Equipment ID first.");
-    if (phenolicEquipId && !(phenolicEquipId.value || "").trim()){
-      phenolicEquipId.value = eq;
-    }
     saveMeta(eq);
     location.href = `qr.html?eq=${encodeURIComponent(eq)}`;
   });
@@ -665,7 +577,6 @@
   }
   loadMetaIntoFields(getEq());
   loadPreviewForCurrentEq();
-  refreshPhenolicMini();
 })();
 </script>
 

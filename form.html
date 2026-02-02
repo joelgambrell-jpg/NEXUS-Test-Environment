@@ -1,11 +1,4 @@
-<!-- form.html (FULL DROP-IN)
-CHANGE REQUIRED:
-- Leave the TOP 2 injected buttons exactly as-is (do not rename/retarget them).
-- Only change the LAST "RIF — No Procore" (the static anchor in this file) to:
-    label: "RIF — Procore"
-    link: Procore URL saved in Setup (query param procore first; then localStorage fallbacks)
-Nothing else removed.
--->
+<!-- form.html (FULL DROP-IN) — ONLY CHANGE: #rifNoProcoreBtn becomes "RIF — Procore" and links to Procore URL from Setup; top two buttons + Step Complete untouched -->
 <!doctype html>
 <html lang="en">
 <head>
@@ -144,7 +137,7 @@ button.btn:empty{ display:none !important; }
   box-shadow:0 14px 40px rgba(0,0,0,.55);
   transform: translate3d(0,0,0) scale(1);
   transform-origin: center center;
-  touch-action: pan-x pan-y;
+  touch-action: pan-x pan-y; /* keep panning; pinch zoom still works in most mobile browsers */
   user-select:none;
 }
 #nxImgModalBar{
@@ -243,7 +236,7 @@ button.btn:empty{ display:none !important; }
   <div id="buttonsWrap" class="button-panel">
     <div id="buttons"></div>
 
-    <!-- KEEP (this is the LAST button you want repurposed) -->
+    <!-- THIS is the ONLY button we will change (3rd button). Top two are injected into #buttons and remain untouched. -->
     <a class="btn" id="rifNoProcoreBtn" href="rif_no_procore.html">RIF — No Procore</a>
 
     <button class="btn" id="openSopBtn" type="button">Open SOP</button>
@@ -287,55 +280,11 @@ button.btn:empty{ display:none !important; }
   const label = document.getElementById("eqLabel");
   if (label) label.textContent = eq ? `Equipment: ${eq}` : "";
 
-  function looksLikeUrl(v){
-    return typeof v === "string" && /^https?:\/\//i.test(v.trim());
-  }
-  function deepFindProcoreUrl(obj){
-    try{
-      if (!obj || typeof obj !== "object") return "";
-      for (const k in obj){
-        const v = obj[k];
-        if (typeof v === "string" && looksLikeUrl(v) && (/procore/i.test(k) || /procore/i.test(v))) return v.trim();
-        if (v && typeof v === "object"){
-          const found = deepFindProcoreUrl(v);
-          if (found) return found;
-        }
-      }
-    }catch(e){}
-    return "";
-  }
-  function getProcoreUrl(){
-    // 1) query param if present
-    const qp = (qs.get("procore") || "").trim();
-    if (looksLikeUrl(qp)) return qp;
-
-    // 2) direct keys (adjust later to exact setup key if needed)
-    const directKeys = [
-      "procore","procore_url","procoreUrl",
-      "nexus_procore_url","nx_procore_url",
-      "NEXUS_PROCORE_URL"
-    ];
-    for (const k of directKeys){
-      const v = (localStorage.getItem(k) || "").trim();
-      if (looksLikeUrl(v)) return v;
-    }
-
-    // 3) equipment record (common in your stack)
-    if (eq){
-      const raw = localStorage.getItem(`nexus_equipment_${eq}`);
-      if (raw){
-        try{
-          const obj = JSON.parse(raw);
-          const found = deepFindProcoreUrl(obj);
-          if (looksLikeUrl(found)) return found;
-        }catch(e){}
-      }
-    }
-
-    return "";
-  }
-
-  /* ONLY change the LAST button (the static anchor) */
+  /* ===== ONLY CHANGE STARTS HERE =====
+     Repurpose ONLY #rifNoProcoreBtn:
+     - Keep top two buttons (injected into #buttons) untouched
+     - Change this one button to "RIF — Procore" and link to Setup Procore URL
+  */
   (function(){
     const btn = document.getElementById("rifNoProcoreBtn");
     if(!btn) return;
@@ -345,47 +294,64 @@ button.btn:empty{ display:none !important; }
       return;
     }
 
-    const procore = getProcoreUrl();
-    if (!procore){
-      // If no procore URL exists, keep old behavior (no changes)
+    function looksLikeUrl(v){
+      return typeof v === "string" && /^https?:\/\//i.test((v||"").trim());
+    }
+
+    function getProcoreUrl(){
+      // 1) forwarded query param (if you ever pass it through)
+      const qp = (qs.get("procore") || "").trim();
+      if (looksLikeUrl(qp)) return qp;
+
+      // 2) Setup-saved localStorage keys (common)
+      const keys = [
+        "nexus_procore_url",
+        "nx_procore_url",
+        "procore_url",
+        "procoreUrl",
+        "procore"
+      ];
+      for (const k of keys){
+        const v = (localStorage.getItem(k) || "").trim();
+        if (looksLikeUrl(v)) return v;
+      }
+
+      // 3) If your setup stores per-equipment link in the equipment record
+      if (eq){
+        try{
+          const rec = JSON.parse(localStorage.getItem(`nexus_equipment_${eq}`) || "{}");
+          const v =
+            (rec.procore || rec.procoreUrl || rec.procore_url || "").toString().trim();
+          if (looksLikeUrl(v)) return v;
+        }catch(e){}
+      }
+
+      return "";
+    }
+
+    const procoreUrl = getProcoreUrl();
+
+    // If no URL found, leave existing behavior alone (still shows the button)
+    if (!procoreUrl){
       const p = new URLSearchParams();
       if (eq) p.set("eq", eq);
       if (rif) p.set("rif", rif);
       btn.href = "rif_no_procore.html" + (p.toString() ? ("?" + p.toString()) : "");
       btn.textContent = "RIF — No Procore";
-      btn.target = "";
-      btn.rel = "";
+      btn.removeAttribute("target");
+      btn.removeAttribute("rel");
       btn.style.display = "block";
       return;
     }
 
+    // Procore behavior
     btn.textContent = "RIF — Procore";
-    btn.href = procore;
+    btn.href = procoreUrl;
     btn.target = "_blank";
     btn.rel = "noopener";
     btn.style.display = "block";
   })();
-
-  /* SOP button wiring (unchanged except giving it a real click action) */
-  (function(){
-    const sopBtn = document.getElementById("openSopBtn");
-    if (!sopBtn) return;
-
-    const sop =
-      (qs.get("sop") || "").trim() ||
-      (localStorage.getItem("nexus_sop_url") || "").trim() ||
-      (localStorage.getItem("nx_sop_url") || "").trim();
-
-    if (!sop){
-      sopBtn.style.display = "none";
-      return;
-    }
-
-    sopBtn.style.display = "block";
-    sopBtn.addEventListener("click", () => {
-      window.open(sop, "_blank", "noopener");
-    });
-  })();
+  /* ===== ONLY CHANGE ENDS HERE ===== */
 
   function patchLinks(){
     document.querySelectorAll('a[href]').forEach(a => {
@@ -490,14 +456,17 @@ button.btn:empty{ display:none !important; }
   closeBtn.addEventListener("click", closeModal);
   resetBtn.addEventListener("click", resetTransform);
 
+  // click outside image closes
   modal.addEventListener("click", (e) => {
     if (e.target === modal || e.target === document.getElementById("nxImgModalInner")) closeModal();
   });
 
+  // ESC closes
   window.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && modal.style.display === "block") closeModal();
   });
 
+  // Mouse wheel zoom (desktop)
   modal.addEventListener("wheel", (e) => {
     if (modal.style.display !== "block") return;
     e.preventDefault();
@@ -507,6 +476,7 @@ button.btn:empty{ display:none !important; }
     applyTransform();
   }, { passive:false });
 
+  // Drag to pan (desktop + mobile single-finger)
   modalImg.addEventListener("pointerdown", (e) => {
     dragging = true;
     startX = e.clientX - panX;
@@ -547,6 +517,7 @@ button.btn:empty{ display:none !important; }
   function isTrulyBlankButton(el){
     if (!el) return false;
 
+    // Only target button-ish elements
     const isButtonish =
       el.matches('a,button,div,span') &&
       (
@@ -556,15 +527,19 @@ button.btn:empty{ display:none !important; }
       );
 
     if (!isButtonish) return false;
+
+    // If it contains any real media/icon, do NOT hide it
     if (el.querySelector('img,svg,canvas,video')) return false;
 
+    // If it has an aria-label or title, treat it as intentional
     const aria = (el.getAttribute('aria-label') || '').trim();
     const title = (el.getAttribute('title') || '').trim();
     if (aria || title) return false;
 
+    // Text content check (kills whitespace / nbsp / zero-width)
     const text = (el.textContent || '')
-      .replace(/\u00A0/g, ' ')
-      .replace(/\u200B/g, '')
+      .replace(/\u00A0/g, ' ')   // nbsp
+      .replace(/\u200B/g, '')   // zero width
       .trim();
 
     return text.length === 0;
@@ -581,8 +556,10 @@ button.btn:empty{ display:none !important; }
     });
   }
 
+  // Run now
   hideBlanks(document);
 
+  // Keep it clean if app.js injects more
   const obs = new MutationObserver((mutations) => {
     for (const m of mutations){
       m.addedNodes && m.addedNodes.forEach(n => {

@@ -1,4 +1,4 @@
-<!-- equipment.html (FULL DROP-IN) — FIX: Pre-FOD now routes to form.html?id=prefod (so it shows buttons + Export PDF) -->
+<!-- equipment.html (FULL DROP-IN) — MIN CHANGE: bottom Phenolic button now routes to phenolic_display.html (and can show Setup label) -->
 <!doctype html>
 <html lang="en">
 <head>
@@ -472,8 +472,23 @@
   const constructionBtn = document.getElementById("constructionBtn");
   if (constructionBtn) constructionBtn.href = directPage("construction_check_sheet.html");
 
+  /* ============================
+     MIN CHANGE: Phenolic button now routes to phenolic_display.html (ONLY entry point)
+     and can show Setup label if present.
+     ============================ */
   const phenolicBtn = document.getElementById("phenolicBtn");
-  if (phenolicBtn) phenolicBtn.href = taskLink("phenolic");
+  if (phenolicBtn){
+    phenolicBtn.href = directPage("phenolic_display.html");
+
+    const label =
+      (meta.phenolicLabel || meta.phenolicName || meta.phenolicTitle || "").toString().trim();
+
+    if (label){
+      phenolicBtn.textContent = `Phenolic: ${label}`;
+    } else {
+      phenolicBtn.textContent = "Phenolic Display";
+    }
+  }
 
   const transformerBtn = document.getElementById("transformerBtn");
   if (transformerBtn) transformerBtn.href = taskLink("transformer");

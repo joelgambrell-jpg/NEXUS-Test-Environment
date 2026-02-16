@@ -1,0 +1,923 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Equipment</title>
+
+<link rel="stylesheet" href="nexus-core.css" />
+<link rel="stylesheet" href="nexus-core.print.css" media="print" />
+<link rel="stylesheet" href="nexus-theme.css" />
+
+<script src="config/customer.config.js"></script>
+<script src="nexus-brand.js" defer></script>
+
+<style>
+
+  :root{
+    --nx-radius-1: 14px;
+    --nx-radius-2: 18px;
+    --nx-elev-1: 0 10px 26px rgba(25,55,95,0.10), 0 4px 12px rgba(25,55,95,0.08);
+    --nx-elev-2: 0 18px 45px rgba(25,55,95,0.12), 0 6px 14px rgba(25,55,95,0.08);
+  }
+
+  .nx-shell{
+    width:min(1180px, calc(100% - 28px));
+    margin: 14px auto 30px;
+  }
+
+  .nx-top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+    padding: 14px 16px;
+    border-radius: var(--nx-radius-2);
+    background: var(--nx-surface2);
+    border: 1px solid rgba(20,40,80,0.12);
+    box-shadow: var(--nx-elev-1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+  .nx-brand{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    min-width: 240px;
+  }
+  .nx-brand img{
+    height: 46px;
+    width:auto;
+    object-fit:contain;
+    display:block;
+  }
+  .nx-brand h1{
+    margin:0;
+    font-size: 20px;
+    letter-spacing: .2px;
+    line-height: 1.1;
+  }
+  .nx-brand .sub{
+    margin-top:4px;
+    font-weight: 900;
+    font-size: 12px;
+    color: var(--nx-muted);
+  }
+
+  .nx-top-right{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex-wrap: wrap;
+    justify-content:flex-end;
+  }
+
+  .nx-pill{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.88);
+    border: 1px solid rgba(20,40,80,0.14);
+    font-weight: 900;
+    font-size: 12px;
+    box-shadow: 0 2px 10px rgba(25,55,95,0.10);
+    white-space: nowrap;
+  }
+  .nx-pill b{font-size: 13px;}
+  .nx-pill small{color: var(--nx-muted); font-weight: 900;}
+
+  .nx-role{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.88);
+    border: 1px solid rgba(20,40,80,0.14);
+    box-shadow: 0 2px 10px rgba(25,55,95,0.10);
+    font-weight: 900;
+    font-size: 12px;
+  }
+  .nx-role select{
+    border: 1px solid rgba(20,40,80,0.18);
+    background: rgba(255,255,255,0.92);
+    border-radius: 10px;
+    padding: 6px 10px;
+    font-weight: 900;
+    color: var(--nx-text);
+    outline: none;
+  }
+
+  .nx-grid{
+    margin-top: 14px;
+    display:grid;
+    grid-template-columns: 0.95fr 1.05fr;
+    gap: 14px;
+    align-items:start;
+  }
+  @media (max-width: 980px){
+    .nx-grid{ grid-template-columns: 1fr; }
+  }
+
+  .nx-card{
+    background: var(--nx-surface);
+    border: 1px solid rgba(20,40,80,0.12);
+    border-radius: var(--nx-radius-2);
+    box-shadow: var(--nx-elev-1);
+    overflow: hidden;
+  }
+  .nx-card-h{
+    padding: 14px 16px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    background: rgba(255,255,255,0.65);
+    border-bottom: 1px solid rgba(20,40,80,0.10);
+  }
+  .nx-card-h h2{
+    margin:0;
+    font-size: 14px;
+    letter-spacing: .35px;
+    text-transform: uppercase;
+    color: rgba(15,34,54,0.88);
+  }
+  .nx-card-b{
+    padding: 16px;
+  }
+
+  .nx-kpis{
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+  @media (max-width: 520px){
+    .nx-kpis{ grid-template-columns: 1fr; }
+  }
+  .nx-kpi{
+    border-radius: var(--nx-radius-1);
+    background: rgba(255,255,255,0.80);
+    border: 1px solid rgba(20,40,80,0.10);
+    box-shadow: 0 6px 14px rgba(25,55,95,0.08);
+    padding: 12px 12px;
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+  }
+  .nx-kpi .label{
+    font-weight: 1000;
+    font-size: 11px;
+    color: var(--nx-muted);
+    letter-spacing: .25px;
+    text-transform: uppercase;
+  }
+  .nx-kpi .value{
+    font-weight: 1000;
+    font-size: 22px;
+    letter-spacing: .2px;
+  }
+
+  .nx-progress{
+    margin-top: 12px;
+    border-radius: var(--nx-radius-1);
+    background: rgba(15,34,54,0.06);
+    border: 1px solid rgba(20,40,80,0.12);
+    overflow:hidden;
+    height: 12px;
+  }
+  .nx-progress > div{
+    height:100%;
+    width:0%;
+    background: linear-gradient(90deg, #ff4d4d, #ffc400, #46ff46);
+    border-radius: 999px;
+    transition: width .25s ease;
+  }
+  .nx-note{
+    margin-top: 10px;
+    font-size: 12px;
+    font-weight: 900;
+    color: rgba(15,34,54,0.70);
+    line-height: 1.35;
+  }
+
+  .nx-countdown{
+    font-weight: 1000;
+    font-size: 28px;
+    letter-spacing: .2px;
+    color: #00b85a;
+  }
+  .nx-goal-sub{
+    font-weight: 900;
+    color: rgba(15,34,54,0.78);
+    font-size: 13px;
+  }
+
+  .nx-actions{
+    display:grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .nx-btn{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+    padding: 14px 16px;
+    border-radius: 999px;
+    text-decoration:none;
+    user-select:none;
+
+    background: rgba(255,255,255,0.92);
+    border: 2px solid var(--nx-accent);
+    color: var(--nx-text);
+    font-weight: 1000;
+    box-shadow: var(--nx-elev-1);
+    cursor:pointer;
+    pointer-events:auto;
+  }
+  .nx-btn .left{
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+    min-width:0;
+  }
+  .nx-btn .title{
+    font-size: 16px;
+    white-space: nowrap;
+    overflow:hidden;
+    text-overflow: ellipsis;
+  }
+  .nx-btn .hint{
+    font-size: 12px;
+    font-weight: 900;
+    opacity: .85;
+    white-space: nowrap;
+    overflow:hidden;
+    text-overflow: ellipsis;
+  }
+  .nx-btn .chev{
+    font-size: 18px;
+    font-weight: 1000;
+    opacity: .95;
+    flex: 0 0 auto;
+  }
+
+  .nx-btn .nx-status-pill{
+    flex: 0 0 auto;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 1000;
+    letter-spacing: .2px;
+    border: 1px solid rgba(20,40,80,0.18);
+    background: rgba(255,255,255,0.90);
+    color: rgba(15,34,54,0.85);
+    box-shadow: 0 2px 8px rgba(25,55,95,0.10);
+  }
+  .nx-btn[data-nx-done="true"] .nx-status-pill{
+    border-color: rgba(22,163,74,0.35);
+    background: rgba(34,197,94,0.12);
+    color: rgba(22,101,52,0.95);
+  }
+  .nx-btn[data-nx-done="false"] .nx-status-pill{
+    border-color: rgba(220,38,38,0.25);
+    background: rgba(239,68,68,0.10);
+    color: rgba(127,29,29,0.95);
+  }
+
+  .nx-btn.secondary{
+    background: rgba(255,255,255,0.92);
+    border: 1px solid rgba(20,40,80,0.16);
+    color: var(--nx-text);
+    box-shadow: var(--nx-elev-1);
+  }
+  .nx-btn.secondary .hint{ color: rgba(15,34,54,0.66); }
+
+  /* Energization button hidden until 100% */
+  #energizeBtn{ display:none; }
+  #energizeBtn.is-unlocked{ display:flex; }
+
+  .nx-footer{
+    margin-top: 14px;
+    text-align:center;
+    font-size: 12px;
+    font-weight: 900;
+    color: rgba(15,34,54,0.70);
+    padding: 12px 10px;
+    border-radius: var(--nx-radius-2);
+    background: rgba(255,255,255,0.55);
+    border: 1px solid rgba(20,40,80,0.10);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
+  @media print{
+    .nx-top, .nx-footer, #editGoalBtn{ display:none !important; }
+    body{ background:#fff !important; }
+    .nx-card{ box-shadow:none !important; }
+  }
+
+  /* ===== Goal Modal styles ===== */
+  #nxGoalModal{
+    display:none;
+    position:fixed;
+    inset:0;
+    z-index:99999;
+    background:rgba(0,0,0,0.55);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+  #nxGoalModal .nxGoalDialog{
+    max-width: 520px;
+    margin: 8vh auto;
+    background: rgba(255,255,255,0.98);
+    border-radius: 18px;
+    box-shadow: 0 18px 45px rgba(0,0,0,0.28);
+    overflow:hidden;
+  }
+  #nxGoalModal .nxGoalHead{
+    padding: 14px 16px;
+    border-bottom: 1px solid rgba(20,40,80,0.10);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+  }
+  #nxGoalModal .nxGoalTitle{
+    font-weight: 1000;
+    letter-spacing: .25px;
+    color: rgba(15,34,54,0.92);
+  }
+  #nxGoalModal .nxGoalClose{
+    border: 1px solid rgba(20,40,80,0.18);
+    background: rgba(255,255,255,0.90);
+    border-radius: 999px;
+    padding: 8px 12px;
+    font-weight: 1000;
+    cursor:pointer;
+  }
+  #nxGoalModal .nxGoalBody{
+    padding: 16px;
+  }
+  #nxGoalModal .nxGoalGrid{
+    display:grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  #nxGoalModal label{
+    font-weight: 900;
+    font-size: 12px;
+    color: rgba(15,34,54,0.80);
+    text-align:left;
+  }
+  #nxGoalModal input[type="date"],
+  #nxGoalModal select{
+    width:100%;
+    margin-top:6px;
+    padding: 12px 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(20,40,80,0.18);
+    font-weight: 900;
+    color: rgba(15,34,54,0.92);
+    background: rgba(255,255,255,0.96);
+    outline:none;
+  }
+  #nxGoalModal .nxGoalRow2{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  #nxGoalModal .nxGoalActions{
+    display:flex;
+    gap: 10px;
+    justify-content:flex-end;
+    margin-top: 6px;
+  }
+  #nxGoalModal .nxGoalBtn{
+    border-radius: 999px;
+    padding: 10px 14px;
+    font-weight: 1000;
+    cursor:pointer;
+    border: 1px solid rgba(20,40,80,0.18);
+    background: rgba(255,255,255,0.92);
+  }
+  #nxGoalModal .nxGoalBtn.danger{
+    border-color: rgba(220,38,38,0.25);
+    background: rgba(239,68,68,0.10);
+    color: rgba(127,29,29,0.95);
+  }
+  #nxGoalModal .nxGoalBtn.success{
+    border-color: rgba(22,163,74,0.25);
+    background: rgba(34,197,94,0.12);
+    color: rgba(22,101,52,0.95);
+  }
+  #nxGoalModal .nxGoalHint{
+    margin-top: 8px;
+    font-size: 12px;
+    font-weight: 900;
+    color: rgba(15,34,54,0.65);
+    line-height: 1.35;
+    text-align:left;
+  }
+
+</style>
+</head>
+
+<body>
+<div class="nexus-page">
+
+  <div id="nxSessionBanner" class="nx-session-banner">
+    <div class="nx-left">
+      <span class="nx-pill">Equipment: <span data-nx-eq>(none)</span></span>
+      <span class="nx-pill">Role: <span data-nx-role>viewer</span></span>
+      <span class="nx-pill" data-nx-status>Ready</span>
+    </div>
+    <div class="nx-right">
+      <label style="font-weight:800;font-size:12px;opacity:.95;">Set Role
+        <select id="nxRoleSelect" onchange="NEXUS.setRole(this.value)">
+          <option value="viewer">viewer</option>
+          <option value="tech">tech</option>
+          <option value="foreman">foreman</option>
+          <option value="superintendent">superintendent</option>
+          <option value="admin">admin</option>
+        </select>
+      </label>
+    </div>
+  </div>
+
+  <div class="nx-shell">
+
+    <div class="nx-top">
+      <div class="nx-brand">
+        <img src="nexus.png" alt="NEXUS" />
+        <div>
+          <h1>Equipment Dashboard</h1>
+          <div class="sub" id="eqTitle">Equipment: (none)</div>
+        </div>
+      </div>
+
+      <div class="nx-top-right">
+        <span class="nx-pill"><small>Progress</small> <b id="progressPct">0%</b></span>
+        <span class="nx-pill"><small>Complete</small> <b id="progressCount">0/0</b></span>
+
+        <span class="nx-role">
+          Role
+          <select id="nxRoleSelect2" onchange="NEXUS.setRole(this.value)">
+            <option value="viewer">viewer</option>
+            <option value="tech">tech</option>
+            <option value="foreman">foreman</option>
+            <option value="superintendent">superintendent</option>
+            <option value="admin">admin</option>
+          </select>
+        </span>
+      </div>
+    </div>
+
+    <div class="nx-grid">
+      <div>
+        <div class="nx-card">
+          <div class="nx-card-h"><h2>Status</h2></div>
+          <div class="nx-card-b">
+            <div class="nx-kpis">
+              <div class="nx-kpi"><div class="label">Progress</div><div class="value" id="progressPct2">0%</div></div>
+              <div class="nx-kpi"><div class="label">Complete</div><div class="value" id="progressCount2">0/0</div></div>
+              <div class="nx-kpi"><div class="label">Ready for Energization</div><div class="value" id="readyText">No</div></div>
+            </div>
+            <div class="nx-progress"><div id="progressBar" style="width:0%;"></div></div>
+            <div class="nx-note">Progress updates when each form is marked complete (use the “Complete” toggle on each task page).</div>
+          </div>
+        </div>
+
+        <div class="nx-card" style="margin-top:14px;">
+          <div class="nx-card-h">
+            <h2>Energization Goal</h2>
+            <a class="nx-btn secondary" id="editGoalBtn" href="#" style="padding:10px 14px;border-radius:999px;min-width:auto;">
+              <span class="left">
+                <span class="title" style="font-size:13px;">Edit Goal</span>
+                <span class="hint" style="font-size:11px;">Set target date</span>
+              </span>
+              <span class="chev">›</span>
+            </a>
+          </div>
+          <div class="nx-card-b">
+            <div class="nx-countdown" id="countdown">Time remaining: --</div>
+            <div class="nx-goal-sub" id="goalText">Goal: (not set)</div>
+          </div>
+        </div>
+
+        <div class="nx-card" style="margin-top:14px;">
+          <div class="nx-card-h"><h2>Exports</h2></div>
+          <div class="nx-card-b">
+            <a class="nx-btn" id="packageExportBtn" href="package_export.html">
+              <span class="left"><span class="title">Export Package (Print/PDF)</span><span class="hint">Bundle &amp; print deliverables</span></span>
+              <span class="chev">›</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="nx-card">
+          <div class="nx-card-h"><h2>Primary Actions</h2></div>
+          <div class="nx-card-b">
+            <div class="nx-actions">
+              <a class="nx-btn" id="rifBtn" href="form.html?id=rif"><span class="left"><span class="title">Receipt Inspection Form</span><span class="hint">Open RIF workflow</span></span><span class="chev">›</span></a>
+              <a class="nx-btn" id="megBtn" href="form.html?id=meg"><span class="left"><span class="title">Megohmmeter Testing</span><span class="hint">Logs, SOP, Fluke import</span></span><span class="chev">›</span></a>
+              <a class="nx-btn" id="torqueBtn" href="torque_log.html"><span class="left"><span class="title">Torque Application</span><span class="hint">Logs, SOP, Snap-on import</span></span><span class="chev">›</span></a>
+              <a class="nx-btn" id="l2Btn" href="form.html?id=l2"><span class="left"><span class="title">L2 Installation Verification Form</span><span class="hint">Open L2 verification</span></span><span class="chev">›</span></a>
+              <a class="nx-btn" id="prefodBtn" href="form.html?id=prefod"><span class="left"><span class="title">Pre- Foreign Object and Debris</span><span class="hint">Checklist &amp; inspection</span></span><span class="chev">›</span></a>
+              <a class="nx-btn" id="fpvBtn" href="fpv_photo_capture.html"><span class="left"><span class="title">Finished Product Verification Photo</span><span class="hint">Capture &amp; attach photo</span></span><span class="chev">›</span></a>
+
+              <!-- Energization (auto-unlocks when progress hits 100%) -->
+              <a class="nx-btn" id="energizeBtn" href="energization.html">
+                <span class="left">
+                  <span class="title">Energization Unlocked</span>
+                  <span class="hint">Available when all steps are complete</span>
+                </span>
+                <span class="chev">›</span>
+              </a>
+
+            </div>
+          </div>
+        </div>
+
+        <div class="nx-card" style="margin-top:14px;">
+          <div class="nx-card-h"><h2>Reference &amp; Check Sheets</h2></div>
+          <div class="nx-card-b">
+            <div class="nx-actions">
+              <a class="nx-btn secondary" id="constructionBtn" href="construction_check_sheet.html"><span class="left"><span class="title">Construction Check Sheet</span><span class="hint">Track construction checklist</span></span><span class="chev">›</span></a>
+              <a class="nx-btn secondary" id="phenolicBtn" href="phenolic_display.html"><span class="left"><span class="title">Phenolic Display</span><span class="hint">View setup &amp; display</span></span><span class="chev">›</span></a>
+
+              <a class="nx-btn secondary" id="diagramBtn" href="transformer.jpg"><span class="left"><span class="title">Diagram Image</span><span class="hint">Open transformer diagram</span></span><span class="chev">›</span></a>
+
+              <a class="nx-btn secondary" id="supportingBtn" href="supporting_documents.html"><span class="left"><span class="title">Supporting Documents</span><span class="hint">Specs, SOPs, PDFs</span></span><span class="chev">›</span></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nx-footer">
+      © 2026 NEXUS Data Science — Built for <span data-customer-name>CUSTOMER</span> — All Rights Reserved
+    </div>
+
+  </div>
+
+  <script>
+  (function(){
+    const qs = new URLSearchParams(location.search);
+    const eq = (qs.get("eq") || "").trim();
+
+    const t = document.getElementById("eqTitle");
+    if (t) t.textContent = eq ? `Equipment: ${eq}` : "Equipment: (none)";
+    const pillEq = document.querySelector('[data-nx-eq]');
+    if (pillEq) pillEq.textContent = eq || "(none)";
+
+    function forceHref(el, href){
+      if (!el) return;
+      try{
+        const u = new URL(href, location.href);
+        if (eq && u.origin === location.origin) u.searchParams.set("eq", eq);
+        el.setAttribute("href", u.pathname + u.search + u.hash);
+      }catch(e){
+        el.setAttribute("href", href);
+      }
+      el.style.pointerEvents="auto";
+      el.style.cursor="pointer";
+    }
+
+    [
+      ["packageExportBtn","package_export.html"],
+      ["rifBtn","form.html?id=rif"],
+      ["megBtn","form.html?id=meg"],
+      ["torqueBtn","form.html?id=torque"],
+      ["l2Btn","form.html?id=l2"],
+      ["prefodBtn","form.html?id=prefod"],
+      ["fpvBtn","fpv_photo_capture.html"],
+      ["energizeBtn","energization.html"],
+      ["constructionBtn","construction_check_sheet.html"],
+      ["phenolicBtn","phenolic_display.html"],
+      ["diagramBtn","transformer.jpg"],
+      ["supportingBtn","supporting_documents.html"]
+    ].forEach(([id, href]) => forceHref(document.getElementById(id), href));
+
+    try{
+      const sel1 = document.getElementById("nxRoleSelect");
+      const sel2 = document.getElementById("nxRoleSelect2");
+      if (window.NEXUS && typeof window.NEXUS.getRole === "function"){
+        const r = window.NEXUS.getRole();
+        if (sel1) sel1.value = r;
+        if (sel2) sel2.value = r;
+      }
+      function sync(a,b){
+        if(!a||!b) return;
+        a.addEventListener("change", ()=>{ b.value=a.value; });
+      }
+      sync(sel1,sel2); sync(sel2,sel1);
+    }catch(e){}
+  })();
+  </script>
+
+  <!-- ===== PROGRESS / DONE MARKERS + READY TOGGLE + GOAL MODAL (FIXED BINDING ORDER) ===== -->
+  <script>
+  (function(){
+    const qs = new URLSearchParams(location.search);
+    const eq = (qs.get("eq") || "").trim();
+
+    const pctA = document.getElementById("progressPct");
+    const cntA = document.getElementById("progressCount");
+    const pctB = document.getElementById("progressPct2");
+    const cntB = document.getElementById("progressCount2");
+    const bar  = document.getElementById("progressBar");
+    const energizeBtn = document.getElementById("energizeBtn");
+    const readyTextEl = document.getElementById("readyText");
+
+    const KEYS = ["rifCompleted","megCompleted","torqueCompleted","l2Completed","prefodCompleted","fpvCompleted"];
+
+    function readDoneByCanonicalKey(canonicalKey){
+      try{
+        if (eq){
+          return localStorage.getItem(`nexus_${eq}_${canonicalKey}`) === "true";
+        }
+        return localStorage.getItem(canonicalKey) === "true";
+      }catch(e){
+        return false;
+      }
+    }
+
+    function setEnergizationVisibility(pct){
+      if (!energizeBtn) return;
+      if (pct >= 100){
+        energizeBtn.classList.add("is-unlocked");
+        energizeBtn.style.display = "flex";
+      } else {
+        energizeBtn.classList.remove("is-unlocked");
+        energizeBtn.style.display = "none";
+      }
+    }
+
+    function renderProgress(){
+      const total = KEYS.length;
+
+      const MAP = [
+        ["rifBtn","rifCompleted"],
+        ["megBtn","megCompleted"],
+        ["torqueBtn","torqueCompleted"],
+        ["l2Btn","l2Completed"],
+        ["prefodBtn","prefodCompleted"],
+        ["fpvBtn","fpvCompleted"],
+      ];
+
+      let done = 0;
+
+      for (const [id, key] of MAP){
+        const el = document.getElementById(id);
+        const isDone = readDoneByCanonicalKey(key);
+        if (isDone) done++;
+
+        if (!el) continue;
+
+        el.dataset.nxDone = String(!!isDone);
+
+        let pill = el.querySelector(".nx-status-pill");
+        if (!pill){
+          pill = document.createElement("span");
+          pill.className = "nx-status-pill";
+          const chev = el.querySelector(".chev");
+          if (chev && chev.parentNode === el){
+            el.insertBefore(pill, chev);
+          }else{
+            el.appendChild(pill);
+          }
+        }
+        pill.textContent = isDone ? "Done" : "Not done";
+      }
+
+      const pct = total ? Math.round((done / total) * 100) : 0;
+
+      if (pctA) pctA.textContent = `${pct}%`;
+      if (pctB) pctB.textContent = `${pct}%`;
+      if (cntA) cntA.textContent = `${done}/${total}`;
+      if (cntB) cntB.textContent = `${done}/${total}`;
+      if (bar) bar.style.width = `${pct}%`;
+
+      setEnergizationVisibility(pct);
+
+      if (readyTextEl) readyTextEl.textContent = (pct >= 100) ? "Yes" : "No";
+    }
+
+    const countdownEl = document.getElementById("countdown");
+    const goalTextEl = document.getElementById("goalText");
+    const editGoalBtn = document.getElementById("editGoalBtn");
+
+    function goalKey(){ return `nexus_goal_${eq || "NO_EQ"}`; }
+    function loadGoal(){
+      try{
+        const raw = localStorage.getItem(goalKey());
+        if (raw) return JSON.parse(raw);
+      }catch(e){}
+      return null;
+    }
+    function formatDate(dt){
+      try{
+        return dt.toLocaleString(undefined, { year:"numeric", month:"numeric", day:"numeric", hour:"numeric", minute:"2-digit" });
+      }catch(e){ return String(dt); }
+    }
+    function renderCountdown(){
+      const goal = loadGoal();
+      if (!goal || !goal.ts){
+        if (countdownEl) countdownEl.textContent = "Time remaining: --";
+        if (goalTextEl) goalTextEl.textContent = "Goal: (not set)";
+        return;
+      }
+      const now = Date.now();
+      const diff = Math.max(0, goal.ts - now);
+      const sec = Math.floor(diff / 1000);
+      const d = Math.floor(sec / 86400);
+      const h = Math.floor((sec % 86400) / 3600);
+      const m = Math.floor((sec % 3600) / 60);
+      const s = sec % 60;
+
+      if (countdownEl) countdownEl.textContent = `Time remaining: ${d}d ${String(h).padStart(2,"0")}h ${String(m).padStart(2,"0")}m ${String(s).padStart(2,"0")}s`;
+      const dt = new Date(goal.ts);
+      if (goalTextEl) goalTextEl.textContent = `Goal: ${formatDate(dt)}`;
+    }
+
+    /* ===== Goal modal (date picker + time dropdown) ===== */
+    function pad2(n){ return String(n).padStart(2,"0"); }
+
+    function closeGoalModal(){
+      const modal = document.getElementById("nxGoalModal");
+      if (!modal) return;
+      modal.style.display = "none";
+      modal.setAttribute("aria-hidden","true");
+    }
+
+    function openGoalModal(){
+      const modal = document.getElementById("nxGoalModal");
+      if (!modal) return;
+
+      const dateEl = document.getElementById("nxGoalDate");
+      const hourEl = document.getElementById("nxGoalHour");
+      const minEl  = document.getElementById("nxGoalMinute");
+
+      if (hourEl && hourEl.options.length === 0){
+        for (let h=0; h<=23; h++){
+          const opt = document.createElement("option");
+          opt.value = String(h);
+          opt.textContent = pad2(h);
+          hourEl.appendChild(opt);
+        }
+      }
+
+      if (minEl && minEl.options.length === 0){
+        for (let m=0; m<=59; m+=5){
+          const opt = document.createElement("option");
+          opt.value = String(m);
+          opt.textContent = pad2(m);
+          minEl.appendChild(opt);
+        }
+      }
+
+      const current = loadGoal();
+      const dt = (current && current.ts) ? new Date(current.ts) : new Date();
+
+      if (dateEl){
+        dateEl.value = `${dt.getFullYear()}-${pad2(dt.getMonth()+1)}-${pad2(dt.getDate())}`;
+      }
+      if (hourEl) hourEl.value = String(dt.getHours());
+      if (minEl)  minEl.value  = String(Math.floor(dt.getMinutes()/5)*5);
+
+      modal.style.display = "block";
+      modal.setAttribute("aria-hidden","false");
+    }
+
+    function wireGoalModal(){
+      const modal = document.getElementById("nxGoalModal");
+      const closeBtn = document.getElementById("nxGoalClose");
+      const saveBtn = document.getElementById("nxGoalSave");
+      const clearBtn = document.getElementById("nxGoalClear");
+      const dateEl = document.getElementById("nxGoalDate");
+      const hourEl = document.getElementById("nxGoalHour");
+      const minEl  = document.getElementById("nxGoalMinute");
+
+      if (closeBtn) closeBtn.addEventListener("click", closeGoalModal);
+
+      if (modal){
+        modal.addEventListener("click", (e) => {
+          if (e.target === modal) closeGoalModal();
+        });
+      }
+
+      window.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && modal && modal.style.display === "block") closeGoalModal();
+      });
+
+      if (clearBtn){
+        clearBtn.addEventListener("click", () => {
+          try{ localStorage.removeItem(goalKey()); }catch(e){}
+          renderCountdown();
+          closeGoalModal();
+        });
+      }
+
+      if (saveBtn){
+        saveBtn.addEventListener("click", () => {
+          const d = dateEl ? String(dateEl.value || "").trim() : "";
+          if (!d){ alert("Pick a date."); return; }
+
+          const m = d.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+          if (!m){ alert("Invalid date."); return; }
+
+          const h = hourEl ? Number(hourEl.value) : 0;
+          const mn = minEl ? Number(minEl.value) : 0;
+
+          const dt = new Date(Number(m[1]), Number(m[2])-1, Number(m[3]), h, mn, 0, 0);
+          if (isNaN(dt.getTime())){ alert("Invalid date/time."); return; }
+
+          try{ localStorage.setItem(goalKey(), JSON.stringify({ ts: dt.getTime() })); }catch(e){}
+          renderCountdown();
+          closeGoalModal();
+        });
+      }
+    }
+
+    if (editGoalBtn){
+      editGoalBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        openGoalModal();
+      });
+    }
+
+    // ===== initial render
+    renderProgress();
+    renderCountdown();
+    setInterval(renderCountdown, 1000);
+
+    // ===== refresh points
+    window.addEventListener("focus", renderProgress);
+    window.addEventListener("pageshow", renderProgress);
+    window.addEventListener("storage", renderProgress);
+    window.addEventListener("nexus:completionChanged", function(){ renderProgress(); });
+
+    // ===== FIX: wire modal AFTER modal markup exists
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", wireGoalModal);
+    } else {
+      wireGoalModal();
+    }
+
+  })();
+  </script>
+
+  <!-- ===== Goal Picker Modal Markup (must be BEFORE wiring runs) ===== -->
+  <div id="nxGoalModal" aria-hidden="true">
+    <div class="nxGoalDialog">
+      <div class="nxGoalHead">
+        <div class="nxGoalTitle">Set Energization Goal</div>
+        <button id="nxGoalClose" type="button" class="nxGoalClose">Close</button>
+      </div>
+
+      <div class="nxGoalBody">
+        <div class="nxGoalGrid">
+          <label>
+            Date
+            <input id="nxGoalDate" type="date">
+          </label>
+
+          <div class="nxGoalRow2">
+            <label>
+              Hour
+              <select id="nxGoalHour"></select>
+            </label>
+
+            <label>
+              Minute
+              <select id="nxGoalMinute"></select>
+            </label>
+          </div>
+
+          <div class="nxGoalActions">
+            <button id="nxGoalClear" type="button" class="nxGoalBtn danger">Clear</button>
+            <button id="nxGoalSave" type="button" class="nxGoalBtn success">Save Goal</button>
+          </div>
+
+          <div class="nxGoalHint">Uses your local time zone. Goal is saved per equipment.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+  <script src="nexus-core.js"></script>
+  <script src="nexus-firebase-bridge.js"></script>
+
+</div>
+</body>
+</html>

@@ -1,4 +1,3 @@
-<!-- index.html (FULL DROP-IN) — Open Equipment page with Equipment Image upload (this is where photo upload belongs) -->
 <!doctype html>
 <html lang="en">
 <head>
@@ -11,10 +10,7 @@
 
 <style>
   :root{
-    --bg:#0b1020;
     --line:rgba(255,255,255,0.18);
-    --panel:rgba(255,255,255,0.12);
-    --panel2:rgba(0,0,0,0.30);
   }
   *{box-sizing:border-box}
   html,body{margin:0;font-family:Arial, Helvetica, sans-serif;color:#fff}
@@ -87,12 +83,20 @@
   .btn.secondary{background:rgba(0,0,0,0.25);color:rgba(255,255,255,0.92)}
   .btn:disabled{opacity:.55;cursor:not-allowed}
 
-  /* Equipment Image block (upload belongs here) */
   .img-block{
     padding:12px 12px 10px;
     border-radius:18px;
     border:1px solid rgba(255,255,255,0.18);
     background:rgba(255,255,255,0.10);
+    margin-top:10px;
+  }
+  .img-block .block-title{
+    font-weight:900;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    font-size:12px;
+    color:rgba(255,255,255,0.92);
+    margin-bottom:8px;
   }
   .img-block img{
     width:100%;
@@ -111,7 +115,7 @@
     font-weight:800;
     font-size:12px;
   }
-  .img-actions{margin-top:10px}
+  .img-actions{margin-top:10px;display:flex;gap:10px;flex-wrap:wrap}
   .mini-btn{
     display:inline-flex;align-items:center;justify-content:center;
     padding:9px 12px;border-radius:999px;
@@ -165,9 +169,9 @@
             <input id="eqInput" type="text" placeholder="TR-001" value="TR-001" />
           </div>
 
-          <!-- Equipment Image Upload (THIS is where photo upload belongs) -->
-          <div class="img-block">
-            <label for="nexusEquipImageInput">Equipment Image</label>
+          <!-- Equipment Image (stays exactly where it is) -->
+          <div class="img-block" id="equipImgBlock">
+            <div class="block-title">Equipment Image</div>
             <input id="nexusEquipImageInput" type="file" accept="image/*" capture="environment" />
             <img id="nexusEquipImagePreview" alt="Equipment image preview" />
             <div id="nexusEquipImageStatus" class="img-status"></div>
@@ -176,9 +180,20 @@
             </div>
           </div>
 
+          <!-- NEW: Torque Photo (this is the “other box” you want) -->
+          <div class="img-block" id="torqueImgBlock">
+            <div class="block-title">Torque Photo (shows on Torque page)</div>
+            <input id="nexusTorquePhotoInput" type="file" accept="image/*" capture="environment" />
+            <img id="nexusTorquePhotoPreview" alt="Torque photo preview" />
+            <div id="nexusTorquePhotoStatus" class="img-status"></div>
+            <div class="img-actions">
+              <button id="nexusTorquePhotoClearBtn" class="mini-btn" type="button">Clear Torque Photo</button>
+            </div>
+          </div>
+
           <div class="field" style="margin-top:12px">
             <label for="bldgInput">Building #</label>
-            <input id="bldgInput" type="text" placeholder="Bldg-01" value="Bldg-01" />
+            <input id="bldgInput" type="text" placeholder="Building A" value="Building A" />
           </div>
 
           <div class="field">
@@ -209,7 +224,6 @@
             <input id="procoreEnergUrl" type="text" placeholder="Paste Procore energization link" />
           </div>
 
-          <!-- Buttons -->
           <div class="btn-row">
             <button class="btn secondary" id="openEquipmentBtn" type="button">Open Equipment Page</button>
             <button class="btn secondary" id="equipmentStepsBtn" type="button">Equipment Steps</button>
@@ -274,11 +288,11 @@
     if (meta.procoreEnergizationUrl != null) procoreEnergUrl.value = meta.procoreEnergizationUrl;
   }
 
-  // Equipment image storage (local, GitHub Pages mode)
-  const input = document.getElementById("nexusEquipImageInput");
-  const preview = document.getElementById("nexusEquipImagePreview");
-  const status = document.getElementById("nexusEquipImageStatus");
-  const clearBtn = document.getElementById("nexusEquipImageClearBtn");
+  // ===== Equipment image storage (local) =====
+  const equipInput = document.getElementById("nexusEquipImageInput");
+  const equipPreview = document.getElementById("nexusEquipImagePreview");
+  const equipStatus = document.getElementById("nexusEquipImageStatus");
+  const equipClearBtn = document.getElementById("nexusEquipImageClearBtn");
 
   function equipKey(eq){ return `nexus_equipment_${eq}`; }
 
@@ -293,15 +307,32 @@
     return merged;
   }
 
-  function setStatus(msg){ status.textContent = msg || ""; }
-  function show(url){
-    if(!url) return;
-    preview.src = url;
-    preview.style.display = "block";
+  function setEquipStatus(msg){ equipStatus.textContent = msg || ""; }
+  function showEquip(url){
+    equipPreview.src = url;
+    equipPreview.style.display = "block";
   }
-  function hide(){
-    preview.removeAttribute("src");
-    preview.style.display = "none";
+  function hideEquip(){
+    equipPreview.removeAttribute("src");
+    equipPreview.style.display = "none";
+  }
+
+  // ===== Torque photo storage (local) =====
+  const torqueInput = document.getElementById("nexusTorquePhotoInput");
+  const torquePreview = document.getElementById("nexusTorquePhotoPreview");
+  const torqueStatus = document.getElementById("nexusTorquePhotoStatus");
+  const torqueClearBtn = document.getElementById("nexusTorquePhotoClearBtn");
+
+  function torquePhotoKey(eq){ return `nexus_${eq || "NO_EQ"}_torque_photo`; }
+
+  function setTorqueStatus(msg){ torqueStatus.textContent = msg || ""; }
+  function showTorque(url){
+    torquePreview.src = url;
+    torquePreview.style.display = "block";
+  }
+  function hideTorque(){
+    torquePreview.removeAttribute("src");
+    torquePreview.style.display = "none";
   }
 
   function fileToDataUrl(file){
@@ -313,57 +344,103 @@
     });
   }
 
-  function loadPreviewForCurrentEq(){
+  function loadPreviewsForEq(){
     const eq = getEq();
     if(!eq){
-      hide();
-      setStatus("Enter Equipment ID to save an image.");
+      hideEquip(); setEquipStatus("Enter Equipment ID to save an image.");
+      hideTorque(); setTorqueStatus("Enter Equipment ID to save a torque photo.");
       return;
     }
+
+    // equipment image
     const rec = readEquip(eq);
     if(rec.imageDataUrl){
-      show(rec.imageDataUrl);
-      setStatus("Loaded saved image for this equipment (GitHub mode: this device).");
-      return;
+      showEquip(rec.imageDataUrl);
+      setEquipStatus("Loaded saved image for this equipment (GitHub mode: this device).");
+    } else {
+      hideEquip();
+      setEquipStatus("No image saved yet for this equipment.");
     }
-    hide();
-    setStatus("No image saved yet for this equipment.");
+
+    // torque photo
+    try{
+      const tp = localStorage.getItem(torquePhotoKey(eq));
+      if (tp && tp.startsWith("data:image/")){
+        showTorque(tp);
+        setTorqueStatus("Loaded saved torque photo for this equipment (this device).");
+      } else {
+        hideTorque();
+        setTorqueStatus("No torque photo saved yet for this equipment.");
+      }
+    }catch(e){
+      hideTorque();
+      setTorqueStatus("Could not read torque photo.");
+    }
   }
 
-  input.addEventListener("change", async ()=>{
+  // Equipment image upload
+  equipInput.addEventListener("change", async ()=>{
     const eq = getEq();
     if(!eq){
-      input.value="";
-      setStatus("Enter Equipment ID first.");
+      equipInput.value="";
+      setEquipStatus("Enter Equipment ID first.");
       return;
     }
-    const file = input.files && input.files[0];
+    const file = equipInput.files && equipInput.files[0];
     if(!file) return;
     try{
       const dataUrl = await fileToDataUrl(file);
       writeEquip(eq, { imageDataUrl: dataUrl });
-      show(dataUrl);
-      setStatus("Saved image for this equipment (this device).");
+      showEquip(dataUrl);
+      setEquipStatus("Saved image for this equipment (this device).");
       saveMeta(eq);
     }catch(e){
-      setStatus("Failed to read image.");
+      setEquipStatus("Failed to read image.");
     }
   });
 
-  clearBtn.addEventListener("click", ()=>{
+  equipClearBtn.addEventListener("click", ()=>{
     const eq = getEq();
-    if(!eq){
-      setStatus("Enter Equipment ID first.");
-      return;
-    }
+    if(!eq){ setEquipStatus("Enter Equipment ID first."); return; }
     try{
       const rec = readEquip(eq);
       delete rec.imageDataUrl;
       localStorage.setItem(equipKey(eq), JSON.stringify(rec));
     }catch(e){}
-    input.value="";
-    hide();
-    setStatus("Cleared saved image for this equipment.");
+    equipInput.value="";
+    hideEquip();
+    setEquipStatus("Cleared saved image for this equipment.");
+    saveMeta(eq);
+  });
+
+  // Torque photo upload (THIS is the routing fix)
+  torqueInput.addEventListener("change", async ()=>{
+    const eq = getEq();
+    if(!eq){
+      torqueInput.value="";
+      setTorqueStatus("Enter Equipment ID first.");
+      return;
+    }
+    const file = torqueInput.files && torqueInput.files[0];
+    if(!file) return;
+    try{
+      const dataUrl = await fileToDataUrl(file);
+      localStorage.setItem(torquePhotoKey(eq), dataUrl);
+      showTorque(dataUrl);
+      setTorqueStatus("Saved torque photo for this equipment (this device).");
+      saveMeta(eq);
+    }catch(e){
+      setTorqueStatus("Failed to read torque photo.");
+    }
+  });
+
+  torqueClearBtn.addEventListener("click", ()=>{
+    const eq = getEq();
+    if(!eq){ setTorqueStatus("Enter Equipment ID first."); return; }
+    try{ localStorage.removeItem(torquePhotoKey(eq)); }catch(e){}
+    torqueInput.value="";
+    hideTorque();
+    setTorqueStatus("Cleared saved torque photo for this equipment.");
     saveMeta(eq);
   });
 
@@ -382,17 +459,14 @@
     location.href = `equipment.html?eq=${encodeURIComponent(eq)}`;
   });
 
-  // Initialize from querystring if present
-  if(incomingEq){
-    eqInput.value = incomingEq;
-  }
+  // Init
+  if(incomingEq) eqInput.value = incomingEq;
   loadMetaIntoFields(getEq());
-  loadPreviewForCurrentEq();
+  loadPreviewsForEq();
 
-  // Refresh preview/meta when eq changes
   eqInput.addEventListener("input", ()=>{
     loadMetaIntoFields(getEq());
-    loadPreviewForCurrentEq();
+    loadPreviewsForEq();
   });
 })();
 </script>

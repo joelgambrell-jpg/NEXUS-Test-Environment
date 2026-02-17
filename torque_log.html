@@ -1,47 +1,161 @@
+<!-- torque_log.html (FULL DROP-IN) -->
 <!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <link rel="stylesheet" href="nexus-core.css" />
-  <link rel="stylesheet" href="nexus-core.print.css" media="print" />
+<link rel="stylesheet" href="nexus-core.css" />
+<link rel="stylesheet" href="nexus-core.print.css" media="print" />
 <title>Torque Application Log</title>
+
 <style>
-  :root{--bg:#b60000;--panel:rgba(255,255,255,0.20);--line:rgba(255,255,255,0.20);--accent:#00c2ff;--btn-bg:#0a0f24;--btn-txt:#3ecbff;--ok:#00ff66;--bad:#ff3b3b;}
+  :root{
+    --bg:#b60000;
+    --panel:rgba(255,255,255,0.20);
+    --line:rgba(255,255,255,0.20);
+    --accent:#00c2ff;
+    --btn-bg:#0a0f24;
+    --btn-txt:#3ecbff;
+    --ok:#00ff66;
+    --bad:#ff3b3b;
+  }
   *{box-sizing:border-box}
-  html,body{margin:0;font-family:Arial,Helvetica,sans-serif;color:#fff;background:var(--bg);}
-  body{ background: var(--bg-gradient) !important; background-attachment: fixed !important; background-size: cover !important; }
-  .nx-header-wrap{background:rgba(0,0,0,0.35);border-bottom:1px solid rgba(255,255,255,0.18);backdrop-filter:blur(8px)}
-  .nx-header{max-width:1100px;margin:0 auto;padding:14px 18px;display:flex;align-items:center}
-  .nx-header img{height:54px;width:auto;object-fit:contain}
-  .container{max-width:1000px;margin:24px auto 60px;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px;backdrop-filter:blur(6px)}
-  .top{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start}
-  h1{margin:0;font-size:28px;font-weight:900}
-  .meta{font-weight:900;opacity:.95}
-  .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
-  .btn{padding:12px 16px;font-size:14px;font-weight:900;border-radius:999px;color:var(--btn-txt);background:var(--btn-bg);border:2px solid var(--accent);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;user-select:none}
-  .btn.secondary{background:rgba(0,0,0,0.20);color:#fff;border:2px solid rgba(255,255,255,0.35)}
-  .btn.complete{background:#00ff66 !important;color:#002b14 !important;border-color:#00ff66 !important;box-shadow:0 0 14px rgba(0,255,102,.85)}
-  .section{margin-top:18px;padding:16px;border-radius:18px;background:rgba(0,0,0,0.22);border:1px solid rgba(255,255,255,0.20)}
-  .section-title{margin:0 0 12px;font-weight:900;letter-spacing:.02em}
-  table{width:100%;border-collapse:separate;border-spacing:0 10px}
-  th{font-size:12px;letter-spacing:.12em;text-transform:uppercase;opacity:.95;text-align:left;padding:0 8px}
-  td{padding:0 8px}
-  input,select,textarea{width:100%;padding:10px 10px;border-radius:12px;border:1px solid rgba(255,255,255,0.18);outline:none;font-size:14px;background:rgba(255,255,255,0.92);color:#111;font-weight:800}
+  html,body{margin:0;font-family:Arial, Helvetica, sans-serif;color:#fff}
+  body{
+    min-height:100vh;
+    background:
+      radial-gradient(1200px 700px at 20% 10%, rgba(255,255,255,0.12), transparent 60%),
+      radial-gradient(900px 600px at 80% 30%, rgba(0,194,255,0.12), transparent 55%),
+      linear-gradient(180deg, rgba(0,0,0,0.55), rgba(0,0,0,0.65)),
+      url("transformer.jpg");
+    background-size:cover;
+    background-attachment:fixed;
+  }
+
+  .wrap{max-width:1200px;margin:0 auto;padding:18px 14px 30px}
+  .top{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    padding:12px 12px;border-radius:18px;
+    background:rgba(0,0,0,0.28);
+    border:1px solid rgba(255,255,255,0.18);
+    backdrop-filter: blur(8px);
+  }
+  .top .left{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .top .right{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+  .pillTop{
+    display:inline-flex;align-items:center;justify-content:center;
+    padding:7px 12px;border-radius:999px;
+    border:1px solid rgba(255,255,255,0.18);
+    background:rgba(0,0,0,0.18);
+    font-weight:900;font-size:12px;color:rgba(255,255,255,0.92);
+    letter-spacing:.02em;
+    white-space:nowrap;
+  }
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;
+    padding:11px 16px;border-radius:14px;
+    border:1px solid rgba(255,255,255,0.18);
+    background:rgba(10,15,36,0.90);
+    color:var(--btn-txt);
+    font-weight:900;letter-spacing:.02em;
+    cursor:pointer;text-decoration:none;
+    box-shadow:0 10px 26px rgba(0,0,0,0.25);
+    user-select:none;
+  }
+  .btn.secondary{background:rgba(0,0,0,0.25);color:rgba(255,255,255,0.92)}
+  .btn:disabled{opacity:.55;cursor:not-allowed}
+
+  .card{
+    margin-top:14px;
+    border-radius:22px;
+    border:1px solid rgba(255,255,255,0.18);
+    background:rgba(0,0,0,0.26);
+    backdrop-filter: blur(10px);
+    box-shadow:0 18px 45px rgba(0,0,0,0.35);
+    overflow:hidden;
+  }
+  .cardHeader{
+    padding:18px 18px 10px;
+    border-bottom:1px solid rgba(255,255,255,0.16);
+    background:rgba(0,0,0,0.22);
+  }
+  .title{margin:0;font-size:34px;font-weight:900;color:rgba(255,255,255,0.96)}
+  .subtitle{margin-top:4px;font-size:14px;font-weight:800;color:rgba(255,255,255,0.82)}
+  .actions{
+    padding:14px 18px 0;
+    display:flex;gap:12px;flex-wrap:wrap
+  }
+  .hint{padding:10px 18px 0;color:rgba(255,255,255,0.75);font-weight:800;font-size:12px}
+
+  .content{padding:14px 18px 18px}
+  .section{
+    margin-top:14px;
+    padding:14px 14px 14px;
+    border-radius:18px;
+    border:1px solid rgba(255,255,255,0.16);
+    background:rgba(255,255,255,0.10);
+  }
+  .section-title{
+    font-weight:900;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    font-size:13px;
+    opacity:.95;
+    margin:0 0 10px;
+  }
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media (max-width:860px){.grid2{grid-template-columns:1fr}}
+  label{display:block;font-size:12px;font-weight:900;opacity:.92;margin-bottom:6px;letter-spacing:.02em}
+  select,input,textarea{
+    width:100%;
+    padding:11px 12px;
+    border-radius:14px;
+    border:1px solid rgba(255,255,255,0.18);
+    background:rgba(255,255,255,0.92);
+    color:#111;
+    font-weight:800;
+    outline:none;
+  }
   textarea{min-height:44px;resize:vertical}
   .row-actions{display:flex;gap:8px;justify-content:flex-end}
   .mini{padding:9px 12px;font-size:13px}
+
+  table{width:100%;border-collapse:separate;border-spacing:0 10px}
+  th{
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.12em;
+    color:rgba(255,255,255,0.78);
+    text-align:left;
+    padding:0 10px 6px;
+  }
+  td{padding:0 6px}
+  .cell{
+    background:rgba(255,255,255,0.92);
+    border:1px solid rgba(0,0,0,0.10);
+    border-radius:14px;
+    padding:8px 10px;
+    color:#111;
+    font-weight:800;
+  }
+  .cell input,.cell select,.cell textarea{
+    border:none;background:transparent;padding:0;border-radius:0;
+    font-weight:800;
+  }
+  .cell textarea{min-height:36px}
+
+  /* Tilt go/no-go pills */
   .go-wrap{display:flex;gap:10px;align-items:center}
   .pill{flex:1;display:inline-flex;align-items:center;justify-content:center;height:38px;border-radius:999px;font-weight:900;border:2px solid rgba(255,255,255,0.25);cursor:pointer;user-select:none;transition:.12s}
   .pill.go{background:rgba(0,255,102,0.18);border-color:rgba(0,255,102,0.55);color:#eafff1}
   .pill.nogo{background:rgba(255,59,59,0.18);border-color:rgba(255,59,59,0.55);color:#ffecec}
-  .pill.on.go{background:var(--ok);border-color:var(--ok);color:#002b14;box-shadow:0 0 14px rgba(0,255,102,.75)}
-  .pill.on.nogo{background:var(--bad);border-color:var(--bad);color:#240000;box-shadow:0 0 14px rgba(255,59,59,.75)}
-  .hint{opacity:.9;font-weight:800;font-size:13px;line-height:1.35;margin-top:8px}
-  @media (max-width:760px){.top{flex-direction:column;align-items:stretch}}
+  .pill.on{filter:none;transform:translateY(-1px);box-shadow:0 10px 22px rgba(0,0,0,0.30)}
+  .pill.go.on{background:rgba(0,255,102,0.35)}
+  .pill.nogo.on{background:rgba(255,59,59,0.35)}
 
-  /* ===== ADDED: Torque section lock (unlocked by Tilt Test 2-person sign-off) ===== */
+  /* ===== Torque section lock (unlocked by Tilt Test completion) ===== */
   .nx-torque-lock-wrap{ position:relative; }
   .nx-torque-lock-wrap.nx-locked{ filter: grayscale(1) opacity(0.55); pointer-events:none; }
   #nxTorqueLockOverlay{
@@ -65,241 +179,197 @@
     padding:16px;
     box-shadow:0 18px 50px rgba(0,0,0,0.55);
   }
-  #nxTorqueLockOverlay .q{ margin:0; font-size:18px; font-weight:900; }
-  #nxTorqueLockOverlay .sub{ margin:10px 0 0; font-size:13px; font-weight:800; opacity:.92; }
 
-  /* ===== ADDED: Tilt sign-off UI ===== */
-  .nx-signoff-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-  .nx-signoff-card{ border:1px solid rgba(255,255,255,0.20); background:rgba(0,0,0,0.18); border-radius:18px; padding:14px; }
-  .nx-signoff-title{ font-weight:900; margin:0 0 10px; }
-  .nx-signoff-meta{ font-weight:800; font-size:12px; opacity:.92; line-height:1.35; }
-  .nx-signoff-input{ width:100%; margin-top:10px; }
-  .nx-signoff-row{ display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; justify-content:flex-end; }
-  .nx-pillbadge{ display:inline-flex; align-items:center; justify-content:center; padding:8px 10px; border-radius:999px; border:1px solid rgba(255,255,255,0.20); background:rgba(0,0,0,0.18); font-weight:900; font-size:12px; }
-  .nx-pillbadge.ok{ border-color:rgba(0,255,102,0.55); background:rgba(0,255,102,0.12); }
-  .nx-pillbadge.bad{ border-color:rgba(255,59,59,0.55); background:rgba(255,59,59,0.10); }
-  @media (max-width:760px){ .nx-signoff-grid{ grid-template-columns:1fr; } }
-
-#stepCompleteBtn{display:none !important;}
-
-  /* Torque Photo block */
-  #torquePhotoWrap .photoWrap{display:flex;flex-direction:column;gap:10px;}
-  #torquePhotoWrap .photoPreview{width:100%;border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,0.18);background:rgba(0,0,0,0.18);}
-  #torquePhotoWrap .photoPreview img{width:100%;display:block;max-height:340px;object-fit:contain;background:rgba(0,0,0,0.22);}
-  #torquePhotoWrap .photoActions{display:flex;flex-wrap:wrap;gap:10px;align-items:center;}
-  #torquePhotoWrap .photoActions .btn{flex:0 0 auto;}
-  #torquePhotoWrap .btn.danger{background:rgba(255,59,59,0.18);border:1px solid rgba(255,59,59,0.35);color:#fff;}
+  @media (max-width:760px){.top{flex-direction:column;align-items:stretch}}
 </style>
 
-<style>
-  .nx-footer{
-    margin-top: 40px;
-    padding: 18px 12px;
-    text-align: center;
-    font-size: 12px;
-    font-weight: 700;
-    color: rgba(255,255,255,0.85);
-    background: rgba(0,0,0,0.35);
-    border-top: 1px solid rgba(255,255,255,0.18);
-  }
-</style>
-
-  <link rel="stylesheet" href="assets/css/nexus-core.css">
-<script src="config/customer.config.js"></script>
-<script src="nexus-brand.js" defer></script>
 </head>
 <body>
-  <div class="nexus-page">\n
-<div id="nxSessionBanner" class="nx-session-banner">
-  <div class="nx-left">
-    <span class="nx-pill">Equipment: <span data-nx-eq>(none)</span></span>
-    <span class="nx-pill">Role: <span data-nx-role>viewer</span></span>
-    <span class="nx-pill" data-nx-status>Ready</span>
-  </div>
-  <div class="nx-right">
-    <label style="font-weight:800;font-size:12px;opacity:.95;">Set Role
-      <select id="nxRoleSelect" onchange="NEXUS.setRole(this.value)">
+
+<div class="wrap">
+  <div class="top">
+    <div class="left">
+      <a class="btn secondary" id="backBtn" href="equipment.html">Back</a>
+      <span class="pillTop" id="eqLabel">Equipment: (none)</span>
+      <span class="pillTop">Role: <span id="roleLabel">viewer</span></span>
+      <span class="pillTop" id="readyPill">Ready</span>
+    </div>
+    <div class="right">
+      <span class="pillTop">Set Role</span>
+      <select id="nxRoleSelect" style="width:auto;min-width:160px">
         <option value="viewer">viewer</option>
         <option value="tech">tech</option>
         <option value="foreman">foreman</option>
         <option value="superintendent">superintendent</option>
         <option value="admin">admin</option>
       </select>
-    </label>
-  </div>
-</div>
-<script>
-  (function(){
-    try{
-      var sel=document.getElementById("nxRoleSelect");
-      if(sel && window.NEXUS && typeof window.NEXUS.getRole==="function"){
-        sel.value = window.NEXUS.getRole();
-      }
-    }catch(e){}
-  })();
-</script>
-
-<a class="nx-back-btn" href="#" onclick="return NEXUS_back();">← Back to Equipment</a>
-
-<div class="nx-header-wrap"><div class="nx-header"><img src="nexus.png" alt="NEXUS" /></div></div>
-<div class="container">
-  <div class="top">
-    <div>
-      <h1>Torque Application Log</h1>
-      <div class="meta" id="eqLabel"></div>
-    </div>
-    <div>
-      <div class="actions">
-        <a class="btn secondary" id="backBtn" href="#" onclick="return NEXUS_back();">Back</a>
-        <button class="btn secondary" id="saveBtn" type="button">Save</button>
-        <button class="btn" id="exportEmailBtn" type="button">Export to Email</button>
-        <button class="btn" id="stepCompleteBtn" type="button">STEP COMPLETE</button>
-      </div>
-      <div class="hint">Save persists locally now and includes Firebase hook placeholders. Export opens an email draft (PDF export should be generated server-side in Firebase later).</div>
     </div>
   </div>
 
-  <div class="section" id="torquePhotoWrap">
-    <div class="section-title">Torque Photo</div>
-    <div class="photoWrap">
-      <input id="torquePhotoInput" type="file" accept="image/*" style="display:none" />
-      <div class="photoPreview" id="torquePhotoPreview" style="display:none">
-        <img id="torquePhotoImg" alt="Torque photo preview" />
+  <div class="card">
+    <div class="cardHeader">
+      <h1 class="title">Torque Application Log</h1>
+      <div class="subtitle" id="subEq">Equipment: (none)</div>
+    </div>
+
+    <div class="actions">
+      <a class="btn secondary" id="backBtn2" href="equipment.html">Back to Equipment</a>
+      <button class="btn secondary" type="button" id="saveBtn">Save</button>
+      <button class="btn secondary" type="button" id="exportEmailBtn">Export to Email</button>
+
+      <!-- legacy placeholder (not used here, kept for compatibility) -->
+      <button class="btn secondary" type="button" id="stepCompleteBtn" style="display:none">Step Complete</button>
+    </div>
+
+    <div class="hint">
+      Save persists locally and includes Firebase hook placeholders. Export opens an email draft.
+    </div>
+
+    <div class="content">
+
+      <!-- Equipment image DISPLAY ONLY (upload belongs on index.html Open Equipment page) -->
+      <div class="section" id="equipmentImageSection">
+        <div class="section-title">Equipment Image</div>
+        <div class="hint" style="padding:0;color:rgba(255,255,255,0.75);font-weight:800">
+          Image is managed on the Open Equipment page and stored for this device (GitHub mode).
+        </div>
+        <div style="margin-top:10px">
+          <img id="equipImagePreview" alt="Equipment image preview"
+               style="display:none;width:100%;max-height:280px;object-fit:contain;border-radius:14px;border:1px solid rgba(255,255,255,0.20);background:rgba(0,0,0,0.20);" />
+          <div id="equipImageStatus" class="hint" style="padding:0;margin-top:8px"></div>
+          <div class="row-actions" style="margin-top:10px;justify-content:flex-start">
+            <a class="btn secondary mini" id="openEquipmentPageBtn" href="index.html">Open Equipment Page</a>
+          </div>
+        </div>
       </div>
-      <div class="photoActions">
-        <button class="btn secondary" id="torquePhotoPickBtn" type="button">Choose Photo</button>
-        <button class="btn secondary" id="torquePhotoSaveBtn" type="button">Save Photo</button>
-        <a class="btn" id="torquePhotoOpenBtn" href="#" target="_blank" rel="noopener">Open</a>
-        <button class="btn danger" id="torquePhotoClearBtn" type="button">Clear</button>
+
+      <div class="section">
+        <div class="section-title">Torque Notes & Units</div>
+        <div class="grid2">
+          <div>
+            <label for="unitSelect">Units</label>
+            <select id="unitSelect">
+              <option value="ft-lbs">ft-lbs</option>
+              <option value="in-lbs">in-lbs</option>
+              <option value="Nm">Nm</option>
+            </select>
+          </div>
+          <div>
+            <label for="notesTorque">Torque Value</label>
+            <input id="notesTorque" type="text" placeholder="Enter torque value" />
+          </div>
+        </div>
       </div>
-      <div class="hint" id="torquePhotoHint" style="margin-top:8px"></div>
+
+      <div class="section">
+        <div class="section-title">Torque Application Entries</div>
+        <div class="row-actions" style="margin-bottom:10px">
+          <button class="btn secondary mini" type="button" id="addRowBtn">Add Row</button>
+          <button class="btn secondary mini" type="button" id="clearRowsBtn">Clear</button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th style="width:14%">Date</th>
+              <th style="width:14%">Time</th>
+              <th style="width:18%">Location</th>
+              <th style="width:18%">Bolt Size</th>
+              <th style="width:12%">Unit</th>
+              <th style="width:12%">Value</th>
+              <th style="width:12%">Notes</th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+
+      <div class="section" id="tilt">
+        <div class="section-title">Tilt Test (Go / No Go)</div>
+        <div class="hint" style="padding:0;color:rgba(255,255,255,0.75);font-weight:800">
+          Select Go or No Go for each required check. Complete all cells to unlock torque entry above.
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th style="width:32%">Pre Torque Tilt Test</th>
+              <th style="width:22%">A-B</th>
+              <th style="width:22%">A-C</th>
+              <th style="width:22%">B-C</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="font-weight:900">Phase to Phase</td>
+              <td data-tilt="AB"></td>
+              <td data-tilt="AC"></td>
+              <td data-tilt="BC"></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div style="height:10px"></div>
+
+        <table>
+          <thead>
+            <tr>
+              <th style="width:32%"></th>
+              <th style="width:22%">A-G</th>
+              <th style="width:22%">B-G</th>
+              <th style="width:22%">C-G</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="font-weight:900">Phase to Ground</td>
+              <td data-tilt="AG"></td>
+              <td data-tilt="BG"></td>
+              <td data-tilt="CG"></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div style="height:10px"></div>
+
+        <table>
+          <thead>
+            <tr>
+              <th style="width:32%"></th>
+              <th style="width:22%">A-N</th>
+              <th style="width:22%">B-N</th>
+              <th style="width:22%">C-N</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="font-weight:900">Phase to Neutral</td>
+              <td data-tilt="AN"></td>
+              <td data-tilt="BN"></td>
+              <td data-tilt="CN"></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div style="height:10px"></div>
+
+        <table>
+          <thead>
+            <tr>
+              <th style="width:32%"></th>
+              <th style="width:68%">N-G</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="font-weight:900">Neutral to Ground</td>
+              <td data-tilt="NG"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
     </div>
   </div>
-
-
-
-  <div class="section">
-    <div class="section-title">Torque Notes &amp; Units</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-      <div>
-        <label style="font-weight:900">Units</label>
-        <select id="notesUnit">
-          <option value="ft-lbs">ft-lbs</option>
-          <option value="in-lbs">in-lbs</option>
-        </select>
-      </div>
-      <div>
-        <label style="font-weight:900">Torque Value</label>
-        <input id="notesTorque" type="number" step="any" placeholder="Enter torque value" />
-      </div>
-    </div>
-  </div>
-
-  <div class="section">
-    <div class="section-title">Torque Application Entries</div>
-    <div class="row-actions" style="margin-bottom:10px">
-      <button class="btn secondary mini" type="button" id="addRowBtn">Add Row</button>
-      <button class="btn secondary mini" type="button" id="clearRowsBtn">Clear</button>
-    </div>
-    <table>
-      <thead>
-        <tr>
-          <th style="width:14%">Date</th>
-          <th style="width:14%">Time</th>
-          <th style="width:18%">Location</th>
-          <th style="width:18%">Bolt Size</th>
-          <th style="width:12%">Unit</th>
-          <th style="width:12%">Value</th>
-          <th style="width:12%">Notes</th>
-        </tr>
-      </thead>
-      <tbody id="rows"></tbody>
-    </table>
-  </div>
-
-  <div class="section" id="tilt">
-    <div class="section-title">Tilt Test (Go / No Go)</div>
-    <div class="hint">Select Go or No Go for each required check. Date/Technician tracked elsewhere.</div>
-
-    <table>
-      <thead>
-        <tr>
-          <th style="width:32%">Pre Torque Tilt Test</th>
-          <th style="width:22%">A-B</th>
-          <th style="width:22%">A-C</th>
-          <th style="width:22%">B-C</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td style="font-weight:900">Phase to Phase</td>
-          <td data-tilt="AB"></td>
-          <td data-tilt="AC"></td>
-          <td data-tilt="BC"></td>
-        </tr>
-      </tbody>
-    </table>
-
-    <div style="height:10px"></div>
-
-    <table>
-      <thead>
-        <tr>
-          <th style="width:32%"></th>
-          <th style="width:22%">A-G</th>
-          <th style="width:22%">B-G</th>
-          <th style="width:22%">C-G</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td style="font-weight:900">Phase to Ground</td>
-          <td data-tilt="AG"></td>
-          <td data-tilt="BG"></td>
-          <td data-tilt="CG"></td>
-        </tr>
-      </tbody>
-    </table>
-
-    <div style="height:10px"></div>
-
-    <table>
-      <thead>
-        <tr>
-          <th style="width:32%"></th>
-          <th style="width:22%">A-N</th>
-          <th style="width:22%">B-N</th>
-          <th style="width:22%">C-N</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td style="font-weight:900">Phase to Neutral</td>
-          <td data-tilt="AN"></td>
-          <td data-tilt="BN"></td>
-          <td data-tilt="CN"></td>
-        </tr>
-      </tbody>
-    </table>
-
-    <div style="height:10px"></div>
-
-    <table>
-      <thead>
-        <tr>
-          <th style="width:32%"></th>
-          <th style="width:68%">N-G</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td style="font-weight:900">Neutral to Ground</td>
-          <td data-tilt="NG"></td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</div>
 </div>
 
 <script>
@@ -310,15 +380,70 @@
 
   const eqLabel=document.getElementById("eqLabel");
   eqLabel.textContent=eq?`Equipment: ${eq}`:"Missing equipment ID (eq)";
+  const subEq=document.getElementById("subEq");
+  if(subEq) subEq.textContent=eq?`Equipment: ${eq}`:"Equipment: (none)";
 
   const backBtn=document.getElementById("backBtn");
-  backBtn.textContent="Back to Equipment";
-const stepBtn=document.getElementById("stepCompleteBtn");
+  const backBtn2=document.getElementById("backBtn2");
+  function setBackHref(a){
+    if(!a) return;
+    try{
+      const u = new URL("equipment.html", location.href);
+      if (eq) u.searchParams.set("eq", eq);
+      a.href = u.pathname + u.search + u.hash;
+    }catch(e){}
+  }
+  setBackHref(backBtn);
+  setBackHref(backBtn2);
+
+  // Equipment Image (read-only here; upload/save occurs on index.html)
+  (function(){
+    const img = document.getElementById("equipImagePreview");
+    const status = document.getElementById("equipImageStatus");
+    const openBtn = document.getElementById("openEquipmentPageBtn");
+    try{
+      if (openBtn){
+        const u = new URL(openBtn.getAttribute("href") || "index.html", location.href);
+        if (eq) u.searchParams.set("eq", eq);
+        openBtn.setAttribute("href", u.pathname + u.search + u.hash);
+      }
+    }catch(e){}
+    function setStatus(msg){ if(status) status.textContent = msg || ""; }
+    function show(url){
+      if(!img) return;
+      img.src = url;
+      img.style.display = "block";
+    }
+    function hide(){
+      if(!img) return;
+      img.removeAttribute("src");
+      img.style.display = "none";
+    }
+    if(!eq){
+      hide();
+      setStatus("Missing equipment ID (eq).");
+      return;
+    }
+    try{
+      const raw = localStorage.getItem(`nexus_equipment_${eq}`);
+      if(raw){
+        const rec = JSON.parse(raw);
+        if(rec && rec.imageDataUrl){
+          show(rec.imageDataUrl);
+          setStatus("Loaded saved image for this equipment (this device).");
+          return;
+        }
+      }
+    }catch(e){}
+    hide();
+    setStatus("No equipment image saved yet. Add one on the Open Equipment page.");
+  })();
+
+  const stepBtn=document.getElementById("stepCompleteBtn");
   if(stepBtn){ stepBtn.style.display="none"; }
 
   function legacyStepKey(id){return `nexus_${eq||"NO_EQ"}_step_${id}`;}
   function canonicalStepKey(step){return `nexus_${eq||"NO_EQ"}_${step}Completed`;}
-  function stepKey(id){return canonicalStepKey(id);}
   function done(){
     if(!eq) return false;
     try{
@@ -327,102 +452,97 @@ const stepBtn=document.getElementById("stepCompleteBtn");
     }catch(e){}
     return false;
   }
-  function refreshStep(){
-    stepBtn.classList.toggle("complete", done());
-    stepBtn.disabled=!eq;
-    stepBtn.title=eq?"":"Missing eq";
+
+  function mkRow(obj){
+    const tr=document.createElement("tr");
+
+    function mkInput(type, val){
+      const td=document.createElement("td");
+      const div=document.createElement("div");
+      div.className="cell";
+      const input=document.createElement("input");
+      input.type=type;
+      input.value=val||"";
+      div.appendChild(input);
+      td.appendChild(div);
+      return {td,input};
+    }
+
+    function mkSelect(opts, val){
+      const td=document.createElement("td");
+      const div=document.createElement("div");
+      div.className="cell";
+      const sel=document.createElement("select");
+      opts.forEach(o=>{
+        const op=document.createElement("option");
+        op.value=o; op.textContent=o;
+        sel.appendChild(op);
+      });
+      sel.value=val||opts[0]||"";
+      div.appendChild(sel);
+      td.appendChild(div);
+      return {td,sel};
+    }
+
+    const d = mkInput("date", obj.date||"");
+    const t = mkInput("time", obj.time||"");
+    const loc = mkInput("text", obj.location|| (eq||""));
+    const bolt = mkInput("text", obj.bolt||"");
+    const unit = mkSelect(["ft-lbs","in-lbs","Nm"], obj.unit||"ft-lbs");
+    const val = mkInput("text", obj.value||"");
+    const notes = mkInput("text", obj.notes||"");
+
+    tr.appendChild(d.td);
+    tr.appendChild(t.td);
+    tr.appendChild(loc.td);
+    tr.appendChild(bolt.td);
+    tr.appendChild(unit.td);
+    tr.appendChild(val.td);
+    tr.appendChild(notes.td);
+
+    return tr;
   }
-  stepBtn.addEventListener("click",()=>{
-    if(!eq) return;
-    const next=!done();
-    if(next) localStorage.setItem(canonicalStepKey(stepId),"true");
-      // Legacy write-through (compat)
-      localStorage.setItem(legacyStepKey(stepId),"1");
-    else localStorage.removeItem(canonicalStepKey(stepId));
-      localStorage.removeItem(legacyStepKey(stepId));
-    refreshStep();
-  });
-
-  function dataKey(){return `nexus_${eq||"NO_EQ"}_torque_log_v1`;}
-
-  const boltSizes=[
-    '1/4" slotted','1/4"','5/16"','3/8"','7/16"','1/2"','9/16"','5/8"','3/4"','7/8"','1"',
-    'M6','M8','M10','M12','M16'
-  ];
 
   const rowsEl=document.getElementById("rows");
   const addRowBtn=document.getElementById("addRowBtn");
   const clearRowsBtn=document.getElementById("clearRowsBtn");
 
-  function mkRow(r={}){
-    const tr=document.createElement("tr");
-    tr.innerHTML=`
-      <td><input type="date" value="${r.date||""}"></td>
-      <td><input type="time" value="${r.time||""}"></td>
-      <td><input type="text" placeholder="Panel / Room" value="${(r.location||"").replace(/"/g,'&quot;')}"></td>
-      <td>
-        <select>
-          ${boltSizes.map(s=>`<option ${s===r.bolt?"selected":""} value="${s.replace(/"/g,'&quot;')}">${s}</option>`).join('')}
-          <option value="__custom__">Custom…</option>
-        </select>
-      </td>
-      <td>
-        <select>
-          <option value="ft-lbs" ${r.unit==="ft-lbs"?"selected":""}>ft-lbs</option>
-          <option value="in-lbs" ${r.unit==="in-lbs"?"selected":""}>in-lbs</option>
-        </select>
-      </td>
-      <td><input type="number" step="any" value="${r.value||""}"></td>
-      <td><input type="text" placeholder="Notes" value="${(r.notes||"").replace(/"/g,'&quot;')}"></td>
-    `;
-
-    const sel=tr.children[3].querySelector('select');
-    sel.addEventListener('change',()=>{
-      if(sel.value==='__custom__'){
-        const v=prompt('Enter bolt size label (e.g., 1/4" slotted)');
-        if(v){
-          const opt=document.createElement('option');
-          opt.value=v; opt.textContent=v;
-          sel.insertBefore(opt, sel.lastElementChild);
-          sel.value=v;
-        } else {
-          sel.value=boltSizes[0];
-        }
-      }
-    });
-
-    return tr;
-  }
+  function dataKey(){return `nexus_${eq||"NO_EQ"}_torque_log_v2`;}
+  function tiltKey(){return `nexus_${eq||"NO_EQ"}_torque_tilt_v2`;}
 
   function readRows(){
     const out=[];
-    rowsEl.querySelectorAll('tr').forEach(tr=>{
-      const tds=[...tr.querySelectorAll('td')];
+    rowsEl.querySelectorAll("tr").forEach(tr=>{
+      const cells=tr.querySelectorAll("input,select,textarea");
+      if(cells.length<7) return;
       out.push({
-        date: tds[0].querySelector('input').value,
-        time: tds[1].querySelector('input').value,
-        location: tds[2].querySelector('input').value,
-        bolt: tds[3].querySelector('select').value,
-        unit: tds[4].querySelector('select').value,
-        value: tds[5].querySelector('input').value,
-        notes: tds[6].querySelector('input').value,
+        date: cells[0].value||"",
+        time: cells[1].value||"",
+        location: cells[2].value||"",
+        bolt: cells[3].value||"",
+        unit: cells[4].value||"",
+        value: cells[5].value||"",
+        notes: cells[6].value||"",
       });
     });
     return out;
   }
-
   function setRows(rows){
-    rowsEl.innerHTML='';
-    (rows||[]).forEach(r=>rowsEl.appendChild(mkRow(r)));
-    if(!rows || rows.length===0) rowsEl.appendChild(mkRow({}));
+    rowsEl.innerHTML="";
+    const list=Array.isArray(rows)?rows:[];
+    if(list.length===0){
+      rowsEl.appendChild(mkRow({location:eq||""}));
+      return;
+    }
+    list.forEach(r=>rowsEl.appendChild(mkRow(r)));
   }
 
-  addRowBtn.addEventListener('click',()=>rowsEl.appendChild(mkRow({}))); 
-  clearRowsBtn.addEventListener('click',()=>{ if(confirm('Clear all rows?')) setRows([]); });
+  addRowBtn.addEventListener('click',()=>rowsEl.appendChild(mkRow({location:eq||""})));
+  clearRowsBtn.addEventListener('click',()=>{
+    if(confirm('Clear all rows?')) setRows([]);
+  });
 
   // Tilt test matrix (Go / No Go)
-  function tiltKey(){return `nexus_${eq||"NO_EQ"}_torque_tilt_v2`;}
-
   const TILT_KEYS = ["AB","AC","BC","AG","BG","CG","AN","BN","CN","NG"];
 
   function mkGoNoGoCell(td, value){
@@ -436,6 +556,7 @@ const stepBtn=document.getElementById("stepCompleteBtn");
     function apply(v){
       pills.forEach(p=>p.classList.toggle('on', p.getAttribute('data-v')===v));
       td.setAttribute('data-result', v||'');
+      try{ window.__nexusApplyTorqueLockFromTilt && window.__nexusApplyTorqueLockFromTilt(); }catch(e){}
     }
     pills.forEach(p=>p.addEventListener('click',()=>apply(p.getAttribute('data-v'))));
     apply(value);
@@ -458,87 +579,11 @@ const stepBtn=document.getElementById("stepCompleteBtn");
   }
 
   /* ==========================================================
-     ADDED: Tilt Test 2-person sign-off gate (No role requirement)
-     - Locks Torque Notes + Torque Application Entries until satisfied
-     - Two distinct signer names
-     - No role requirement (role rules removed)
+     Gate: Tilt Test completion unlocks Torque entry sections
+     - Locks Torque Notes + Torque Application Entries until all Tilt cells are set
+     - No role/sign-off requirement
      ========================================================== */
   (function(){
-    const ROLE_ORDER = ["viewer","tech","foreman","superintendent","admin"];
-    function roleIndex(r){ return 999; }
-    function getRole(){
-      // Prefer the on-page role selector value (exists before nexus-core loads)
-      try{
-        var sel = document.getElementById("nxRoleSelect");
-        if (sel && sel.value) return String(sel.value).toLowerCase();
-      }catch(e){}
-
-      // Then prefer NEXUS role getter (after nexus-core loads)
-      try{
-        if (window.NEXUS && typeof window.NEXUS.getRole === "function"){
-          var r = window.NEXUS.getRole();
-          if (r) return String(r).toLowerCase();
-        }
-      }catch(e){}
-
-      // Finally fall back to common localStorage keys
-      try{
-        var keys = ["nexus_userRole","nexus_role","nx_role","nexusRole","role"]; 
-        for (var i=0;i<keys.length;i++){
-          var v = (localStorage.getItem(keys[i]) || "").trim();
-          if (v) return v.toLowerCase();
-        }
-      }catch(e){}
-      return "viewer";
-    }
-    function roleAtLeast(min){ return true; }
-
-    function signKey(){ return `nexus_${eq||"NO_EQ"}_torque_tilt_signoffs_v1`; }
-
-    // Backward compatible storage:
-    // - older versions stored an Array in this key
-    // - new version stores an Object: { signoffs: [], clearLog: [] }
-    function readState(){
-      try{
-        const raw = localStorage.getItem(signKey());
-        if (!raw) return { signoffs: [], clearLog: [] };
-        const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed)) return { signoffs: parsed, clearLog: [] };
-        if (parsed && typeof parsed === "object"){
-          const signoffs = Array.isArray(parsed.signoffs) ? parsed.signoffs : [];
-          const clearLog = Array.isArray(parsed.clearLog) ? parsed.clearLog : [];
-          return { signoffs, clearLog };
-        }
-      }catch(e){}
-      return { signoffs: [], clearLog: [] };
-    }
-    function writeState(state){
-      try{
-        const s = state && typeof state === "object" ? state : { signoffs: [], clearLog: [] };
-        if (!Array.isArray(s.signoffs)) s.signoffs = [];
-        if (!Array.isArray(s.clearLog)) s.clearLog = [];
-        localStorage.setItem(signKey(), JSON.stringify(s));
-      }catch(e){}
-    }
-    function readSignoffs(){ return readState().signoffs || []; }
-
-    // Requirements per approval:
-    // - Slot #1: "Title 1" sign-off (any role)
-    // - Slot #2: "Foreman+" sign-off (role rules removed)
-    function requirementsMet(arr){
-      const a = Array.isArray(arr) ? arr : [];
-      const s1 = a[0] || null;
-      const s2 = a[1] || null;
-      const s1ok = !!(s1 && String(s1.name||"").trim());
-      const s2ok = !!(s2 && String(s2.name||"").trim());
-      // distinct signer names
-            const n1 = (s1 && String(s1.name||"").trim().toLowerCase()) || "";
-      const n2 = (s2 && String(s2.name||"").trim().toLowerCase()) || "";
-      const distinct = n1 && n2 && n1 != n2;
-      return s1ok && s2ok && distinct;
-    }
-
-    // Wrap ONLY the torque portion (Notes + Entries) so Tilt Test remains interactive.
     function findSectionByTitle(titleText){
       const want = String(titleText||"").trim().toLowerCase();
       const secs = Array.from(document.querySelectorAll(".section"));
@@ -553,8 +598,7 @@ const stepBtn=document.getElementById("stepCompleteBtn");
     const notesSec = findSectionByTitle("Torque Notes & Units");
     const entriesSec = findSectionByTitle("Torque Application Entries");
     const tiltSec = findSectionByTitle("Tilt Test (Go / No Go)");
-
-    if (!notesSec || !entriesSec || !tiltSec) return; // fail-safe: do nothing
+    if (!notesSec || !entriesSec || !tiltSec) return;
 
     const wrap = document.createElement("div");
     wrap.className = "nx-torque-lock-wrap";
@@ -570,343 +614,47 @@ const stepBtn=document.getElementById("stepCompleteBtn");
     overlay.id = "nxTorqueLockOverlay";
     overlay.innerHTML = `
       <div class="card">
-        <p class="q">Torque section locked</p>
-        <p class="sub">Complete Tilt Test sign-offs (Title 1 + Foreman+) to unlock Torque Notes &amp; Entries.</p>
+        <h3 style="margin:0 0 6px;font-weight:900;letter-spacing:.2px">Torque Locked</h3>
+        <p class="q" style="margin:0 0 10px;color:rgba(255,255,255,0.9);font-weight:800">
+          Complete the Tilt Test (Go / No Go) below to unlock torque entry.
+        </p>
+        <p class="small" style="margin:0;color:rgba(255,255,255,0.72);font-weight:800">
+          All Tilt cells must be selected.
+        </p>
       </div>
     `;
     wrap.appendChild(overlay);
 
-    // Build sign-off UI inside the Tilt Test section
-    const signUi = document.createElement("div");
-    signUi.id = "nxTiltSignoffs";
-    signUi.innerHTML = `
-      <div class="nx-signoff-wrap">
-        <div class="nx-signoff-title">Tilt Test Sign-Off (2-person)</div>
-        <div class="nx-signoff-sub">Requires two distinct signers. Sign-Off #2 must be Foreman or higher.</div>
-
-        <div class="nx-sign-grid">
-          <div class="nx-sign-card" data-slot="0">
-            <div class="nx-sign-label">TITLE 1 SIGN-OFF</div>
-            <input class="nx-sign-name" type="text" placeholder="Signer name" autocomplete="off" />
-            <button class="btn secondary mini nx-sign-btn" type="button">Sign</button>
-            <div class="nx-sign-meta"></div>
-          </div>
-          <div class="nx-sign-card" data-slot="1">
-            <div class="nx-sign-label">FOREMAN+ SIGN-OFF</div>
-            <input class="nx-sign-name" type="text" placeholder="Signer name" autocomplete="off" />
-            <button class="btn secondary mini nx-sign-btn" type="button">Sign</button>
-            <div class="nx-sign-meta"></div>
-          </div>
-        </div>
-
-        <div class="nx-sign-actions">
-          <div class="nx-sign-status" id="nxTiltSignStatus">Locked</div>
-          <button class="btn secondary mini" id="nxTiltClearSigns" type="button" title="Superintendent+ only (recorded)">Clear Sign-Offs</button>
-        </div>
-      </div>
-    `;
-
-    // Styles (scoped; additive)
-    const style = document.createElement("style");
-    style.textContent = `
-      .nx-signoff-wrap{ margin-top:14px; padding:14px; border-radius:18px; border:1px solid rgba(255,255,255,0.20); background:rgba(0,0,0,0.18); }
-      .nx-signoff-title{ font-weight:900; font-size:15px; letter-spacing:.02em; }
-      .nx-signoff-sub{ margin-top:6px; font-weight:800; opacity:.92; font-size:13px; line-height:1.35; }
-      .nx-sign-grid{ margin-top:12px; display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-      @media (max-width:760px){ .nx-sign-grid{ grid-template-columns:1fr; } }
-      .nx-sign-card{ padding:12px; border-radius:14px; border:1px solid rgba(255,255,255,0.18); background:rgba(255,255,255,0.08); }
-      .nx-sign-label{ font-weight:900; font-size:12px; letter-spacing:.12em; text-transform:uppercase; opacity:.95; margin-bottom:8px; }
-      .nx-sign-name{ width:100%; padding:10px 10px; border-radius:12px; border:1px solid rgba(255,255,255,0.18); outline:none; font-size:14px; background:rgba(255,255,255,0.92); color:#111; font-weight:800; }
-      .nx-sign-btn{ margin-top:10px; width:100%; }
-      .nx-sign-meta{ margin-top:8px; font-weight:800; font-size:12px; opacity:.92; line-height:1.35; }
-      .nx-sign-actions{ margin-top:12px; display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between; }
-      .nx-sign-status{ display:inline-flex; align-items:center; justify-content:center; padding:10px 12px; border-radius:999px; border:1px solid rgba(255,255,255,0.22); background:rgba(0,0,0,0.22); font-weight:900; font-size:12px; }
-      .nx-sign-status.ok{ border-color:rgba(0,255,102,0.55); background:rgba(0,255,102,0.12); }
-      .nx-sign-status.bad{ border-color:rgba(255,59,59,0.55); background:rgba(255,59,59,0.10); }
-    `;
-    tiltSec.appendChild(style);
-    tiltSec.appendChild(signUi);
-
-    const statusEl = document.getElementById("nxTiltSignStatus");
-    const clearBtn = document.getElementById("nxTiltClearSigns");
-
-    function render(){
-      const arr = readSignoffs();
-      const met = requirementsMet(arr);
-
-      wrap.classList.toggle("nx-locked", !met);
-      overlay.style.display = met ? "none" : "block";
-
-      if (statusEl){
-        statusEl.textContent = met ? "Unlocked" : "Locked";
-        statusEl.classList.toggle("ok", met);
-        statusEl.classList.toggle("bad", !met);
+    function allTiltComplete(){
+      try{
+        const t = readTilt();
+        return TILT_KEYS.every(k => !!(t && String(t[k]||"").trim()));
+      }catch(e){
+        return false;
       }
-
-      // Fill each slot UI from stored record if present
-      const cards = Array.from(document.querySelectorAll("#nxTiltSignoffs .nx-sign-card"));
-      cards.forEach((card, idx)=>{
-        const rec = arr[idx] || null;
-        const nameIn = card.querySelector(".nx-sign-name");
-        const meta = card.querySelector(".nx-sign-meta");
-        if (rec && rec.name){
-          if (nameIn) nameIn.value = rec.name;
-          if (meta) meta.textContent = `Signed by ${rec.name} (${rec.role}) on ${new Date(rec.at).toLocaleString()}`;
-        } else {
-          if (meta) meta.textContent = "Not signed";
-        }
-      });
-
-      // Clear is Superintendent+ (and recorded)
-      if (clearBtn){
-        const ok = true;
-        clearBtn.disabled = false;
-        clearBtn.style.opacity = "";
-      }
-
-      // Sign buttons always enabled, but role captured at sign time.
     }
 
-    function sign(slot){
-      const cards = Array.from(document.querySelectorAll("#nxTiltSignoffs .nx-sign-card"));
-      const card = cards[slot];
-      if (!card) return;
-      const name = String((card.querySelector(".nx-sign-name") || {}).value || "").trim();
-      if (!name){ alert("Signer name is required."); return; }
-
-      // Slot #2 must be Foreman+ at sign time
-      if (Number(slot) === 1 && !true){
-        alert("Foreman+ role required for the Foreman+ sign-off.");
-        return;
-      }
-
-      const state = readState();
-      const arr = Array.isArray(state.signoffs) ? state.signoffs : [];
-      arr[slot] = { name, role: String(getRole()||"viewer").toLowerCase(), at: new Date().toISOString(), eq };
-      state.signoffs = arr;
-      writeState(state);
-      render();
+    function applyLock(){
+      const ok = allTiltComplete();
+      wrap.classList.toggle("nx-locked", !ok);
+      overlay.style.display = ok ? "none" : "flex";
     }
 
-    document.querySelectorAll("#nxTiltSignoffs .nx-sign-card").forEach((card)=>{
-      const slot = Number(card.getAttribute("data-slot")||"0");
-      const btn = card.querySelector(".nx-sign-btn");
-      if (btn) btn.addEventListener("click", ()=>sign(slot));
+    // Re-evaluate after any tilt click (event delegation)
+    tiltSec.addEventListener("click", (ev)=>{
+      const pill = ev.target && ev.target.closest ? ev.target.closest(".pill") : null;
+      if (!pill) return;
+      setTimeout(()=>{ applyLock(); }, 0);
     });
 
-    if (clearBtn){
-      clearBtn.addEventListener("click", function(){
-        if (!true){
-          alert("No role requirement to clear sign-offs.");
-          render();
-          return;
-        }
-        const state = readState();
-        const prev = Array.isArray(state.signoffs) ? state.signoffs : [];
-        if (!prev.length){
-          alert("No sign-offs to clear.");
-          return;
-        }
-        if (!confirm("Clear Tilt Test sign-offs? This action will be recorded.")) return;
+    // Re-evaluate on load and after loadLocal applies existing tilt values
+    setTimeout(()=>{ applyLock(); }, 0);
 
-        const who = prompt("Enter your name to record the clear action:", "");
-        const whoName = String(who || "").trim();
-        if (!whoName){
-          alert("Name is required to clear (recorded).");
-          return;
-        }
-
-        const log = Array.isArray(state.clearLog) ? state.clearLog : [];
-        log.push({
-          by: whoName,
-          role: getRole(),
-          at: new Date().toISOString(),
-          eq,
-          clearedSignoffs: prev
-        });
-
-        state.signoffs = [];
-        state.clearLog = log;
-        writeState(state);
-        render();
-      });
-    }
-
-    // Role change hooks (supports both the banner selector and any NEXUS event)
-    window.addEventListener("nexus:rolechange", render);
-    try{
-      var roleSel = document.getElementById("nxRoleSelect");
-      if (roleSel) roleSel.addEventListener("change", render);
-    }catch(e){}
-    render();
+    // Expose for save/load flows
+    window.__nexusApplyTorqueLockFromTilt = applyLock;
   })();
-  
-  // Torque photo (separate from equipment photo)
-  const torquePhotoInput = document.getElementById("torquePhotoInput");
-  const torquePhotoPickBtn = document.getElementById("torquePhotoPickBtn");
-  const torquePhotoSaveBtn = document.getElementById("torquePhotoSaveBtn");
-  const torquePhotoClearBtn = document.getElementById("torquePhotoClearBtn");
-  const torquePhotoPreview = document.getElementById("torquePhotoPreview");
-  const torquePhotoImg = document.getElementById("torquePhotoImg");
-  const torquePhotoOpenBtn = document.getElementById("torquePhotoOpenBtn");
-  const torquePhotoHint = document.getElementById("torquePhotoHint");
 
-  function torquePhotoKey(){ return `nexus_${eq||"NO_EQ"}_torque_photo`; }
-  function torquePhotoUrlKey(){ return `nexus_${eq||"NO_EQ"}_torque_photo_url`; }
-
-  function setTorquePhotoHint(msg){ if(torquePhotoHint) torquePhotoHint.textContent = msg||""; }
-
-  function setTorquePhotoUI(src){
-    if(!torquePhotoOpenBtn) return;
-    if(src){
-      torquePhotoOpenBtn.href = src;
-      torquePhotoOpenBtn.style.opacity = "1";
-      torquePhotoOpenBtn.style.pointerEvents = "auto";
-      if(torquePhotoImg){
-        torquePhotoImg.src = src;
-      }
-      if(torquePhotoPreview) torquePhotoPreview.style.display = "block";
-    } else {
-      torquePhotoOpenBtn.href = "#";
-      torquePhotoOpenBtn.style.opacity = "0.55";
-      torquePhotoOpenBtn.style.pointerEvents = "none";
-      if(torquePhotoImg) torquePhotoImg.removeAttribute("src");
-      if(torquePhotoPreview) torquePhotoPreview.style.display = "none";
-    }
-  }
-
-  function dataUrlToJpegResized(dataUrl, maxDim, quality){
-    return new Promise((resolve,reject)=>{
-      try{
-        const img = new Image();
-        img.onload = ()=>{
-          const w = img.naturalWidth||img.width;
-          const h = img.naturalHeight||img.height;
-          let nw=w, nh=h;
-          const scale = Math.min(1, maxDim/Math.max(w,h));
-          nw = Math.round(w*scale); nh = Math.round(h*scale);
-          const canvas = document.createElement("canvas");
-          canvas.width = nw; canvas.height = nh;
-          const ctx = canvas.getContext("2d");
-          ctx.drawImage(img,0,0,nw,nh);
-          const out = canvas.toDataURL("image/jpeg", quality);
-          resolve(out);
-        };
-        img.onerror = ()=>reject(new Error("Image load failed"));
-        img.src = dataUrl;
-      }catch(e){ reject(e); }
-    });
-  }
-
-  async function uploadTorquePhotoToFirebase(dataUrl){
-    const fb = window.firebase;
-    if(!fb) throw new Error("Firebase SDK not loaded");
-    // Support compat (v8) style APIs. If using modular v9 without compat, this will no-op and fallback to local.
-    if(!fb.storage || !fb.firestore) throw new Error("Firebase storage/firestore not available");
-    const storage = fb.storage();
-    const firestore = fb.firestore();
-    const ref = storage.ref().child(`torque/${eq}/torque_photo.jpg`);
-    await ref.putString(dataUrl, "data_url", { contentType: "image/jpeg" });
-    const url = await ref.getDownloadURL();
-    await firestore.collection("equipment").doc(eq).set({
-      torquePhotoUrl: url,
-      torquePhotoUpdatedAt: new Date().toISOString()
-    }, { merge: true });
-    return url;
-  }
-
-  async function loadTorquePhoto(){
-    if(!eq){
-      setTorquePhotoUI(null);
-      setTorquePhotoHint("Missing equipment ID (eq).");
-      return;
-    }
-    try{
-      const url = localStorage.getItem(torquePhotoUrlKey());
-      if(url && /^https?:\/\//i.test(url)){
-        setTorquePhotoUI(url);
-        setTorquePhotoHint("Loaded saved Torque photo (cloud URL cached locally).");
-        return;
-      }
-    }catch(e){}
-    try{
-      const raw = localStorage.getItem(torquePhotoKey());
-      if(raw && raw.indexOf("data:image/")===0){
-        setTorquePhotoUI(raw);
-        setTorquePhotoHint("Loaded saved Torque photo (local).");
-        return;
-      }
-    }catch(e){}
-    setTorquePhotoUI(null);
-    setTorquePhotoHint("No Torque photo saved for this equipment.");
-  }
-
-  if(torquePhotoPickBtn && torquePhotoInput){
-    torquePhotoPickBtn.addEventListener("click", ()=> torquePhotoInput.click());
-    torquePhotoInput.addEventListener("change", async ()=>{
-      const file = torquePhotoInput.files && torquePhotoInput.files[0];
-      if(!file) return;
-      const reader = new FileReader();
-      reader.onload = async ()=>{
-        try{
-          const resized = await dataUrlToJpegResized(reader.result, 1600, 0.85);
-          setTorquePhotoUI(resized);
-          setTorquePhotoHint("Photo selected. Click Save Photo to store it.");
-        }catch(e){
-          setTorquePhotoUI(reader.result);
-          setTorquePhotoHint("Photo selected. Click Save Photo to store it.");
-        }
-      };
-      reader.readAsDataURL(file);
-    });
-  }
-
-  if(torquePhotoSaveBtn){
-    torquePhotoSaveBtn.addEventListener("click", async ()=>{
-      if(!eq){ alert("Missing equipment ID (eq)."); return; }
-      const src = torquePhotoImg && torquePhotoImg.src;
-      if(!src){ alert("No photo selected."); return; }
-
-      // Firebase primary, local fallback
-      try{
-        setTorquePhotoHint("Saving to Firebase...");
-        const url = await uploadTorquePhotoToFirebase(src);
-        try{ localStorage.setItem(torquePhotoUrlKey(), url); }catch(e){}
-        // Keep local copy as fallback (optional, but requested local fallback)
-        try{ localStorage.setItem(torquePhotoKey(), src); }catch(e){}
-        setTorquePhotoUI(url);
-        setTorquePhotoHint("Saved Torque photo (Firebase + local fallback).");
-        alert("Saved.");
-        return;
-      }catch(e){
-        // fallback local
-      }
-
-      try{
-        localStorage.setItem(torquePhotoKey(), src);
-        try{ localStorage.removeItem(torquePhotoUrlKey()); }catch(e){}
-        setTorquePhotoUI(src);
-        setTorquePhotoHint("Saved Torque photo locally (Firebase unavailable).");
-        alert("Saved (local).");
-      }catch(e){
-        alert("Could not save photo (storage blocked or full).");
-      }
-    });
-  }
-
-  if(torquePhotoClearBtn){
-    torquePhotoClearBtn.addEventListener("click", ()=>{
-      if(!eq){ alert("Missing equipment ID (eq)."); return; }
-      try{ localStorage.removeItem(torquePhotoKey()); }catch(e){}
-      try{ localStorage.removeItem(torquePhotoUrlKey()); }catch(e){}
-      if(torquePhotoInput) torquePhotoInput.value = "";
-      loadTorquePhoto();
-      alert("Cleared.");
-    });
-  }
-
-// Notes section
-  const notesUnit=document.getElementById('notesUnit');
+  const notesUnit=document.getElementById('unitSelect');
   const notesTorque=document.getElementById('notesTorque');
 
   function saveLocal(){
@@ -920,6 +668,8 @@ const stepBtn=document.getElementById("stepCompleteBtn");
     localStorage.setItem(tiltKey(), JSON.stringify(payload.tilt));
     // Firebase hook placeholder:
     // window.nexusFirebase?.saveTorqueLog?.(eq, payload);
+
+    try{ window.__nexusApplyTorqueLockFromTilt && window.__nexusApplyTorqueLockFromTilt(); }catch(e){}
   }
 
   function loadLocal(){
@@ -931,53 +681,53 @@ const stepBtn=document.getElementById("stepCompleteBtn");
         notesTorque.value=p?.notes?.torque||'';
         setRows(p?.rows||[]);
         setTilt(p?.tilt||{});
+        try{ window.__nexusApplyTorqueLockFromTilt && window.__nexusApplyTorqueLockFromTilt(); }catch(e){}
         return;
       }
     }catch(e){}
     setRows([]);
     setTilt({});
+    try{ window.__nexusApplyTorqueLockFromTilt && window.__nexusApplyTorqueLockFromTilt(); }catch(e){}
   }
 
-  document.getElementById('saveBtn').addEventListener('click',()=>{saveLocal(); alert('Saved.');});
+  document.getElementById('saveBtn').addEventListener('click',()=>{
+    saveLocal();
+    alert('Saved.');
+  });
 
   document.getElementById('exportEmailBtn').addEventListener('click',()=>{
     saveLocal();
     const subject=`NEXUS Torque Log - ${eq||'NO_EQ'}`;
-    const body=`Torque log saved for ${eq||'NO_EQ'} on ${new Date().toLocaleString()}%0D%0A%0D%0A`+
-      `Next step: Firebase Cloud Function should generate PDF and attach it to emails / Procore.\n`;
-    window.location.href=`mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    const body=`Torque Log for ${eq||'NO_EQ'}%0D%0A%0D%0A(Export payload saved locally. Attachments/PDF export TBD.)`;
+    location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${body}`;
   });
 
-  loadLocal();
-  loadTorquePhoto();
-  refreshStep();
-})();
-</script>
-
-<script>
-(function(){
-  window.NEXUS_back = function(){
+  // Role display only
+  const roleSel=document.getElementById("nxRoleSelect");
+  const roleLabel=document.getElementById("roleLabel");
+  function setRoleLabel(){
+    const v = (roleSel && roleSel.value) ? roleSel.value : "viewer";
+    if (roleLabel) roleLabel.textContent = v;
+  }
+  if (roleSel){
+    roleSel.addEventListener("change", ()=>{
+      setRoleLabel();
+      try{ localStorage.setItem("nexus_role", roleSel.value); }catch(e){}
+    });
     try{
-      if (document.referrer && document.referrer.indexOf(location.host) !== -1){
-        history.back();
-        return false;
-      }
+      const saved = localStorage.getItem("nexus_role");
+      if (saved) roleSel.value = saved;
     }catch(e){}
-    const qs = new URLSearchParams(location.search);
-    const eq = qs.get("eq");
-    location.href = eq ? `equipment.html?eq=${encodeURIComponent(eq)}` : "equipment.html";
-    return false;
-  };
+  }
+  setRoleLabel();
+
+  loadLocal();
 })();
 </script>
 
-
-<footer class="nx-footer">
-  © 2026 NEXUS Data Science — Built for <span data-customer-name>CUSTOMER</span> Electric — All Rights Reserved
-</footer>
-
-  <script src="assets/js/nexus-core.js"></script>
-  <script src="assets/js/nexus-firebase-bridge.js"></script>
-  </div>
+<script src="config.js"></script>
+<script src="app.js"></script>
+<script src="nexus-core.js"></script>
+<script src="nexus-firebase-bridge.js"></script>
 </body>
 </html>

@@ -1,13 +1,13 @@
 /* app.js (FULL FILE — COMPLETE REPLACEMENT)
-   Fix:
-   - Fix ConnecTorq button 404 by correcting href:
-       "torque/snapon_import.html" -> "snapon_import.html"
-   - form.html "Step Complete" button now WORKS and SAVES.
-   - Writes completion to localStorage using existing scheme:
-       nexus_${eq}_${completedKey} = "true"/"false"
-     with fallback to global key if eq is missing.
+   Fixes:
+   - Eliminates double Torque import buttons by filtering + de-duping at render time.
+   - Forces Torque import link to the correct location: "snapon_import.html" (no /torque/ folder).
+   - Removes unwanted Torque buttons (per your request): "Tilt Test" and "Snap-on Import (Optional)".
+   - Keeps existing behavior: form.html rendering + eq/rif query propagation + Step Complete persistence.
+
    Notes:
-   - Preserves existing form.html rendering behavior.
+   - This is robust even if config.js (or any other source) still includes the old Torque buttons,
+     because the renderer filters them out on the Torque form page.
 */
 
 (function () {
@@ -48,7 +48,6 @@
         buttons: [
           { text: "Torque Log (Fillable)", href: "torque_log.html" },
           { text: "Torque SOP", href: "torque_sop.html" },
-          // FIX: remove incorrect "torque/" prefix (caused /torque/snapon_import.html 404)
           { text: "Snap-on ConnecTorq Import (Optional)", href: "snapon_import.html" }
         ]
       },
@@ -104,20 +103,124 @@
     if (eqLabel) eqLabel.textContent = eq ? `Equipment: ${eq}` : "";
   } catch (e) {}
 
+  // ---------------------------------------------------------
+  // Button sanitization to prevent duplicates / wrong links
+  // ---------------------------------------------------------
+
+  function normText(s) {
+    return String(s || "")
+      .replace(/\s+/g, " ")
+      .trim()
+      .toLowerCase();
+  }
+
+  function normHref(href) {
+    const raw = String(href || "").trim();
+    if (!raw) return "";
+
+    // Keep special tokens intact (e.g., PROCORE_PREFOD)
+    if (/^[A-Z0-9_]+$/.test(raw) && !/\.html/i.test(raw)) return raw;
+
+    try {
+      const u = new URL(raw, location.href);
+
+      // normalize known bad torque import path (folder doesn't exist)
+      // - .../torque/snapon_import.html -> .../snapon_import.html
+      if (/\/torque\/snapon_import\.html$/i.test(u.pathname)) {
+        u.pathname = u.pathname.replace(/\/torque\/snapon_import\.html$/i, "/snapon_import.html");
+      }
+
+      // For internal links, store only pathname + search + hash
+      if (u.origin === location.origin) return u.pathname + u.search + u.hash;
+
+      // For external, return full
+      return u.href;
+    } catch (e) {
+      // If it wasn't a valid URL, return as-is
+      return raw;
+    }
+  }
+
+  function sanitizeButtons(formId, buttons) {
+    const src = Array.isArray(buttons) ? buttons.slice() : [];
+    const out = [];
+    const seen = new Set();
+
+    // Torque: remove unwanted buttons and force a single correct import button.
+    // This prevents duplicates even if config.js or other scripts still include them.
+    if (String(formId).toLowerCase() === "torque") {
+      const killTexts = new Set([
+        normText("Tilt Test"),
+        normText("Snap-on Import (Optional)")
+      ]);
+
+      for (const b of src) {
+        if (!b) continue;
+        const t = normText(b.text);
+        if (killTexts.has(t)) continue; // remove
+        out.push(b);
+      }
+
+      // Ensure ConnecTorq import exists once and points to correct file
+      const wantText = "Snap-on ConnecTorq Import (Optional)";
+      const wantTextNorm = normText(wantText);
+      const wantHrefNorm = normHref("snapon_import.html");
+
+      let hasConnecTorq = false;
+
+      // Normalize any existing ConnecTorq button (if present) to correct href
+      for (let i = 0; i < out.length; i++) {
+        const b = out[i];
+        if (!b) continue;
+        const t = normText(b.text);
+        if (t === wantTextNorm) {
+          hasConnecTorq = true;
+          out[i] = {
+            text: wantText,
+            href: "snapon_import.html"
+          };
+        }
+      }
+
+      if (!hasConnecTorq) {
+        // Insert near bottom (before SOP if present, otherwise at end)
+        const sopIdx = out.findIndex((b) => normText(b && b.text) === normText("Torque SOP"));
+        const insertAt = sopIdx >= 0 ? sopIdx : out.length;
+        out.splice(insertAt, 0, { text: wantText, href: "snapon_import.html" });
+      }
+    } else {
+      // Non-torque: keep as-is
+      for (const b of src) out.push(b);
+    }
+
+    // De-dupe by normalized text + normalized href
+    const finalButtons = [];
+    for (const b of out) {
+      if (!b) continue;
+      const text = String(b.text || "Open");
+      const href = String(b.href || "#");
+
+      const key = normText(text) + "||" + normHref(href);
+      if (seen.has(key)) continue;
+      seen.add(key);
+
+      finalButtons.push({ text, href });
+    }
+
+    return finalButtons;
+  }
+
   // Render buttons
   const buttonsWrap = document.getElementById("buttons");
-  if (buttonsWrap && Array.isArray(cfg.buttons)) {
-    buttonsWrap.innerHTML = "";
-    cfg.buttons.forEach((b) => {
-      if (!b) return;
+  if (buttonsWrap) {
+    const sanitized = sanitizeButtons(id, cfg && cfg.buttons);
 
+    buttonsWrap.innerHTML = "";
+    sanitized.forEach((b) => {
       const a = document.createElement("a");
       a.className = "btn";
       a.textContent = b.text || "Open";
-
-      // Resolve token links (Procore etc) later; keep placeholders intact
       a.href = b.href || "#";
-
       buttonsWrap.appendChild(a);
     });
   }
@@ -129,8 +232,16 @@
         const href = a.getAttribute("href");
         if (!href) return;
 
+        // Keep tokens intact (PROCORE_PREFOD etc.)
+        if (/^[A-Z0-9_]+$/.test(href) && !/\.html/i.test(href)) return;
+
         const url = new URL(href, location.href);
         if (url.origin !== location.origin) return;
+
+        // Normalize bad torque import folder path (safety net)
+        if (/\/torque\/snapon_import\.html$/i.test(url.pathname)) {
+          url.pathname = url.pathname.replace(/\/torque\/snapon_import\.html$/i, "/snapon_import.html");
+        }
 
         if (eq) url.searchParams.set("eq", eq);
         if (rif) url.searchParams.set("rif", rif);
@@ -145,8 +256,7 @@
   obs.observe(document.body, { childList: true, subtree: true });
 
   /* =========================================================
-     STEP COMPLETE (FIX)
-     - This is what makes the button actually do something.
+     STEP COMPLETE (WORKING)
      - Equipment dashboard reads: nexus_${eq}_${k} OR k
      ========================================================= */
 
@@ -184,30 +294,22 @@
     const btn = document.getElementById("stepCompleteBtn");
     if (!btn) return;
 
-    // form.html hides it by default; force it visible if present.
     btn.style.display = "block";
     btn.style.pointerEvents = "auto";
 
-    // If a form somehow has no completedKey, don’t allow writing an unknown key.
     if (!cfg || !cfg.completedKey) {
       btn.style.display = "none";
       return;
     }
 
-    // IMPORTANT:
-    // form.html also includes a canonical Step Complete handler. If both handlers bind,
-    // the click can toggle twice and appear to "do nothing".
-    // We mark the button as already bound so only ONE handler exists.
     if (btn.__nxBound) {
       setStepBtnLabel(btn);
       return;
     }
     btn.__nxBound = true;
 
-    // Initialize label/state
     setStepBtnLabel(btn);
 
-    // Attach handler ONCE
     btn.addEventListener("click", function (e) {
       try { e.preventDefault(); e.stopPropagation(); } catch(_) {}
 
@@ -215,7 +317,6 @@
       writeCompleted(next);
       setStepBtnLabel(btn);
 
-      // Optional: notify other pages/listeners
       try {
         window.dispatchEvent(
           new CustomEvent("nexus:completionChanged", {

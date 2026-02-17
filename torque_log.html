@@ -1,4 +1,3 @@
-<!-- torque_log.html (FULL DROP-IN) -->
 <!doctype html>
 <html lang="en">
 <head>
@@ -11,14 +10,9 @@
 
 <style>
   :root{
-    --bg:#b60000;
     --panel:rgba(255,255,255,0.20);
     --line:rgba(255,255,255,0.20);
-    --accent:#00c2ff;
-    --btn-bg:#0a0f24;
     --btn-txt:#3ecbff;
-    --ok:#00ff66;
-    --bad:#ff3b3b;
   }
   *{box-sizing:border-box}
   html,body{margin:0;font-family:Arial, Helvetica, sans-serif;color:#fff}
@@ -118,7 +112,7 @@
     font-weight:800;
     outline:none;
   }
-  textarea{min-height:44px;resize:vertical}
+
   .row-actions{display:flex;gap:8px;justify-content:flex-end}
   .mini{padding:9px 12px;font-size:13px}
 
@@ -144,18 +138,17 @@
     border:none;background:transparent;padding:0;border-radius:0;
     font-weight:800;
   }
-  .cell textarea{min-height:36px}
 
-  /* Tilt go/no-go pills */
+  /* Tilt go/no-go */
   .go-wrap{display:flex;gap:10px;align-items:center}
   .pill{flex:1;display:inline-flex;align-items:center;justify-content:center;height:38px;border-radius:999px;font-weight:900;border:2px solid rgba(255,255,255,0.25);cursor:pointer;user-select:none;transition:.12s}
   .pill.go{background:rgba(0,255,102,0.18);border-color:rgba(0,255,102,0.55);color:#eafff1}
   .pill.nogo{background:rgba(255,59,59,0.18);border-color:rgba(255,59,59,0.55);color:#ffecec}
-  .pill.on{filter:none;transform:translateY(-1px);box-shadow:0 10px 22px rgba(0,0,0,0.30)}
+  .pill.on{transform:translateY(-1px);box-shadow:0 10px 22px rgba(0,0,0,0.30)}
   .pill.go.on{background:rgba(0,255,102,0.35)}
   .pill.nogo.on{background:rgba(255,59,59,0.35)}
 
-  /* ===== Torque section lock (unlocked by Tilt Test completion) ===== */
+  /* Torque lock wrapper */
   .nx-torque-lock-wrap{ position:relative; }
   .nx-torque-lock-wrap.nx-locked{ filter: grayscale(1) opacity(0.55); pointer-events:none; }
   #nxTorqueLockOverlay{
@@ -170,7 +163,7 @@
     backdrop-filter: blur(4px);
     z-index:50;
   }
-  #nxTorqueLockOverlay .card{
+  #nxTorqueLockOverlay .card2{
     width:min(740px,100%);
     text-align:center;
     border-radius:18px;
@@ -180,9 +173,21 @@
     box-shadow:0 18px 50px rgba(0,0,0,0.55);
   }
 
+  /* Torque photo display */
+  .photoPreview{
+    width:100%;
+    max-height:280px;
+    object-fit:contain;
+    border-radius:14px;
+    border:1px solid rgba(255,255,255,0.20);
+    background:rgba(0,0,0,0.20);
+    display:none;
+    margin-top:10px;
+  }
+  .photoNote{margin-top:8px;color:rgba(255,255,255,0.80);font-weight:800;font-size:12px}
+
   @media (max-width:760px){.top{flex-direction:column;align-items:stretch}}
 </style>
-
 </head>
 <body>
 
@@ -216,34 +221,28 @@
       <a class="btn secondary" id="backBtn2" href="equipment.html">Back to Equipment</a>
       <button class="btn secondary" type="button" id="saveBtn">Save</button>
       <button class="btn secondary" type="button" id="exportEmailBtn">Export to Email</button>
-
-      <!-- legacy placeholder (not used here, kept for compatibility) -->
-      <button class="btn secondary" type="button" id="stepCompleteBtn" style="display:none">Step Complete</button>
     </div>
 
     <div class="hint">
-      Save persists locally and includes Firebase hook placeholders. Export opens an email draft.
+      Fill out Tilt Test (Go/No Go) below to unlock torque entry.
     </div>
 
     <div class="content">
 
-      <!-- Equipment image DISPLAY ONLY (upload belongs on index.html Open Equipment page) -->
-      <div class="section" id="equipmentImageSection">
-        <div class="section-title">Equipment Image</div>
+      <!-- Torque Photo DISPLAY (upload happens on index.html now) -->
+      <div class="section" id="torquePhotoSection">
+        <div class="section-title">Torque Photo</div>
         <div class="hint" style="padding:0;color:rgba(255,255,255,0.75);font-weight:800">
-          Image is managed on the Open Equipment page and stored for this device (GitHub mode).
+          Torque photo is uploaded on the Open Equipment page for this equipment and displayed here.
         </div>
-        <div style="margin-top:10px">
-          <img id="equipImagePreview" alt="Equipment image preview"
-               style="display:none;width:100%;max-height:280px;object-fit:contain;border-radius:14px;border:1px solid rgba(255,255,255,0.20);background:rgba(0,0,0,0.20);" />
-          <div id="equipImageStatus" class="hint" style="padding:0;margin-top:8px"></div>
-          <div class="row-actions" style="margin-top:10px;justify-content:flex-start">
-            <a class="btn secondary mini" id="openEquipmentPageBtn" href="index.html">Open Equipment Page</a>
-          </div>
+        <img id="torquePhotoPreview" class="photoPreview" alt="Torque photo preview" />
+        <div id="torquePhotoStatus" class="photoNote"></div>
+        <div class="row-actions" style="margin-top:10px;justify-content:flex-start">
+          <a class="btn secondary mini" id="openEquipmentPageBtn" href="index.html">Open Equipment Page</a>
         </div>
       </div>
 
-      <div class="section">
+      <div class="section" id="notesSec">
         <div class="section-title">Torque Notes & Units</div>
         <div class="grid2">
           <div>
@@ -261,7 +260,7 @@
         </div>
       </div>
 
-      <div class="section">
+      <div class="section" id="entriesSec">
         <div class="section-title">Torque Application Entries</div>
         <div class="row-actions" style="margin-bottom:10px">
           <button class="btn secondary mini" type="button" id="addRowBtn">Add Row</button>
@@ -286,7 +285,7 @@
       <div class="section" id="tilt">
         <div class="section-title">Tilt Test (Go / No Go)</div>
         <div class="hint" style="padding:0;color:rgba(255,255,255,0.75);font-weight:800">
-          Select Go or No Go for each required check. Complete all cells to unlock torque entry above.
+          Complete all cells to unlock torque entry above.
         </div>
 
         <table>
@@ -376,153 +375,112 @@
 (function(){
   const qs=new URLSearchParams(location.search);
   const eq=(qs.get("eq")||"").trim();
-  const stepId="torque";
 
   const eqLabel=document.getElementById("eqLabel");
-  eqLabel.textContent=eq?`Equipment: ${eq}`:"Missing equipment ID (eq)";
   const subEq=document.getElementById("subEq");
+  if(eqLabel) eqLabel.textContent=eq?`Equipment: ${eq}`:"Missing equipment ID (eq)";
   if(subEq) subEq.textContent=eq?`Equipment: ${eq}`:"Equipment: (none)";
 
-  const backBtn=document.getElementById("backBtn");
-  const backBtn2=document.getElementById("backBtn2");
-  function setBackHref(a){
-    if(!a) return;
+  function setHrefWithEq(el, href){
+    if(!el) return;
     try{
-      const u = new URL("equipment.html", location.href);
-      if (eq) u.searchParams.set("eq", eq);
-      a.href = u.pathname + u.search + u.hash;
-    }catch(e){}
+      const u = new URL(href, location.href);
+      if(eq) u.searchParams.set("eq", eq);
+      el.href = u.pathname + u.search + u.hash;
+    }catch(e){
+      el.href = href;
+    }
   }
-  setBackHref(backBtn);
-  setBackHref(backBtn2);
+  setHrefWithEq(document.getElementById("backBtn"), "equipment.html");
+  setHrefWithEq(document.getElementById("backBtn2"), "equipment.html");
+  setHrefWithEq(document.getElementById("openEquipmentPageBtn"), "index.html");
 
-  // Equipment Image (read-only here; upload/save occurs on index.html)
-  (function(){
-    const img = document.getElementById("equipImagePreview");
-    const status = document.getElementById("equipImageStatus");
-    const openBtn = document.getElementById("openEquipmentPageBtn");
-    try{
-      if (openBtn){
-        const u = new URL(openBtn.getAttribute("href") || "index.html", location.href);
-        if (eq) u.searchParams.set("eq", eq);
-        openBtn.setAttribute("href", u.pathname + u.search + u.hash);
-      }
-    }catch(e){}
-    function setStatus(msg){ if(status) status.textContent = msg || ""; }
-    function show(url){
-      if(!img) return;
-      img.src = url;
-      img.style.display = "block";
-    }
-    function hide(){
-      if(!img) return;
-      img.removeAttribute("src");
-      img.style.display = "none";
-    }
+  // ===== Torque Photo (READ from localStorage set on index.html) =====
+  const torquePhotoPreview = document.getElementById("torquePhotoPreview");
+  const torquePhotoStatus = document.getElementById("torquePhotoStatus");
+  function torquePhotoKey(eq){ return `nexus_${eq || "NO_EQ"}_torque_photo`; }
+
+  function setTPStatus(msg){ if(torquePhotoStatus) torquePhotoStatus.textContent = msg || ""; }
+
+  function loadTorquePhoto(){
     if(!eq){
-      hide();
-      setStatus("Missing equipment ID (eq).");
+      torquePhotoPreview.style.display="none";
+      setTPStatus("Missing equipment ID (eq).");
       return;
     }
     try{
-      const raw = localStorage.getItem(`nexus_equipment_${eq}`);
-      if(raw){
-        const rec = JSON.parse(raw);
-        if(rec && rec.imageDataUrl){
-          show(rec.imageDataUrl);
-          setStatus("Loaded saved image for this equipment (this device).");
-          return;
-        }
+      const tp = localStorage.getItem(torquePhotoKey(eq));
+      if(tp && tp.startsWith("data:image/")){
+        torquePhotoPreview.src = tp;
+        torquePhotoPreview.style.display = "block";
+        setTPStatus("Loaded torque photo for this equipment (this device).");
+      }else{
+        torquePhotoPreview.style.display = "none";
+        torquePhotoPreview.removeAttribute("src");
+        setTPStatus("No torque photo saved yet. Add one on the Open Equipment page.");
       }
-    }catch(e){}
-    hide();
-    setStatus("No equipment image saved yet. Add one on the Open Equipment page.");
-  })();
-
-  const stepBtn=document.getElementById("stepCompleteBtn");
-  if(stepBtn){ stepBtn.style.display="none"; }
-
-  function legacyStepKey(id){return `nexus_${eq||"NO_EQ"}_step_${id}`;}
-  function canonicalStepKey(step){return `nexus_${eq||"NO_EQ"}_${step}Completed`;}
-  function done(){
-    if(!eq) return false;
-    try{
-      if(localStorage.getItem(canonicalStepKey(stepId))==="true") return true;
-      if(localStorage.getItem(legacyStepKey(stepId))==="1") return true;
-    }catch(e){}
-    return false;
+    }catch(e){
+      torquePhotoPreview.style.display="none";
+      setTPStatus("Could not read torque photo.");
+    }
   }
 
-  function mkRow(obj){
-    const tr=document.createElement("tr");
-
-    function mkInput(type, val){
-      const td=document.createElement("td");
-      const div=document.createElement("div");
-      div.className="cell";
-      const input=document.createElement("input");
-      input.type=type;
-      input.value=val||"";
-      div.appendChild(input);
-      td.appendChild(div);
-      return {td,input};
-    }
-
-    function mkSelect(opts, val){
-      const td=document.createElement("td");
-      const div=document.createElement("div");
-      div.className="cell";
-      const sel=document.createElement("select");
-      opts.forEach(o=>{
-        const op=document.createElement("option");
-        op.value=o; op.textContent=o;
-        sel.appendChild(op);
-      });
-      sel.value=val||opts[0]||"";
-      div.appendChild(sel);
-      td.appendChild(div);
-      return {td,sel};
-    }
-
-    const d = mkInput("date", obj.date||"");
-    const t = mkInput("time", obj.time||"");
-    const loc = mkInput("text", obj.location|| (eq||""));
-    const bolt = mkInput("text", obj.bolt||"");
-    const unit = mkSelect(["ft-lbs","in-lbs","Nm"], obj.unit||"ft-lbs");
-    const val = mkInput("text", obj.value||"");
-    const notes = mkInput("text", obj.notes||"");
-
-    tr.appendChild(d.td);
-    tr.appendChild(t.td);
-    tr.appendChild(loc.td);
-    tr.appendChild(bolt.td);
-    tr.appendChild(unit.td);
-    tr.appendChild(val.td);
-    tr.appendChild(notes.td);
-
-    return tr;
-  }
-
+  // ===== Rows =====
   const rowsEl=document.getElementById("rows");
   const addRowBtn=document.getElementById("addRowBtn");
   const clearRowsBtn=document.getElementById("clearRowsBtn");
+  const notesUnit=document.getElementById('unitSelect');
+  const notesTorque=document.getElementById('notesTorque');
 
   function dataKey(){return `nexus_${eq||"NO_EQ"}_torque_log_v2`;}
   function tiltKey(){return `nexus_${eq||"NO_EQ"}_torque_tilt_v2`;}
 
+  function mkRow(obj){
+    const tr=document.createElement("tr");
+    function mkInput(type,val){
+      const td=document.createElement("td");
+      const div=document.createElement("div");
+      div.className="cell";
+      const input=document.createElement("input");
+      input.type=type; input.value=val||"";
+      div.appendChild(input); td.appendChild(div);
+      return {td,input};
+    }
+    function mkSelect(opts,val){
+      const td=document.createElement("td");
+      const div=document.createElement("div");
+      div.className="cell";
+      const sel=document.createElement("select");
+      opts.forEach(o=>{ const op=document.createElement("option"); op.value=o; op.textContent=o; sel.appendChild(op); });
+      sel.value=val||opts[0]||"";
+      div.appendChild(sel); td.appendChild(div);
+      return {td,sel};
+    }
+    const d=mkInput("date",obj.date||"");
+    const t=mkInput("time",obj.time||"");
+    const loc=mkInput("text",obj.location||(eq||""));
+    const bolt=mkInput("text",obj.bolt||"");
+    const unit=mkSelect(["ft-lbs","in-lbs","Nm"],obj.unit||"ft-lbs");
+    const val=mkInput("text",obj.value||"");
+    const notes=mkInput("text",obj.notes||"");
+    tr.appendChild(d.td); tr.appendChild(t.td); tr.appendChild(loc.td); tr.appendChild(bolt.td);
+    tr.appendChild(unit.td); tr.appendChild(val.td); tr.appendChild(notes.td);
+    return tr;
+  }
+
   function readRows(){
     const out=[];
     rowsEl.querySelectorAll("tr").forEach(tr=>{
-      const cells=tr.querySelectorAll("input,select,textarea");
+      const cells=tr.querySelectorAll("input,select");
       if(cells.length<7) return;
       out.push({
-        date: cells[0].value||"",
-        time: cells[1].value||"",
-        location: cells[2].value||"",
-        bolt: cells[3].value||"",
-        unit: cells[4].value||"",
-        value: cells[5].value||"",
-        notes: cells[6].value||"",
+        date:cells[0].value||"",
+        time:cells[1].value||"",
+        location:cells[2].value||"",
+        bolt:cells[3].value||"",
+        unit:cells[4].value||"",
+        value:cells[5].value||"",
+        notes:cells[6].value||"",
       });
     });
     return out;
@@ -530,20 +488,15 @@
   function setRows(rows){
     rowsEl.innerHTML="";
     const list=Array.isArray(rows)?rows:[];
-    if(list.length===0){
-      rowsEl.appendChild(mkRow({location:eq||""}));
-      return;
-    }
+    if(list.length===0){ rowsEl.appendChild(mkRow({location:eq||""})); return; }
     list.forEach(r=>rowsEl.appendChild(mkRow(r)));
   }
 
   addRowBtn.addEventListener('click',()=>rowsEl.appendChild(mkRow({location:eq||""})));
-  clearRowsBtn.addEventListener('click',()=>{
-    if(confirm('Clear all rows?')) setRows([]);
-  });
+  clearRowsBtn.addEventListener('click',()=>{ if(confirm('Clear all rows?')) setRows([]); });
 
-  // Tilt test matrix (Go / No Go)
-  const TILT_KEYS = ["AB","AC","BC","AG","BG","CG","AN","BN","CN","NG"];
+  // ===== Tilt Matrix =====
+  const TILT_KEYS=["AB","AC","BC","AG","BG","CG","AN","BN","CN","NG"];
 
   function mkGoNoGoCell(td, value){
     td.innerHTML = `
@@ -556,7 +509,7 @@
     function apply(v){
       pills.forEach(p=>p.classList.toggle('on', p.getAttribute('data-v')===v));
       td.setAttribute('data-result', v||'');
-      try{ window.__nexusApplyTorqueLockFromTilt && window.__nexusApplyTorqueLockFromTilt(); }catch(e){}
+      applyLock();
     }
     pills.forEach(p=>p.addEventListener('click',()=>apply(p.getAttribute('data-v'))));
     apply(value);
@@ -570,106 +523,72 @@
   }
 
   function readTilt(){
-    const out = {};
+    const out={};
     document.querySelectorAll('[data-tilt]').forEach(td=>{
-      const k = td.getAttribute('data-tilt');
-      out[k] = td.getAttribute('data-result') || '';
+      const k=td.getAttribute('data-tilt');
+      out[k]=td.getAttribute('data-result')||'';
     });
     return out;
   }
 
-  /* ==========================================================
-     Gate: Tilt Test completion unlocks Torque entry sections
-     - Locks Torque Notes + Torque Application Entries until all Tilt cells are set
-     - No role/sign-off requirement
-     ========================================================== */
-  (function(){
-    function findSectionByTitle(titleText){
-      const want = String(titleText||"").trim().toLowerCase();
-      const secs = Array.from(document.querySelectorAll(".section"));
-      for (const sec of secs){
-        const t = sec.querySelector(".section-title");
-        const txt = (t ? t.textContent : "").trim().toLowerCase();
-        if (txt === want) return sec;
-      }
-      return null;
+  // ===== Lock notes+entries until tilt complete =====
+  function findSectionByTitle(exact){
+    const want=String(exact||"").trim().toLowerCase();
+    const secs=[...document.querySelectorAll(".section")];
+    for(const s of secs){
+      const t=s.querySelector(".section-title");
+      const txt=(t?t.textContent:"").trim().toLowerCase();
+      if(txt===want) return s;
     }
+    return null;
+  }
 
-    const notesSec = findSectionByTitle("Torque Notes & Units");
-    const entriesSec = findSectionByTitle("Torque Application Entries");
-    const tiltSec = findSectionByTitle("Tilt Test (Go / No Go)");
-    if (!notesSec || !entriesSec || !tiltSec) return;
+  const notesSec=findSectionByTitle("Torque Notes & Units");
+  const entriesSec=findSectionByTitle("Torque Application Entries");
 
-    const wrap = document.createElement("div");
-    wrap.className = "nx-torque-lock-wrap";
-    wrap.id = "nxTorqueLockWrap";
+  const wrap=document.createElement("div");
+  wrap.className="nx-torque-lock-wrap";
+  const parent=notesSec.parentNode;
+  parent.insertBefore(wrap, notesSec);
+  wrap.appendChild(notesSec);
+  wrap.appendChild(entriesSec);
 
-    // Insert wrapper where notes section currently is.
-    const parent = notesSec.parentNode;
-    parent.insertBefore(wrap, notesSec);
-    wrap.appendChild(notesSec);
-    wrap.appendChild(entriesSec);
+  const overlay=document.createElement("div");
+  overlay.id="nxTorqueLockOverlay";
+  overlay.innerHTML=`
+    <div class="card2">
+      <h3 style="margin:0 0 6px;font-weight:900;letter-spacing:.2px">Torque Locked</h3>
+      <p style="margin:0 0 10px;color:rgba(255,255,255,0.9);font-weight:800">
+        Complete the Tilt Test (Go / No Go) below to unlock torque entry.
+      </p>
+      <p style="margin:0;color:rgba(255,255,255,0.72);font-weight:800">
+        All Tilt cells must be selected.
+      </p>
+    </div>
+  `;
+  wrap.appendChild(overlay);
 
-    const overlay = document.createElement("div");
-    overlay.id = "nxTorqueLockOverlay";
-    overlay.innerHTML = `
-      <div class="card">
-        <h3 style="margin:0 0 6px;font-weight:900;letter-spacing:.2px">Torque Locked</h3>
-        <p class="q" style="margin:0 0 10px;color:rgba(255,255,255,0.9);font-weight:800">
-          Complete the Tilt Test (Go / No Go) below to unlock torque entry.
-        </p>
-        <p class="small" style="margin:0;color:rgba(255,255,255,0.72);font-weight:800">
-          All Tilt cells must be selected.
-        </p>
-      </div>
-    `;
-    wrap.appendChild(overlay);
+  function allTiltComplete(){
+    const t=readTilt();
+    return TILT_KEYS.every(k => !!String((t||{})[k]||"").trim());
+  }
+  function applyLock(){
+    const ok=allTiltComplete();
+    wrap.classList.toggle("nx-locked", !ok);
+    overlay.style.display = ok ? "none" : "flex";
+  }
 
-    function allTiltComplete(){
-      try{
-        const t = readTilt();
-        return TILT_KEYS.every(k => !!(t && String(t[k]||"").trim()));
-      }catch(e){
-        return false;
-      }
-    }
-
-    function applyLock(){
-      const ok = allTiltComplete();
-      wrap.classList.toggle("nx-locked", !ok);
-      overlay.style.display = ok ? "none" : "flex";
-    }
-
-    // Re-evaluate after any tilt click (event delegation)
-    tiltSec.addEventListener("click", (ev)=>{
-      const pill = ev.target && ev.target.closest ? ev.target.closest(".pill") : null;
-      if (!pill) return;
-      setTimeout(()=>{ applyLock(); }, 0);
-    });
-
-    // Re-evaluate on load and after loadLocal applies existing tilt values
-    setTimeout(()=>{ applyLock(); }, 0);
-
-    // Expose for save/load flows
-    window.__nexusApplyTorqueLockFromTilt = applyLock;
-  })();
-
-  const notesUnit=document.getElementById('unitSelect');
-  const notesTorque=document.getElementById('notesTorque');
-
+  // ===== Save/Load =====
   function saveLocal(){
     const payload={
-      meta:{eq, updatedAt: new Date().toISOString()},
+      meta:{eq, updatedAt:new Date().toISOString()},
       notes:{unit:notesUnit.value, torque:notesTorque.value},
-      rows: readRows(),
-      tilt: readTilt(),
+      rows:readRows(),
+      tilt:readTilt(),
     };
     localStorage.setItem(dataKey(), JSON.stringify(payload));
     localStorage.setItem(tiltKey(), JSON.stringify(payload.tilt));
-    // Firebase hook placeholder:
-    // window.nexusFirebase?.saveTorqueLog?.(eq, payload);
-
-    try{ window.__nexusApplyTorqueLockFromTilt && window.__nexusApplyTorqueLockFromTilt(); }catch(e){}
+    applyLock();
   }
 
   function loadLocal(){
@@ -677,51 +596,52 @@
       const raw=localStorage.getItem(dataKey());
       if(raw){
         const p=JSON.parse(raw);
-        notesUnit.value=p?.notes?.unit||'ft-lbs';
-        notesTorque.value=p?.notes?.torque||'';
+        notesUnit.value=p?.notes?.unit||"ft-lbs";
+        notesTorque.value=p?.notes?.torque||"";
         setRows(p?.rows||[]);
         setTilt(p?.tilt||{});
-        try{ window.__nexusApplyTorqueLockFromTilt && window.__nexusApplyTorqueLockFromTilt(); }catch(e){}
+        applyLock();
         return;
       }
     }catch(e){}
     setRows([]);
     setTilt({});
-    try{ window.__nexusApplyTorqueLockFromTilt && window.__nexusApplyTorqueLockFromTilt(); }catch(e){}
+    applyLock();
   }
 
-  document.getElementById('saveBtn').addEventListener('click',()=>{
+  document.getElementById("saveBtn").addEventListener("click",()=>{ saveLocal(); alert("Saved."); });
+  document.getElementById("exportEmailBtn").addEventListener("click",()=>{
     saveLocal();
-    alert('Saved.');
-  });
-
-  document.getElementById('exportEmailBtn').addEventListener('click',()=>{
-    saveLocal();
-    const subject=`NEXUS Torque Log - ${eq||'NO_EQ'}`;
-    const body=`Torque Log for ${eq||'NO_EQ'}%0D%0A%0D%0A(Export payload saved locally. Attachments/PDF export TBD.)`;
-    location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${body}`;
+    const subject=`NEXUS Torque Log - ${eq||"NO_EQ"}`;
+    const body=`Torque Log for ${eq||"NO_EQ"}%0D%0A%0D%0A(Export payload saved locally.)`;
+    location.href=`mailto:?subject=${encodeURIComponent(subject)}&body=${body}`;
   });
 
   // Role display only
   const roleSel=document.getElementById("nxRoleSelect");
   const roleLabel=document.getElementById("roleLabel");
   function setRoleLabel(){
-    const v = (roleSel && roleSel.value) ? roleSel.value : "viewer";
-    if (roleLabel) roleLabel.textContent = v;
+    const v=(roleSel&&roleSel.value)?roleSel.value:"viewer";
+    if(roleLabel) roleLabel.textContent=v;
   }
-  if (roleSel){
-    roleSel.addEventListener("change", ()=>{
+  if(roleSel){
+    roleSel.addEventListener("change",()=>{
       setRoleLabel();
       try{ localStorage.setItem("nexus_role", roleSel.value); }catch(e){}
     });
     try{
-      const saved = localStorage.getItem("nexus_role");
-      if (saved) roleSel.value = saved;
+      const saved=localStorage.getItem("nexus_role");
+      if(saved) roleSel.value=saved;
     }catch(e){}
   }
   setRoleLabel();
 
+  // Init
+  loadTorquePhoto();
   loadLocal();
+
+  // When returning to tab, refresh photo
+  window.addEventListener("focus", loadTorquePhoto);
 })();
 </script>
 

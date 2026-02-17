@@ -169,7 +169,7 @@
             <input id="eqInput" type="text" placeholder="TR-001" value="TR-001" />
           </div>
 
-          <!-- Equipment Image (stays exactly where it is) -->
+          <!-- Equipment Image -->
           <div class="img-block" id="equipImgBlock">
             <div class="block-title">Equipment Image</div>
             <input id="nexusEquipImageInput" type="file" accept="image/*" capture="environment" />
@@ -180,7 +180,7 @@
             </div>
           </div>
 
-          <!-- NEW: Torque Photo (this is the “other box” you want) -->
+          <!-- Torque Photo (shows on Torque page) -->
           <div class="img-block" id="torqueImgBlock">
             <div class="block-title">Torque Photo (shows on Torque page)</div>
             <input id="nexusTorquePhotoInput" type="file" accept="image/*" capture="environment" />
@@ -224,9 +224,11 @@
             <input id="procoreEnergUrl" type="text" placeholder="Paste Procore energization link" />
           </div>
 
+          <!-- Buttons -->
           <div class="btn-row">
             <button class="btn secondary" id="openEquipmentBtn" type="button">Open Equipment Page</button>
-            <button class="btn secondary" id="equipmentStepsBtn" type="button">Equipment Steps</button>
+            <button class="btn secondary" id="generateQrBtn" type="button">Generate QR</button>
+            <a class="btn secondary" id="equipmentStepsBtn" href="#">Equipment Steps</a>
           </div>
 
         </div>
@@ -251,6 +253,7 @@
   const procoreEnergUrl = document.getElementById("procoreEnergUrl");
 
   const openEquipmentBtn = document.getElementById("openEquipmentBtn");
+  const generateQrBtn = document.getElementById("generateQrBtn");
   const equipmentStepsBtn = document.getElementById("equipmentStepsBtn");
 
   function getEq(){ return (eqInput.value || "").trim(); }
@@ -352,7 +355,6 @@
       return;
     }
 
-    // equipment image
     const rec = readEquip(eq);
     if(rec.imageDataUrl){
       showEquip(rec.imageDataUrl);
@@ -362,7 +364,6 @@
       setEquipStatus("No image saved yet for this equipment.");
     }
 
-    // torque photo
     try{
       const tp = localStorage.getItem(torquePhotoKey(eq));
       if (tp && tp.startsWith("data:image/")){
@@ -413,7 +414,7 @@
     saveMeta(eq);
   });
 
-  // Torque photo upload (THIS is the routing fix)
+  // Torque photo upload
   torqueInput.addEventListener("change", async ()=>{
     const eq = getEq();
     if(!eq){
@@ -444,7 +445,7 @@
     saveMeta(eq);
   });
 
-  // Wire buttons
+  // Buttons
   openEquipmentBtn.addEventListener("click", ()=>{
     const eq = getEq();
     if(!eq){ alert("Enter Equipment ID."); return; }
@@ -452,11 +453,19 @@
     location.href = `equipment.html?eq=${encodeURIComponent(eq)}`;
   });
 
-  equipmentStepsBtn.addEventListener("click", ()=>{
+  generateQrBtn.addEventListener("click", ()=>{
+    const eq = getEq();
+    if(!eq) return alert("Enter Equipment ID first.");
+    saveMeta(eq);
+    location.href = `qr.html?eq=${encodeURIComponent(eq)}`;
+  });
+
+  equipmentStepsBtn.addEventListener("click", (e)=>{
+    e.preventDefault();
     const eq = getEq();
     if(!eq){ alert("Enter Equipment ID."); return; }
     saveMeta(eq);
-    location.href = `equipment.html?eq=${encodeURIComponent(eq)}`;
+    location.href = `equipment_steps.html?eq=${encodeURIComponent(eq)}`;
   });
 
   // Init

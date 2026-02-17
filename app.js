@@ -1,5 +1,7 @@
 /* app.js (FULL FILE — COMPLETE REPLACEMENT)
    Fix:
+   - Fix ConnecTorq button 404 by correcting href:
+       "torque/snapon_import.html" -> "snapon_import.html"
    - form.html "Step Complete" button now WORKS and SAVES.
    - Writes completion to localStorage using existing scheme:
        nexus_${eq}_${completedKey} = "true"/"false"
@@ -46,7 +48,8 @@
         buttons: [
           { text: "Torque Log (Fillable)", href: "torque_log.html" },
           { text: "Torque SOP", href: "torque_sop.html" },
-          { text: "Snap-on ConnecTorq Import (Optional)", href: "torque/snapon_import.html" }
+          // FIX: remove incorrect "torque/" prefix (caused /torque/snapon_import.html 404)
+          { text: "Snap-on ConnecTorq Import (Optional)", href: "snapon_import.html" }
         ]
       },
       l2: {

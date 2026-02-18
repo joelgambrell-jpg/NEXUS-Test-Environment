@@ -50,11 +50,9 @@ window.FORMS = {
     // form.html already auto-adds:
     // - Megohmmeter SOP
     // - Fluke Connect Import (Optional)
-    // Only include actual workflow pages:
+    // Only include what you want shown in the tile list:
     buttons: [
-      { text: "Meg Log", href: "meg_log.html" },
-      { text: "LVT Meg Cover Sheet", href: "lvt-meg-cover-sheet.html" },
-      { text: "Meg Report PDF", href: "megger_reporting.pdf" }
+      { text: "Meg Log", href: "meg_log.html" }
     ]
   },
 

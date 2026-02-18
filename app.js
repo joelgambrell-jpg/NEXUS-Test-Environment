@@ -3,11 +3,15 @@
    - Eliminates double Torque import buttons by filtering + de-duping at render time.
    - Forces Torque import link to the correct location: "snapon_import.html" (no /torque/ folder).
    - Removes unwanted Torque buttons (per your request): "Tilt Test" and "Snap-on Import (Optional)".
-   - Keeps existing behavior: form.html rendering + eq/rif query propagation + Step Complete persistence.
+   - FIX: Meg Fluke Import path: "meg/fluke_import.html" -> "fluke_import.html" (folder doesn't exist)
+   - FIX: Optional Fluke Export Embed path: "meg/fluke_export_embed.html" -> "fluke_export_embed.html"
+   - NEW: Meg button filtering to hide red-circled items:
+       * "LVT Meg Cover Sheet"
+       * "Meg Report PDF"
+       * "Fluke Export Embed (Optional)" (hidden by default)
 
-   Notes:
-   - This is robust even if config.js (or any other source) still includes the old Torque buttons,
-     because the renderer filters them out on the Torque form page.
+   Keeps existing behavior:
+   - form.html rendering + eq/rif query propagation + Step Complete persistence.
 */
 
 (function () {
@@ -37,8 +41,9 @@
         buttons: [
           { text: "Megohmmeter Test Log (Fillable)", href: "meg_log.html" },
           { text: "Megohmmeter SOP", href: "megohmmeter_sop.html" },
-          { text: "Fluke Connect Import (Optional)", href: "meg/fluke_import.html" },
-          { text: "Fluke Export Embed (Optional)", href: "meg/fluke_export_embed.html" }
+          // FIXED paths (no /meg/ folder in your repo)
+          { text: "Fluke Connect Import (Optional)", href: "fluke_import.html" },
+          { text: "Fluke Export Embed (Optional)", href: "fluke_export_embed.html" }
         ]
       },
       torque: {
@@ -130,6 +135,14 @@
         u.pathname = u.pathname.replace(/\/torque\/snapon_import\.html$/i, "/snapon_import.html");
       }
 
+      // normalize known bad meg/fluke paths (folder doesn't exist)
+      if (/\/meg\/fluke_import\.html$/i.test(u.pathname)) {
+        u.pathname = u.pathname.replace(/\/meg\/fluke_import\.html$/i, "/fluke_import.html");
+      }
+      if (/\/meg\/fluke_export_embed\.html$/i.test(u.pathname)) {
+        u.pathname = u.pathname.replace(/\/meg\/fluke_export_embed\.html$/i, "/fluke_export_embed.html");
+      }
+
       // For internal links, store only pathname + search + hash
       if (u.origin === location.origin) return u.pathname + u.search + u.hash;
 
@@ -146,9 +159,10 @@
     const out = [];
     const seen = new Set();
 
-    // Torque: remove unwanted buttons and force a single correct import button.
-    // This prevents duplicates even if config.js or other scripts still include them.
-    if (String(formId).toLowerCase() === "torque") {
+    const formIdLc = String(formId || "").toLowerCase();
+
+    // TORQUE: remove unwanted buttons and force a single correct import button.
+    if (formIdLc === "torque") {
       const killTexts = new Set([
         normText("Tilt Test"),
         normText("Snap-on Import (Optional)")
@@ -164,7 +178,6 @@
       // Ensure ConnecTorq import exists once and points to correct file
       const wantText = "Snap-on ConnecTorq Import (Optional)";
       const wantTextNorm = normText(wantText);
-      const wantHrefNorm = normHref("snapon_import.html");
 
       let hasConnecTorq = false;
 
@@ -175,10 +188,7 @@
         const t = normText(b.text);
         if (t === wantTextNorm) {
           hasConnecTorq = true;
-          out[i] = {
-            text: wantText,
-            href: "snapon_import.html"
-          };
+          out[i] = { text: wantText, href: "snapon_import.html" };
         }
       }
 
@@ -188,8 +198,37 @@
         const insertAt = sopIdx >= 0 ? sopIdx : out.length;
         out.splice(insertAt, 0, { text: wantText, href: "snapon_import.html" });
       }
-    } else {
-      // Non-torque: keep as-is
+    }
+
+    // MEG: hide the red-circled items + ensure fluke paths are correct
+    else if (formIdLc === "meg") {
+      const killTexts = new Set([
+        normText("LVT Meg Cover Sheet"),
+        normText("Meg Report PDF"),
+        normText("Fluke Export Embed (Optional)"),
+        normText("Fluke Export Embed") // safety
+      ]);
+
+      for (const b of src) {
+        if (!b) continue;
+        const t = normText(b.text);
+        if (killTexts.has(t)) continue; // remove
+        out.push(b);
+      }
+
+      // Also normalize Fluke Import label variants to correct href
+      for (let i = 0; i < out.length; i++) {
+        const b = out[i];
+        if (!b) continue;
+        const t = normText(b.text);
+        if (t === normText("Fluke Connect Import (Optional)") || t === normText("Fluke Connect Import")) {
+          out[i] = { text: b.text || "Fluke Connect Import (Optional)", href: "fluke_import.html" };
+        }
+      }
+    }
+
+    // Others: keep as-is
+    else {
       for (const b of src) out.push(b);
     }
 
@@ -241,6 +280,14 @@
         // Normalize bad torque import folder path (safety net)
         if (/\/torque\/snapon_import\.html$/i.test(url.pathname)) {
           url.pathname = url.pathname.replace(/\/torque\/snapon_import\.html$/i, "/snapon_import.html");
+        }
+
+        // Normalize bad meg/fluke folder paths (safety net)
+        if (/\/meg\/fluke_import\.html$/i.test(url.pathname)) {
+          url.pathname = url.pathname.replace(/\/meg\/fluke_import\.html$/i, "/fluke_import.html");
+        }
+        if (/\/meg\/fluke_export_embed\.html$/i.test(url.pathname)) {
+          url.pathname = url.pathname.replace(/\/meg\/fluke_export_embed\.html$/i, "/fluke_export_embed.html");
         }
 
         if (eq) url.searchParams.set("eq", eq);

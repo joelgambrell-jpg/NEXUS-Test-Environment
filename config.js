@@ -2,10 +2,6 @@
 
 window.NEXUS_CONFIG = window.NEXUS_CONFIG || {};
 
-/* ----------------------------------------------------------
-   DASHBOARD BUTTONS (equipment.html)
-   These route INTO form.html which then loads the task set
------------------------------------------------------------*/
 window.NEXUS_CONFIG.BUTTONS = [
   { id: "rifBtn",    label: "Receipt Inspection Form",             href: "form.html?id=rif" },
   { id: "megBtn",    label: "Megohmmeter Testing",                 href: "form.html?id=meg" },
@@ -18,26 +14,19 @@ window.NEXUS_CONFIG.BUTTONS = [
 window.NEXUS_CONFIG.SUPPORTING_DOCUMENTS =
   window.NEXUS_CONFIG.SUPPORTING_DOCUMENTS || [];
 
-
-/* ----------------------------------------------------------
-   FORM DEFINITIONS
------------------------------------------------------------*/
-
 window.FORMS = {
 
-  /* ===================== RIF ===================== */
   rif: {
     title: "RIF",
     sectionTitle: "Receipt Inspection Form",
     completedKey: "rifCompleted",
+    // IMPORTANT: Do NOT define "RIF — Procore" here because app.js/form.html already creates it.
     buttons: [
       { text: "RIF — No Procore", href: "rif_no_procore.html" },
-      { text: "RIF SOP", href: "rif_sop.html" },          // <-- ADD THIS (see note below)
-      { text: "RIF — Procore", href: "RIF.html" }         // <-- keeps a working Procore-ish path if your Procore button isn't auto-injected anymore
+      { text: "RIF SOP", href: "rif_sop.html" }
     ]
   },
 
-  /* ===================== MEG ===================== */
   meg: {
     title: "Megohmmeter Testing",
     sectionTitle: "Megohmmeter",
@@ -47,7 +36,6 @@ window.FORMS = {
     ]
   },
 
-  /* ===================== TORQUE ===================== */
   torque: {
     title: "Torque",
     sectionTitle: "Torque Tools",
@@ -60,7 +48,6 @@ window.FORMS = {
     ]
   },
 
-  /* ===================== L2 ===================== */
   l2: {
     title: "L2 Verification",
     completedKey: "l2Completed",
@@ -69,7 +56,6 @@ window.FORMS = {
     ]
   },
 
-  /* ===================== PREFOD ===================== */
   prefod: {
     title: "Pre-FOD",
     completedKey: "prefodCompleted",
@@ -79,7 +65,6 @@ window.FORMS = {
     ]
   },
 
-  /* ===================== FPV ===================== */
   fpv: {
     title: "Finished Product Verification",
     completedKey: "fpvCompleted",

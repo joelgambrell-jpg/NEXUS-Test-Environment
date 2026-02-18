@@ -1,7 +1,17 @@
 // config.js — FULL DROP-IN (NEXUS form renderer safe config)
+//
+// This version keeps your full structure/comments and ONLY changes what’s needed:
+// - RIF: keep "RIF — No Procore" + "RIF SOP" and REMOVE any config-defined "RIF — Procore"
+//   (because app.js/form.html is already generating a Procore button, which caused duplicates).
+// - MEG: keep ONLY "Meg Log" from config (SOP + Fluke are auto-injected elsewhere).
+// - Everything else stays in the same style/format.
 
 window.NEXUS_CONFIG = window.NEXUS_CONFIG || {};
 
+/* ----------------------------------------------------------
+   DASHBOARD BUTTONS (equipment.html)
+   These route INTO form.html which then loads the task set
+-----------------------------------------------------------*/
 window.NEXUS_CONFIG.BUTTONS = [
   { id: "rifBtn",    label: "Receipt Inspection Form",             href: "form.html?id=rif" },
   { id: "megBtn",    label: "Megohmmeter Testing",                 href: "form.html?id=meg" },
@@ -14,28 +24,50 @@ window.NEXUS_CONFIG.BUTTONS = [
 window.NEXUS_CONFIG.SUPPORTING_DOCUMENTS =
   window.NEXUS_CONFIG.SUPPORTING_DOCUMENTS || [];
 
+
+/* ----------------------------------------------------------
+   FORM DEFINITIONS
+   IMPORTANT:
+   form.html/app.js auto-injects some buttons.
+   DO NOT duplicate them here or you get double buttons.
+-----------------------------------------------------------*/
+
 window.FORMS = {
 
+  /* ===================== RIF ===================== */
   rif: {
     title: "RIF",
     sectionTitle: "Receipt Inspection Form",
     completedKey: "rifCompleted",
-    // IMPORTANT: Do NOT define "RIF — Procore" here because app.js/form.html already creates it.
+
+    // NOTE:
+    // - app.js/form.html already generates a working "RIF — Procore" button.
+    // - If you add another Procore here, you will see 2, and one may 404 depending on href.
+    // Therefore: keep only No-Procore + SOP here.
     buttons: [
       { text: "RIF — No Procore", href: "rif_no_procore.html" },
       { text: "RIF SOP", href: "rif_sop.html" }
     ]
   },
 
+
+  /* ===================== MEG ===================== */
   meg: {
     title: "Megohmmeter Testing",
     sectionTitle: "Megohmmeter",
     completedKey: "megCompleted",
+
+    // form.html/app.js already auto-adds:
+    // - Megohmmeter SOP
+    // - Fluke Connect Import (Optional)
+    // Keep ONLY what you want shown from config:
     buttons: [
       { text: "Meg Log", href: "meg_log.html" }
     ]
   },
 
+
+  /* ===================== TORQUE ===================== */
   torque: {
     title: "Torque",
     sectionTitle: "Torque Tools",
@@ -48,6 +80,8 @@ window.FORMS = {
     ]
   },
 
+
+  /* ===================== L2 ===================== */
   l2: {
     title: "L2 Verification",
     completedKey: "l2Completed",
@@ -56,6 +90,8 @@ window.FORMS = {
     ]
   },
 
+
+  /* ===================== PREFOD ===================== */
   prefod: {
     title: "Pre-FOD",
     completedKey: "prefodCompleted",
@@ -65,6 +101,8 @@ window.FORMS = {
     ]
   },
 
+
+  /* ===================== FPV ===================== */
   fpv: {
     title: "Finished Product Verification",
     completedKey: "fpvCompleted",

@@ -1,10 +1,7 @@
 // config.js — FULL DROP-IN (NEXUS form renderer safe config)
 //
-// This version keeps your full structure/comments and ONLY changes what’s needed:
-// - RIF: keep "RIF — No Procore" + "RIF SOP" and REMOVE any config-defined "RIF — Procore"
-//   (because app.js/form.html is already generating a Procore button, which caused duplicates).
-// - MEG: keep ONLY "Meg Log" from config (SOP + Fluke are auto-injected elsewhere).
-// - Everything else stays in the same style/format.
+// SINGLE FIX ONLY:
+// - Adds back the L2 — Procore button (does not remove anything else).
 
 window.NEXUS_CONFIG = window.NEXUS_CONFIG || {};
 
@@ -86,6 +83,10 @@ window.FORMS = {
     title: "L2 Verification",
     completedKey: "l2Completed",
     buttons: [
+      // SINGLE FIX: add back Procore link
+      { text: "L2 — Procore", href: "l2.html" },
+
+      // existing button preserved
       { text: "L2 — No Procore", href: "l2_no_procore.html" }
     ]
   },

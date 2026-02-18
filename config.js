@@ -21,9 +21,6 @@ window.NEXUS_CONFIG.SUPPORTING_DOCUMENTS =
 
 /* ----------------------------------------------------------
    FORM DEFINITIONS
-   IMPORTANT:
-   form.html auto-injects some buttons.
-   DO NOT duplicate them here or you get double buttons.
 -----------------------------------------------------------*/
 
 window.FORMS = {
@@ -33,29 +30,22 @@ window.FORMS = {
     title: "RIF",
     sectionTitle: "Receipt Inspection Form",
     completedKey: "rifCompleted",
-
-    // Procore button is auto-created by form.html → DO NOT ADD HERE
     buttons: [
-      { text: "RIF — No Procore", href: "rif_no_procore.html" }
+      { text: "RIF — No Procore", href: "rif_no_procore.html" },
+      { text: "RIF SOP", href: "rif_sop.html" },          // <-- ADD THIS (see note below)
+      { text: "RIF — Procore", href: "RIF.html" }         // <-- keeps a working Procore-ish path if your Procore button isn't auto-injected anymore
     ]
   },
-
 
   /* ===================== MEG ===================== */
   meg: {
     title: "Megohmmeter Testing",
     sectionTitle: "Megohmmeter",
     completedKey: "megCompleted",
-
-    // form.html already auto-adds:
-    // - Megohmmeter SOP
-    // - Fluke Connect Import (Optional)
-    // Only include what you want shown in the tile list:
     buttons: [
       { text: "Meg Log", href: "meg_log.html" }
     ]
   },
-
 
   /* ===================== TORQUE ===================== */
   torque: {
@@ -70,7 +60,6 @@ window.FORMS = {
     ]
   },
 
-
   /* ===================== L2 ===================== */
   l2: {
     title: "L2 Verification",
@@ -79,7 +68,6 @@ window.FORMS = {
       { text: "L2 — No Procore", href: "l2_no_procore.html" }
     ]
   },
-
 
   /* ===================== PREFOD ===================== */
   prefod: {
@@ -90,7 +78,6 @@ window.FORMS = {
       { text: "Pre-FOD SOP", href: "prefod_sop.html" }
     ]
   },
-
 
   /* ===================== FPV ===================== */
   fpv: {
